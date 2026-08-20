@@ -1,3 +1,5 @@
+import TextLink from "@/components/ui/TextLink";
+
 export default function SiteFooter() {
   return (
     <footer
@@ -12,18 +14,18 @@ export default function SiteFooter() {
             now listening to <span style={{ color: "var(--void-soft)" }}>&quot;aerial troubles&quot; by stereolab</span>
           </span>
           <span>last updated aug 2026</span>
-          <a href="mailto:vyomi.seth@gmail.com" className="no-underline hover:underline" style={{ color: "var(--void-soft)" }}>
+          <TextLink href="mailto:vyomi.seth@gmail.com" kind="external" className="text-[11px] lowercase">
             vyomi.seth@gmail.com
-          </a>
-          <a href="#" className="no-underline hover:underline" style={{ color: "var(--void-soft)" }}>
+          </TextLink>
+          <TextLink href="#" kind="download" className="text-[11px] lowercase">
             resume
-          </a>
-          <a href="#" className="no-underline hover:underline" style={{ color: "var(--void-soft)" }}>
+          </TextLink>
+          <TextLink href="#" kind="external" className="text-[11px] lowercase">
             linkedin
-          </a>
-          <a href="#top" className="ml-auto no-underline hover:underline" style={{ color: "var(--void-soft)" }}>
+          </TextLink>
+          <TextLink href="#top" kind="up" className="ml-auto text-[11px] lowercase">
             back to top
-          </a>
+          </TextLink>
         </div>
       </div>
     </footer>

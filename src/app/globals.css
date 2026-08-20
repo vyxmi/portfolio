@@ -24,6 +24,10 @@
   --accent-rgb: 59, 87, 185;
   --lift: #8496ea;
   --lift-rgb: 132, 150, 234;
+  /* the one link color: lift on the default void ground, accent on
+     paper (see .light below). TextLink reads this instead of --accent
+     directly so it stays correct on either surface automatically. */
+  --link-accent: var(--lift);
 
   /* geometry */
   --r-sm: 2px;
@@ -126,6 +130,7 @@ a {
 .light {
   background: var(--paper);
   color: var(--ink);
+  --link-accent: var(--accent);
 }
 
 @media (prefers-reduced-motion: reduce) {

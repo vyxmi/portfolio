@@ -29,12 +29,6 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
           {project.content ? (
             <>
               <CaseStudyHero project={project} content={project.content} />
-              <div
-                className="metric mb-2 text-[40px] font-bold md:text-[48px]"
-                style={{ letterSpacing: "-.02em", color: "var(--accent)" }}
-              >
-                {project.result}
-              </div>
               <CaseStudyBody content={project.content} />
             </>
           ) : (
