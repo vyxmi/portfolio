@@ -2,9 +2,9 @@ import Link from "next/link";
 import HomeField from "@/components/HomeField";
 
 const paths = [
-  { href: "/brain", index: "01", label: "brain", desc: "what I'm chewing on right now" },
-  { href: "/work", index: "02", label: "work", desc: "product design case studies" },
-  { href: "/about", index: "03", label: "about", desc: "the long version" },
+  { href: "/brain", label: "brain", desc: "what I'm chewing on right now" },
+  { href: "/work", label: "work", desc: "product design case studies" },
+  { href: "/about", label: "about", desc: "the long version" },
 ];
 
 export default function Home() {
@@ -40,13 +40,8 @@ export default function Home() {
               className="group flex items-baseline justify-between gap-4 py-3 no-underline"
               style={{ borderTop: "1px solid var(--void-line)" }}
             >
-              <span className="flex items-baseline gap-3">
-                <span className="font-mono text-[11px] lowercase" style={{ color: "var(--lift)" }}>
-                  {p.index}
-                </span>
-                <span className="text-lg font-medium transition-transform duration-200 group-hover:translate-x-1">
-                  {p.label}
-                </span>
+              <span className="text-lg font-medium transition-transform duration-200 group-hover:translate-x-1">
+                {p.label}
               </span>
               <span className="hidden text-right text-[12px] sm:block" style={{ color: "var(--void-mute)" }}>
                 {p.desc}
