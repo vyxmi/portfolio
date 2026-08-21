@@ -4,6 +4,7 @@
   /* dark frame */
   --void: #0a0a0d;
   --void-2: #131318;
+  --void-3: #1a1a21;
   --void-line: rgba(245, 245, 250, 0.1);
   --void-line-strong: rgba(245, 245, 250, 0.2);
   --void-ink: #f3f3f6;
@@ -13,6 +14,7 @@
   /* light reading surfaces */
   --paper: #fbfcff;
   --paper-dim: #f1f2f6;
+  --shadow-paper: 0 1px 1px rgba(15, 12, 8, 0.14), 0 6px 16px rgba(15, 12, 8, 0.16);
   --ink: #101114;
   --ink-soft: #54555c;
   --ink-mute: #8b8c93;
@@ -43,6 +45,9 @@
   /* shell */
   --rail-w: 84px;
   --rail-w-mobile: 56px;
+
+  /* shared fractal-noise texture, page grain and per-image grain both read this */
+  --noise-bg: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 @theme inline {
@@ -124,13 +129,29 @@ a {
   pointer-events: none;
   opacity: 0.05;
   mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-image: var(--noise-bg);
 }
 
 .light {
   background: var(--paper);
   color: var(--ink);
   --link-accent: var(--accent);
+}
+
+/* margin-top, not transform: a held transform (even the identity
+   translateY(0) this animation used to settle on) makes this element a
+   containing block for any position: fixed descendant for the rest of
+   the page's life — see PageTransition.tsx. margin-top never does that,
+   so the fixed-position trap can't happen even if cleanup never runs. */
+@keyframes page-settle {
+  from {
+    opacity: 0;
+    margin-top: 10px;
+  }
+  to {
+    opacity: 1;
+    margin-top: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

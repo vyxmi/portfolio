@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { brainObjects } from "@/lib/brain/objects";
 
 const items = [
   { href: "/", label: "home" },
@@ -15,6 +16,7 @@ export default function MobileNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const active = items.find((it) => (it.href === "/" ? pathname === "/" : pathname.startsWith(it.href))) ?? items[0];
+  const isBrain = active.href === "/brain";
 
   return (
     <div className="md:hidden fixed top-0 left-0 right-0 z-50" style={{ background: "var(--void)" }}>
@@ -24,7 +26,14 @@ export default function MobileNav() {
         style={{ color: "var(--void-ink)", borderBottom: "1px solid var(--void-line)" }}
         aria-expanded={open}
       >
-        <span style={{ color: "var(--lift)" }}>{active.label}</span>
+        <span className="flex items-center gap-2">
+          <span style={{ color: "var(--lift)" }}>{active.label}</span>
+          {isBrain && (
+            <span style={{ color: "var(--void-mute)" }}>
+              {brainObjects.length} {brainObjects.length === 1 ? "object" : "objects"}
+            </span>
+          )}
+        </span>
         <span style={{ color: "var(--void-mute)" }}>{open ? "close" : "menu"}</span>
       </button>
       <div

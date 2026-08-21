@@ -1,19 +1,27 @@
 import type { Metadata } from "next";
+import "./brain.css";
+import { brainObjects } from "@/lib/brain/objects";
+import BrainWall from "@/components/brain/BrainWall";
+import BrainField from "@/components/brain/BrainField";
+import BrainScrollProvider from "@/components/brain/BrainScrollProvider";
 
 export const metadata: Metadata = { title: "Brain, Vyomi Seth" };
 
-// Scaffold only. Brain Objects are designed separately, later. This
-// route exists so the IA and rail nav are real, not so this page is.
 export default function BrainPage() {
   return (
-    <main
-      className="flex min-h-screen flex-col items-center justify-center px-6 text-center md:pl-[var(--rail-w)]"
-      style={{ background: "var(--void)", color: "var(--void-soft)" }}
-    >
-      <div className="eyebrow mb-4">brain</div>
-      <p className="max-w-sm text-[15px] leading-relaxed">
-        Reserved for Brain Objects. Not designed yet on purpose.
-      </p>
-    </main>
+    <div className="flex min-h-screen flex-col md:pl-[var(--rail-w)]" style={{ background: "var(--void)", color: "var(--void-ink)" }}>
+      <BrainScrollProvider />
+      <BrainField />
+      <main className="relative z-[1] flex-1 px-6 pb-16 pt-24 md:px-16 md:pt-28">
+        <div className="mb-6">
+          <div className="eyebrow mb-2">brain</div>
+          <p className="max-w-md text-[13.5px] leading-relaxed" style={{ color: "var(--void-soft)" }}>
+            thoughts, memories, things, and work, held by one system. metadata stays outside the container, the
+            container fits the object.
+          </p>
+        </div>
+        <BrainWall objects={brainObjects} />
+      </main>
+    </div>
   );
 }

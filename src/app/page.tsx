@@ -1,5 +1,6 @@
 import Link from "next/link";
 import HomeField from "@/components/HomeField";
+import AsciiFlower from "@/components/AsciiFlower";
 
 const paths = [
   { href: "/brain", label: "brain", desc: "what I'm chewing on right now" },
@@ -14,6 +15,10 @@ export default function Home() {
       style={{ height: "100dvh", background: "var(--void)", color: "var(--void-ink)" }}
     >
       <HomeField />
+      <AsciiFlower
+        className="pointer-events-none absolute right-[6%] top-1/2 z-[5] hidden -translate-y-1/2 lg:block"
+        style={{ width: "clamp(200px, 20vw, 300px)" }}
+      />
       <div className="relative z-10 flex h-full flex-col justify-center px-6 pt-16 md:px-16 md:pt-0">
         <div className="mb-6 flex items-center gap-2 font-mono text-[11px] lowercase" style={{ color: "var(--void-mute)" }}>
           <span

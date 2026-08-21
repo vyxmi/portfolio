@@ -3,6 +3,7 @@ import "./globals.css";
 import { grotesk, mono } from "@/lib/fonts";
 import SideRail from "@/components/nav/SideRail";
 import MobileNav from "@/components/nav/MobileNav";
+import PageTransition from "@/components/PageTransition";
 
 export const metadata: Metadata = {
   title: "Vyomi Seth",
@@ -15,7 +16,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full" id="top">
         <SideRail />
         <MobileNav />
-        {children}
+        <PageTransition>{children}</PageTransition>
       </body>
     </html>
   );

@@ -19,8 +19,11 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
   const project = getProject(slug);
   if (!project) notFound();
 
-  const idx = projects.findIndex((p) => p.slug === slug);
-  const next = projects[(idx + 1) % projects.length];
+  // Unlisted projects don't participate in the "next" cycle — either as
+  // the current page (no next link shown) or as a destination.
+  const visible = projects.filter((p) => !p.unlisted);
+  const idx = visible.findIndex((p) => p.slug === slug);
+  const next = idx === -1 ? undefined : visible[(idx + 1) % visible.length];
 
   return (
     <div className="light flex min-h-screen flex-col md:pl-[var(--rail-w)]">
@@ -50,7 +53,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
               </div>
             </>
           )}
-          <NextProject project={next} />
+          {next && <NextProject project={next} />}
         </div>
       </main>
       <SiteFooter />

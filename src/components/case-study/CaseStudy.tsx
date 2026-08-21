@@ -5,9 +5,12 @@ import CardStateInspector from "./CardStateInspector";
 import FlowCompare from "./FlowCompare";
 import RatioStat from "./RatioStat";
 import ConsolidationDiagram from "./ConsolidationDiagram";
+import MetricsRow from "./MetricsRow";
+import FlowSteps from "./FlowSteps";
 import ScrollReveal from "@/components/ScrollReveal";
 import Flag from "@/components/ui/Flag";
 import TextLink from "@/components/ui/TextLink";
+import Zoomable from "@/components/ui/Zoomable";
 
 function CaseImage({
   src,
@@ -24,9 +27,11 @@ function CaseImage({
 }) {
   return (
     <ScrollReveal className="not-prose">
-      <div className="relative w-full overflow-hidden" style={{ background: "var(--paper-dim)", border: "1px solid var(--line)" }}>
-        <Image src={src} alt={alt} width={width} height={height} className="h-auto w-full" style={{ display: "block" }} />
-      </div>
+      <Zoomable src={src} alt={alt}>
+        <div className="relative w-full overflow-hidden" style={{ background: "var(--paper-dim)", border: "1px solid var(--line)" }}>
+          <Image src={src} alt={alt} width={width} height={height} className="h-auto w-full" style={{ display: "block" }} />
+        </div>
+      </Zoomable>
       <div className="cap mt-2">{caption}</div>
     </ScrollReveal>
   );
@@ -88,9 +93,11 @@ function Block({ block }: { block: Block }) {
           <div className="grid gap-4 sm:grid-cols-2">
             {block.images.map((img, i) => (
               <div key={i}>
-                <div className="relative w-full overflow-hidden" style={{ background: "var(--paper-dim)", border: "1px solid var(--line)" }}>
-                  <Image src={img.src} alt={img.alt} width={img.width} height={img.height} className="h-auto w-full" />
-                </div>
+                <Zoomable src={img.src} alt={img.alt}>
+                  <div className="relative w-full overflow-hidden" style={{ background: "var(--paper-dim)", border: "1px solid var(--line)" }}>
+                    <Image src={img.src} alt={img.alt} width={img.width} height={img.height} className="h-auto w-full" />
+                  </div>
+                </Zoomable>
                 <div className="cap mt-2">{img.caption}</div>
               </div>
             ))}
@@ -117,6 +124,9 @@ function Block({ block }: { block: Block }) {
           <FlowCompare />
         </ScrollReveal>
       );
+
+    case "flowSteps":
+      return <FlowSteps label={block.label} steps={block.steps} />;
 
     case "story":
     case "constraint":
@@ -164,6 +174,7 @@ export function CaseStudyHero({ project, content }: { project: Project; content:
       <p className="measure mb-8 text-[17px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
         {content.heroLine}
       </p>
+      <MetricsRow metrics={project.metrics} className="mb-8" />
       <div className="grid grid-cols-2 gap-6 sm:grid-cols-4" style={{ borderTop: "1px solid var(--line)", paddingTop: 20 }}>
         {content.facts.map((f) => (
           <div key={f.label}>
@@ -173,12 +184,6 @@ export function CaseStudyHero({ project, content }: { project: Project; content:
             </div>
           </div>
         ))}
-      </div>
-      <div
-        className="metric mt-8 text-[32px] font-bold md:text-[40px]"
-        style={{ letterSpacing: "-.02em", color: "var(--accent)" }}
-      >
-        {project.result}
       </div>
       {content.heroImage && (
         <div className="mt-10">

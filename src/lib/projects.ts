@@ -11,16 +11,27 @@ import type { CaseStudyContent } from "./case-study-types";
 // intended audience." It is deliberately excluded from this file and
 // from the public site.
 
+export type Metric = { value: string; label: string };
+
 export type Project = {
   slug: string;
   number: string;
   title: string;
+  tagline: string;
   company: string;
   role: string;
   year: string;
   result: string;
+  metrics: Metric[];
   discipline: string;
   content?: CaseStudyContent;
+  // Real page, real URL, deliberately not surfaced in the Work index or
+  // the case-study "next" cycle — for material the source explicitly
+  // marked private/not for public sharing.
+  unlisted?: boolean;
+  // Editorial sizing for the Work index card grid — how much visual
+  // weight the project gets, not a claim about how "good" it is.
+  size?: "mini" | "md" | "lg";
 };
 
 const chanceLive: CaseStudyContent = {
@@ -76,13 +87,50 @@ const chanceLive: CaseStudyContent = {
       ],
     },
     {
+      kind: "image",
+      src: "/case-studies/chance-live/ux-walkthrough.webp",
+      alt: "Annotated screenshot of the sell flow with real first-time-user questions and a recommendation sticky note",
+      caption: "walking the flow as a first-time user, sticky notes and all",
+      width: 1400,
+      height: 915,
+    },
+    {
+      kind: "image",
+      src: "/case-studies/chance-live/full-ux-audit.webp",
+      alt: "The complete UX audit board, wider than it is tall, covering the full sell flow with annotations",
+      caption: "the full audit board — click to zoom, it's a wide one",
+      width: 4000,
+      height: 439,
+    },
+    {
       kind: "story",
       eyebrow: "design exploration",
       heading: "Designing feedback instead of adding friction",
       body: [
         "I wanted to experiment with spacing and various flows, while being mindful of how elements changed on desktop and mobile, and how placement changes depending on how many cards are opened.",
+      ],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/chance-live/wireframes.webp",
+      alt: "Low-fidelity grayscale wireframes exploring card, vault, and sell layouts",
+      caption: "some early wireframes, before any visual polish",
+      width: 2000,
+      height: 798,
+    },
+    {
+      kind: "story",
+      body: [
         "I briefly explored a layout where cards went to the side they were swiped to, and users could drag them around, similar to the physical sensation of opening a card pack. This layout would have required element changes for mobile, which we wanted to avoid to reduce lag and system complexity.",
       ],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/chance-live/midfi-exploration.webp",
+      alt: "Mid-fidelity exploration of the vaulted and sold confirmation states",
+      caption: "a mid-fidelity exploration of the confirmation states",
+      width: 1800,
+      height: 592,
     },
     { kind: "cardStateInspector" },
     {
@@ -91,9 +139,54 @@ const chanceLive: CaseStudyContent = {
       heading: "Building edge cases and systems, not one-off screens",
       body: [
         "Users can open anywhere from 1 to 5 cards at a time. Every state needed to account for different card counts, different screen sizes, and different user actions. Chance is a small team moving quickly, so I didn't want to design a solution that would need to be reinvented every time a new feature shipped.",
+      ],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/chance-live/intro-variations.webp",
+      alt: "The intro page shown across 1, 2, 3, 4, and 5 card counts, plus the summary state",
+      caption: "how the intro page changes depending on how many cards are opened",
+      width: 1800,
+      height: 720,
+    },
+    {
+      kind: "story",
+      body: [
         "As I designed the confirmation flow, I simultaneously built reusable foundations that future work could build on: interaction patterns, consistent button behaviors, shared visual treatments, custom iconography, mobile and desktop variants, and defined states for all 1 to 5 card scenarios.",
+      ],
+    },
+    {
+      kind: "imagePair",
+      images: [
+        {
+          src: "/case-studies/chance-live/mobile-flow.webp",
+          alt: "Part of the mobile 5-card user flow, swiping between collect and sell states",
+          caption: "part of the mobile 5-card user flow",
+          width: 1800,
+          height: 512,
+        },
+        {
+          src: "/case-studies/chance-live/desktop-flow.webp",
+          alt: "Desktop 1-card user flow, from collect/sell choice to confirmation",
+          caption: "the desktop 1-card user flow",
+          width: 1800,
+          height: 393,
+        },
+      ],
+    },
+    {
+      kind: "story",
+      body: [
         "Good design systems aren't just UI kits. They're shared decisions. They reduce ambiguity, speed up development, create consistency across the product, and make future features easier to build. For a startup, that leverage compounds quickly.",
       ],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/chance-live/component-system.webp",
+      alt: "Component sheet: Card Bank, Card, Multiple Cards, Card Actions, Price Dial, Card Index, and Background states",
+      caption: "the reusable component set: cards, actions, indices, and background states",
+      width: 904,
+      height: 487,
     },
     {
       kind: "constraint",
@@ -104,6 +197,14 @@ const chanceLive: CaseStudyContent = {
         "While the interaction felt playful, it introduced additional complexity across mobile layouts and multiple card count scenarios. The additional engineering effort and state management didn't justify the value it created for users. Instead, I focused on solutions that delivered the same feeling of confidence and control while remaining technically lightweight.",
         "On mobile, the minimum height of this element should be 440px, max height, so the confirm button is in the same place each time, for a consistent UX.",
       ],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/chance-live/edge-case-states.webp",
+      alt: "Confirmation states across different card counts and mixed collect/sell selections",
+      caption: "confirmation states across different card counts and mixed collect/sell selections",
+      width: 1800,
+      height: 720,
     },
     { kind: "insight", body: ["The best design solution isn't always the most visually impressive one. It's the one that creates the most value for users and the business relative to its implementation cost."] },
     {
@@ -156,65 +257,351 @@ const chanceLive: CaseStudyContent = {
         "In 15 hours, I was able to identify a retention issue, align a solution with Chance's brand vision, think through implementation constraints, and create reusable foundations for future growth. That's the type of impact I want to continue bringing to Chance as the product scales.",
       ],
     },
+    {
+      kind: "flag",
+      text: "Every image from your export is now placed somewhere in this case study, including the full ~30,000px-wide FigJam audit board — it's downscaled for the page but click-to-zoom still shows the whole thing, so very fine text on it may still be hard to read. If you want a few specific regions cropped out as their own sharper images instead, point me at the sections and I'll do it.",
+    },
   ],
 };
 
 const ademUserList: CaseStudyContent = {
-  heroLine: "I designed a new ADEM User List Page, consolidating 7 fragmented workflows into one intuitive interface. This redesign improved IT admin efficiency, cutting task completion times by 80% and saving 30 seconds per ticket across enterprise scale deployments.",
-  heroImage: { src: "/case-studies/adem-user-list/fragmented-dashboards.webp", alt: "Three fragmented ADEM dashboards showing application experience, connectivity and user data", width: 2048, height: 1229 },
+  heroLine:
+    "Streamlined complex ADEM workflows by consolidating scattered information, designing a new user list page empowering IT admins to quickly solve customer issues.",
+  heroImage: { src: "/case-studies/adem-user-list/unified-list.webp", alt: "The new unified ADEM User Device List page", width: 1763, height: 980 },
   facts: [
     { label: "company", value: "Palo Alto Networks" },
-    { label: "role", value: "Lead Product Designer" },
-    { label: "team", value: "1 product manager, 12 developers, IT admin subject matter experts" },
-    { label: "duration", value: "6 weeks, July to September 2024" },
+    { label: "role", value: "Lead Designer + UXR" },
+    { label: "team", value: "1 Product Manager, 2 Designers, 14 Engineers" },
+    { label: "duration", value: "6 weeks" },
   ],
   blocks: [
     {
       kind: "story",
-      eyebrow: "context, background",
-      heading: "Palo Alto Networks is a global leader in cybersecurity with 20,000+ employees",
+      eyebrow: "context",
+      heading: "Autonomous Digital Experience Management (ADEM) is a visibility platform used by IT teams to understand user network experiences",
       body: [
-        "Its Autonomous Digital Experience Management (ADEM) features within the platform Strata Cloud Manager help Fortune 500 IT admins troubleshoot user connectivity.",
-        "Unlike consumer apps, enterprise security software is dense, technical, and high stakes. Admins need clarity, speed, and trust to resolve problems that can affect thousands of employees at once. My challenge was to design a new page within ADEM that addressed one of the longstanding pain points for cybersecurity IT admins.",
+        "ADEM used to have its own section in Strata Cloud Manager, but after an org-wide shift to platformization, data was now scattered over several pages.",
       ],
     },
     {
       kind: "story",
       eyebrow: "the problem",
-      heading: "Disjointed workflows slowed ticket resolution, cognitive overload. High friction risked enterprise adoption and contract renewals.",
-      body: [
-        "The existing pathway to access user device data was fragmented across 7 separate workflows. IT admins reported that finding basic data often required 40+ seconds and multiple tabs, increasing Mean Time to Ticket Resolution (MTTR).",
+      heading: "What's going on with ADEM? Lack of user research and feature bloat caused a misalignment with customer needs",
+      body: ["Metrics from Pendo, our product analytics tool, on our primary users — 1st level IT helpdesk admins:"],
+      items: [
+        "3–6 tabs open while troubleshooting",
+        "Monthly users dropped 16% over the past two years",
+        "No internal IT admins use ADEM... why?",
+      ],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/adem-user-list/fragmented-dashboards.webp",
+      alt: "Three fragmented ADEM dashboards showing application experience, connectivity and user data",
+      caption: "the same user data, scattered across three separate dashboards",
+      width: 2048,
+      height: 1229,
+    },
+    {
+      kind: "image",
+      src: "/case-studies/adem-user-list/consolidation-direction.webp",
+      alt: "The same three dashboards with arrows showing them consolidating into a single Users page",
+      caption: "the direction: three dashboards, converging on one page",
+      width: 1600,
+      height: 960,
+    },
+    {
+      kind: "story",
+      eyebrow: "goals",
+      items: [
+        "Lay foundational groundwork for ADEM information architecture and workflows",
+        "Enhance existing pages for clarity",
+        "Reduce Mean Time to Resolution (MTTR) for IT tickets",
       ],
     },
     { kind: "statement", heading: "How might we clarify complex ADEM workflows and navigation to significantly improve our customer understanding and troubleshooting efficiency?" },
     {
       kind: "story",
+      eyebrow: "user research",
+      heading: "Interviewing internal IT admins under time pressure to find pain points and map workflows",
+    },
+    { kind: "quote", text: "Could you walk me through a recent troubleshooting case you handled? What was the problem?" },
+    {
+      kind: "image",
+      src: "/case-studies/adem-user-list/workflow-map.webp",
+      alt: "Flowchart mapping an IT admin's troubleshooting workflow from ticket to resolution",
+      caption: "mapping the real troubleshooting workflow, ticket to resolution",
+      width: 1600,
+      height: 323,
+    },
+    {
+      kind: "insight",
+      eyebrow: "user interview insight 1",
+      heading: "“Way too much going on”",
+      body: ["Users felt overwhelmed by the sheer amount of data on the page, a lot of which was irrelevant to their use case and their role."],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/adem-user-list/ux-critique.webp",
+      alt: "Annotated critique of the existing Application Experience page, with sticky notes flagging buried information and unclear charts",
+      caption: "auditing the existing page against real troubleshooting workflows",
+      width: 849,
+      height: 944,
+    },
+    {
+      kind: "insight",
+      eyebrow: "user interview insight 2",
+      heading: "Using ADEM as a time machine to locate a user at a specific time currently takes 23+ seconds and 8 clicks",
+      body: ["The most common use case took the longest time, due to a complex time selection process and a global search that took 7+ seconds to load."],
+    },
+    {
+      kind: "story",
+      eyebrow: "solution brainstorming",
+      heading: "Redesigning current pages to contextualize data with role-based access control (RBAC)",
+      body: [
+        "Implement robust RBAC across the existing “Users” and “Application Experience” (and other relevant SCM) pages.",
+        "Define specific roles (e.g., IT Ops, Security, Network Admin) to control visibility of new features, filters, columns, and widgets outlined in the PRD, so each role sees only relevant information.",
+      ],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/adem-user-list/redesign-direction.webp",
+      alt: "An early redesign direction for the Application Experience page, restructured for role-based clarity",
+      caption: "an early redesign direction, before consolidation became the bigger opportunity",
+      width: 1100,
+      height: 683,
+    },
+    { kind: "statement", heading: "How might we design a focused, customizable user list with intuitive filtering and relevant experience trends to provide easier access to user data?" },
+    {
+      kind: "story",
       eyebrow: "the solution",
       heading: "One consolidated User Device List Page",
-      body: ["I led the end to end design of a new User Device List Page, consolidating multiple workflows into a single, simplified interface."],
+      body: [
+        "I led the end to end design of a new User Device List Page, consolidating multiple workflows into a single, simplified interface, iterating using feedback from design reviews with PM, eng, platform team, and customers.",
+      ],
       items: [
         "Streamlined navigation: 7 workflows into 1 page",
         "Restructured information hierarchy for faster scanning",
-        "Common task, finding a user device at a specific point in time: 80% fewer clicks (8 to 2)",
         "Faster backend due to limited data shown",
         "Designed with AI integrations to reduce manual input and surface insights faster",
+        "High-fidelity prototype with interactions and common workflows",
+        "Linked to the new page from existing workflows, and designed for edge cases",
       ],
     },
-    { kind: "image", src: "/case-studies/adem-user-list/unified-list.webp", alt: "The new unified ADEM User Device List page", caption: "The new user list page", width: 1763, height: 980 },
+    { kind: "image", src: "/case-studies/adem-user-list/unified-list.webp", alt: "The new unified ADEM User Device List page", caption: "the new user list page", width: 1763, height: 980 },
+    {
+      kind: "image",
+      src: "/case-studies/adem-user-list/saved-views.webp",
+      alt: "The User Device List page with a Saved Views panel open, showing pre-filtered views like \"Europe Slack Users\" and \"Poor Asia Users\"",
+      caption: "saved views, so admins stop rebuilding the same filters every ticket",
+      width: 1800,
+      height: 1125,
+    },
     { kind: "ratio", before: "7", beforeLabel: "separate workflows", after: "1", afterLabel: "consolidated page" },
-    { kind: "ratio", before: "8", beforeLabel: "clicks to find a device at a point in time", after: "2", afterLabel: "clicks for the same task, an 80% reduction" },
-    { kind: "image", src: "/case-studies/adem-user-list/timeline.webp", alt: "Six week project timeline", caption: "6 week sprint, July to September", width: 2048, height: 444 },
+    { kind: "ratio", before: "23s", beforeLabel: "to find a user at a point in time", after: "5s", afterLabel: "for the same task, an 80% reduction" },
+    {
+      kind: "story",
+      eyebrow: "impact",
+      body: ["This work directly influenced FY26 roadmap decisions."],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/adem-user-list/timeline-detail.webp",
+      alt: "Six week sprint broken into Research & Audit, Requirements & Alignment, Wireframes/IA/User Flows, High-Fidelity Design, Testing & Iteration, and Finalization & Handoff",
+      caption: "6 week sprint, july to september",
+      width: 2000,
+      height: 434,
+    },
     {
       kind: "story",
       body: ["Due to confidentiality, not all artifacts are publicly available. Please reach out if you'd like to discuss details of the design process."],
     },
-    { kind: "flag", text: "This is your shortest real case study source, mostly summary bullets rather than full narrative. If you have more of the process (research, iterations, testing) worth adding, send it over." },
+    {
+      kind: "flag",
+      text: "Updated this with the real numbers, role, and team from your PAN deck (23s→5s user lookup, 7→1 workflows, Lead Designer + UXR, 1 PM/2 designers/14 engineers). I dropped the earlier '8 clicks → 2 clicks, 80% fewer' stat since I couldn't find a verified post-redesign click count anywhere in the deck — if you have that number, send it and I'll add it back in.",
+    },
+  ],
+};
+
+const accessAnalyzer: CaseStudyContent = {
+  heroLine: "I redesigned a key diagnostic tool used by IT administrators to troubleshoot user access issues and shipped 22 UX fixes.",
+  heroImage: { src: "/case-studies/access-analyzer/query-results.webp", alt: "Access Analyzer query results, showing User & Endpoint, Network, Application, and Security Policy health checks", width: 1089, height: 632 },
+  facts: [
+    { label: "company", value: "Palo Alto Networks" },
+    { label: "role", value: "Lead Designer" },
+    { label: "team", value: "1 Product Manager, 8 Developers" },
+    { label: "duration", value: "6 weeks" },
+  ],
+  blocks: [
+    {
+      kind: "story",
+      eyebrow: "context",
+      body: [
+        "Access Analyzer helps IT admins identify why users can't connect to secure networks.",
+        "It provides comprehensive results to an IT admin's query.",
+      ],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/access-analyzer/entry-point.webp",
+      alt: "The Access Analyzer landing page, with a natural-language search bar and example questions",
+      caption: "the entry point: ask a question, get a diagnosis",
+      width: 1032,
+      height: 736,
+    },
+    {
+      kind: "story",
+      eyebrow: "the problem",
+      heading: "Ambiguous “Unknown” errors, lack of feedback, and rigid search inputs made troubleshooting slow and frustrating",
+      body: ["Metrics from Pendo:"],
+      items: ["90% drop rate during query creation", "2% retention rate", "73% drop in completion between Mar–Jun 2025"],
+    },
+    {
+      kind: "story",
+      eyebrow: "goals",
+      items: [
+        "Identify pain points in the current UI",
+        "Improve customer experience",
+        "Differentiate Access Analyzer and SCM CoPilot by providing unique customer value",
+      ],
+    },
+    { kind: "statement", heading: "How might we identify usability issues in the current Access Analyzer UI and refresh the user experience to reduce customer abandonment rates?" },
+    {
+      kind: "story",
+      eyebrow: "problem #1: solving usability issues",
+      heading: "Finding 35+ pain points in a UX audit (FigJam)",
+      body: [
+        "Prioritized fixes with PMs and engineering.",
+        "Solution: submitted 14 Jira tickets to tangibly improve 22+ UX and accessibility issues.",
+      ],
+    },
+    {
+      kind: "flag",
+      text: "Your FigJam UX audit board (35+ pain points) is in the deck but far too dense to read at a legible size on the web — if you have a cleaner summary view, or want me to crop out a few individual annotated screens instead, send those over.",
+    },
+    {
+      kind: "story",
+      eyebrow: "user research",
+      heading: "What is the troubleshooting workflow of a Network Security Architect at a large enterprise, and what does he think about our product?",
+    },
+    {
+      kind: "insight",
+      eyebrow: "user interview feedback 1",
+      heading: "Missing data causes “Unknown” status",
+      body: [
+        "How might we turn ambiguous error messages into clear actionable guidance to build customer trust and accelerate troubleshooting?",
+        "Solution: work with the backend engineering team for visibility into why unknown statuses show, and translate them into relevant insights for customers.",
+      ],
+    },
+    {
+      kind: "insight",
+      eyebrow: "user interview feedback 2",
+      heading: "Input is too strict, needs to be more conversational",
+      body: [
+        "Users expect our AI tools to be smarter, but their trust erodes when simple errors like typos break queries. Currently, Access Analyzer, CoPilot, and all search bars within SCM fail to return results for minor phrasing changes or typos.",
+      ],
+    },
+    { kind: "statement", heading: "How might we make Access Analyzer, CoPilot, and any search query input more conversational and forgiving of human error (like typos), thereby building user trust in our AI and improving troubleshooting efficiency?" },
+    {
+      kind: "story",
+      eyebrow: "research",
+      heading: "Auditing NLP search product-wide",
+    },
+    {
+      kind: "story",
+      eyebrow: "the solution",
+      heading: "Implementing predictive search and “did you mean” functionality for all user queries",
+      items: [
+        "Users get accurate results faster, reducing wasted time and MTTR (Mean Time to Repair)",
+        "Meets user expectations for smart, forgiving interfaces (like Google/ChatGPT), keeping us competitive",
+        "Provides immediate value and is a pragmatic step towards a “smarter” diagnostic experience without the higher complexity/risk of generative AI hallucinations",
+      ],
+    },
+    {
+      kind: "imagePair",
+      images: [
+        {
+          src: "/case-studies/access-analyzer/current-no-help.webp",
+          alt: "Current state: a user types a typo into the search field with no correction offered",
+          caption: "current: a typo returns nothing",
+          width: 1200,
+          height: 750,
+        },
+        {
+          src: "/case-studies/access-analyzer/predictive-search.webp",
+          alt: "Future state: predictive search offers a \"did you mean\" suggestion for the same typo",
+          caption: "the fix: predictive “did you mean” search",
+          width: 1200,
+          height: 750,
+        },
+      ],
+    },
+    { kind: "ratio", before: "30s", beforeLabel: "to troubleshoot an issue", after: "6s", afterLabel: "for the same task, an 80% reduction" },
+    {
+      kind: "story",
+      eyebrow: "impact",
+      body: ["Builds user trust in our AI."],
+    },
+    {
+      kind: "flag",
+      text: "Anonymized the user research subject's employer, per your instruction — the deck named a specific company, I generalized it to \"a large enterprise.\" Let me know if you'd rather phrase it differently.",
+    },
+  ],
+};
+
+const aiWorkflowToolkit: CaseStudyContent = {
+  heroLine:
+    "I designed and built an AI workflow toolkit to help designers test, iterate, and prototype faster. I combined research from my Cognitive Science background with prompt engineering to optimize internal design tools for creativity and speed.",
+  heroImage: { src: "/case-studies/ai-workflow-toolkit/personashift.webp", alt: "PersonaShift, an AI tool analyzing a design against a named user persona", width: 550, height: 396 },
+  facts: [
+    { label: "company", value: "Palo Alto Networks" },
+    { label: "team", value: "1 UX Director, 1 UX Researcher" },
+  ],
+  blocks: [
+    {
+      kind: "story",
+      eyebrow: "the problem",
+      heading: "Designers spent hours manually testing flows and cleaning research data, time that could be used for creativity",
+      body: ["Survey conducted:"],
+      items: ["55%: AI saves them less than 3 hours a week", "Main tools used: Gemini, NotebookLM", "75% unfamiliar with Figma Make"],
+    },
+    { kind: "statement", heading: "How might we empower our design team with intelligent tools to elevate their focus on innovation and reduce time spent on repetitive tasks?" },
+    {
+      kind: "story",
+      eyebrow: "the solution",
+      heading: "Vibe-coding an AI tool for synthetic user testing early in the design cycle and validating it with real user feedback",
+    },
+    {
+      kind: "image",
+      src: "/case-studies/ai-workflow-toolkit/personashift.webp",
+      alt: "PersonaShift, an AI tool analyzing a design against a named user persona",
+      caption: "PersonaShift: AI-generated persona feedback on a design, before it reaches real users",
+      width: 550,
+      height: 396,
+    },
+    {
+      kind: "story",
+      eyebrow: "guidelines",
+      heading: "Creating user-friendly guidelines for each tool and use case in my AI workflow toolkit",
+    },
+    {
+      kind: "story",
+      eyebrow: "impact",
+      items: [
+        "80% of designers on my team incorporated Figma Make and NotebookLM in their workflow",
+        "36× faster synthetic user testing with my tool",
+      ],
+    },
+    {
+      kind: "flag",
+      text: "Your deck doesn't list a role title or a timeline for this one (just team: 1 UX Director, 1 UX Researcher). I put a placeholder role of \"Product Designer\" in the nav/header since the page needs something there — let me know the real title and duration and I'll swap them in.",
+    },
   ],
 };
 
 const carInsurance: CaseStudyContent = {
   heroLine: "Turning 200+ inconsistent pages into a scalable design foundation that improved conversions, increased organic traffic, and changed how the team shipped product.",
-  heroImage: { src: "/case-studies/carinsurance-com/atomic-system.webp", alt: "A dense sheet of CarInsurance.com UI components and page explorations", width: 2048, height: 1035 },
+  heroImage: { src: "/case-studies/carinsurance-com/atomic-design-ladder.webp", alt: "Atomic Design ladder: Sub Atomic, Atoms, Molecules, Organisms, Templates, and Pages, each shown with real UI", width: 1600, height: 778 },
   facts: [
     { label: "company", value: "QuinStreet" },
     { label: "role", value: "Product Designer" },
@@ -274,6 +661,14 @@ const carInsurance: CaseStudyContent = {
       ],
     },
     {
+      kind: "image",
+      src: "/case-studies/carinsurance-com/competitor-audit.webp",
+      alt: "A competitor UI pattern audit, annotating design choices across several insurance and finance sites",
+      caption: "auditing competitor UI patterns, not just their content",
+      width: 2000,
+      height: 1793,
+    },
+    {
       kind: "story",
       eyebrow: "user research",
       heading: "Understanding where users were getting stuck",
@@ -309,12 +704,56 @@ const carInsurance: CaseStudyContent = {
       toLabel: "How I applied Atomic Design (Brad Frost): sub-atomic style guide, atoms, molecules, organisms, and templates that update automatically when the system changes.",
     },
     {
+      kind: "image",
+      src: "/case-studies/carinsurance-com/type-scale.webp",
+      alt: "Desktop and mobile type scale, from Heading 1 down to Subtitle Regular, with exact sizes and line heights",
+      caption: "one of the atoms: a type scale that holds up from a 48px desktop H1 down to 12px mobile subtitle text",
+      width: 1400,
+      height: 739,
+    },
+    {
+      kind: "image",
+      src: "/case-studies/carinsurance-com/color-palette.webp",
+      alt: "The design system's color palette: Primary, Neutral, and Accent groups with hex, rgb, and hsl values",
+      caption: "another atom: the primary, neutral, and accent color system",
+      width: 1190,
+      height: 1441,
+    },
+    {
+      kind: "image",
+      src: "/case-studies/carinsurance-com/component-variants.webp",
+      alt: "A sheet of component variants: buttons, toggles, dropdowns, tables, and star ratings at multiple sizes and states",
+      caption: "component variants — every size and state, defined once",
+      width: 1800,
+      height: 753,
+    },
+    {
+      kind: "image",
+      src: "/case-studies/carinsurance-com/atomic-system.webp",
+      alt: "A dense sheet of CarInsurance.com UI components and page explorations",
+      caption: "a slice of the 670+ component library this system grew into",
+      width: 2048,
+      height: 1035,
+    },
+    {
+      kind: "flag",
+      text: "Swapped the hero/thumbnail image — the old one (now shown above, mid-article) is real but too dense to read at thumbnail size. The Atomic Design ladder diagram reads clearly at any size and says what the project actually did, so it's the new hero.",
+    },
+    {
       kind: "story",
       eyebrow: "redesigning core experiences",
       heading: "Redesigning 10 multi step insurance calculators",
       body: [
         "The calculators were some of the highest value experiences on the site, but also some of the most frustrating. User interviews consistently surfaced abandonment, especially on mobile. One example was the Moving Calculator. The original flow relied on incomplete logic, failed to account for important variables that affect insurance rates, and forced users through a lengthy experience with little feedback.",
       ],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/carinsurance-com/calculator-example.webp",
+      alt: "A redesigned \"will my insurance go up if I move\" calculator, with rate comparisons by ZIP code",
+      caption: "one of the redesigned calculators — real numbers, clear comparisons",
+      width: 760,
+      height: 1172,
     },
     {
       kind: "story",
@@ -330,6 +769,25 @@ const carInsurance: CaseStudyContent = {
       ],
     },
     {
+      kind: "imagePair",
+      images: [
+        {
+          src: "/case-studies/carinsurance-com/expert-quotes-redesign.webp",
+          alt: "Before and after of the expert-quotes module, from a plain accordion to a selectable expert-tip card",
+          caption: "before → after: expert quotes, redesigned",
+          width: 1751,
+          height: 958,
+        },
+        {
+          src: "/case-studies/carinsurance-com/review-page-redesign.webp",
+          alt: "Before and after of a company review page, from plain text to a scored, structured review layout",
+          caption: "before → after: company reviews, redesigned",
+          width: 1796,
+          height: 1083,
+        },
+      ],
+    },
+    {
       kind: "story",
       eyebrow: "meeting our business needs",
       heading: "Balancing editorial, SEO, and monetization goals",
@@ -341,6 +799,14 @@ const carInsurance: CaseStudyContent = {
         "The redesigned “Learn More” widget was overly prominent and diverted users from the page. I simplified it to align better with user experience goals while still meeting SEO requirements.",
         "To attract more visitors, I created templates for a series of eye catching, sharable infographics that could be integrated into the site and drive traffic to CarInsurance.com.",
       ],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/carinsurance-com/article-team-redesign.webp",
+      alt: "Before and after of the article byline module, from a single author to a full, credited Article Team list",
+      caption: "before → after: giving editors and contributors real credit",
+      width: 1790,
+      height: 845,
     },
     {
       kind: "story",
@@ -384,7 +850,15 @@ const carInsurance: CaseStudyContent = {
 
 const internshipWrapped: CaseStudyContent = {
   heroLine: "A two-day animated data storytelling project summarizing my design journey at Palo Alto Networks.",
-  heroImage: { src: "/case-studies/internship-wrapped/cover.webp", alt: "My Summer at Palo Alto Networks, By the Numbers, title slide", width: 2048, height: 1456 },
+  heroImage: {
+    src: "/case-studies/internship-wrapped/cover.webp",
+    alt: "My Summer at Palo Alto Networks, By the Numbers, title slide",
+    width: 2048,
+    height: 1456,
+    // Title block sits vertically centered in the source frame — a "top"
+    // crop at thumbnail size chopped the "By the Numbers" line clean off.
+    focus: "center",
+  },
   facts: [
     { label: "company", value: "Palo Alto Networks" },
     { label: "role", value: "Product Design Intern" },
@@ -432,7 +906,16 @@ const internshipWrapped: CaseStudyContent = {
 
 const beyond: CaseStudyContent = {
   heroLine: "Beyond is a career exploration platform designed for people who don't have the same access to opportunities, mentors, or professional networks as their peers. Built during Boston University's Catalyst Designathon, Beyond won an Honorable Mention out of 87 teams.",
-  heroImage: { src: "/case-studies/beyond/screens.webp", alt: "Beyond app screens: onboarding, login, and skills assessment", width: 2048, height: 1571 },
+  heroImage: {
+    // The full export is an 8-screen, two-row contact sheet — cropped to a
+    // wide thumbnail box it sliced clean through both rows. Row 1 alone
+    // (onboarding through create-account) is a real single-row montage
+    // that covers cleanly at any of the work-index aspect ratios.
+    src: "/case-studies/beyond/screens-row1.webp",
+    alt: "Beyond app screens: onboarding, login, and create account",
+    width: 2048,
+    height: 800,
+  },
   facts: [
     { label: "designathon", value: "Catalyst, Boston University" },
     { label: "role", value: "UX Designer" },
@@ -526,6 +1009,14 @@ const beyond: CaseStudyContent = {
       ],
     },
     {
+      kind: "image",
+      src: "/case-studies/beyond/user-flow.webp",
+      alt: "User flow diagram mapping onboarding, industry exploration, the connect page, and the profile page",
+      caption: "the user flow, mapping key features and screens before we designed them",
+      width: 1400,
+      height: 1976,
+    },
+    {
       kind: "story",
       eyebrow: "features",
       heading: "Allowing users to explore and act",
@@ -535,6 +1026,29 @@ const beyond: CaseStudyContent = {
         "A personalized profile page",
         "Connect with other users",
       ],
+    },
+    {
+      kind: "imagePair",
+      images: [
+        {
+          src: "/case-studies/beyond/explore-jobs-screens.webp",
+          alt: "Explore Industries, Technology & Software, IT Project Managers, and Find Certificates screens",
+          caption: "explore jobs and industries, down to specific salary ranges and certifications",
+          width: 1400,
+          height: 521,
+        },
+        {
+          src: "/case-studies/beyond/profile-connect-screens.webp",
+          alt: "Profile and connect screens, shown in both English and Bahasa Indonesia",
+          caption: "profile and connect, localized — accessibility was part of the brief",
+          width: 1400,
+          height: 522,
+        },
+      ],
+    },
+    {
+      kind: "flag",
+      text: "I used the clearest artifacts from your export — the user flow diagram and two feature-screen montages. I skipped a duplicate re-export of the persona sheet already shown above, and a set of generic competitor-logo thumbnails from the market research slide that didn't add anything beyond the text already here.",
     },
     {
       kind: "insight",
@@ -548,61 +1062,456 @@ const beyond: CaseStudyContent = {
   ],
 };
 
+// Unlisted: your Chance Creators source material says "This case study is
+// private and an on-going project. Please do not share beyond the intended
+// audience." Built at your request so you have the page, but not linked
+// from the Work index, nav, or the case-study "next" cycle. See the flag
+// at the end for the two images I left out of even this unlisted page.
+const chanceCreators: CaseStudyContent = {
+  heroLine:
+    "Building a creator operating system from scratch. Turning a vague creator growth initiative into a connected ecosystem for discovery, commerce, fulfillment, and community.",
+  facts: [
+    { label: "company", value: "Chance.live" },
+    { label: "role", value: "Systems Designer, Product Growth Strategist" },
+    { label: "team", value: "Front-end Developer, 12 person company" },
+    { label: "duration", value: "1 week, July 2026" },
+  ],
+  blocks: [
+    {
+      kind: "story",
+      eyebrow: "context",
+      heading: "Chance.live is building a more social future for trading card collecting",
+      body: [
+        "Chance.live is a Series A startup reimagining how people buy, open, collect, and trade Pokémon cards online. What excited me about Chance wasn't just building another TCG marketplace (there are already plenty). It was the opportunity to redesign the experience around the thing collectors actually love: the community, anticipation, and shared moments behind every pull. The cards were the product, but the experience around them was the opportunity.",
+        "A major part of that vision was creators. Today, Chance works with dozens of trading card creators and livestreamers who introduce new collectors to the platform. These creators are the community layer of the product. They entertain, educate, build trust, and create the moments that make collecting exciting.",
+      ],
+    },
+    {
+      kind: "story",
+      eyebrow: "the problem",
+      heading: "A creator ecosystem existed, but the infrastructure didn't",
+      body: [
+        "Chance had built strong relationships with creators, but the experience powering creator sales was held together by disconnected tools, manual workflows, and constant coordination from a small team.",
+      ],
+    },
+    {
+      kind: "flowSteps",
+      label: "creator experience",
+      steps: [
+        "Promote Chance packs on stream",
+        "Send viewers to external checkout",
+        "Monitor Shopify orders",
+        "Copy purchases into spreadsheet",
+        "Match buyers to packs manually",
+        "Track queue order manually",
+        "Open packs during stream",
+        "Record pulls",
+        "Manually send cards to buyers",
+      ],
+    },
+    {
+      kind: "story",
+      body: [
+        "Creators joined Chance because they were good at building communities and entertaining collectors. However, selling packs required them to become operators. The workflow worked at a small scale, but every additional order increased operational complexity.",
+      ],
+    },
+    {
+      kind: "flowSteps",
+      label: "buyer experience",
+      steps: [
+        "Discover creator",
+        "Watch creator livestream",
+        "Click creator link / Shopify store",
+        "Purchase pack separately",
+        "Send payment confirmation",
+        "Wait",
+        "Creator manually tracks order",
+        "Wait",
+        "Watch stream to see if your pack opens",
+        "Creator manually fulfills cards",
+      ],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/chance-creators/livestream-reveal.webp",
+      alt: "A livestream capture of a card reveal moment, with live chat alongside",
+      caption: "the moment buyers actually tune in for — disconnected from the purchase that led to it",
+      width: 1394,
+      height: 782,
+    },
+    {
+      kind: "story",
+      body: [
+        "The excitement of Chance came from watching a creator open packs live. However, the purchasing experience was disconnected from that moment. After checkout, buyers often had no visibility into their order. The most exciting part of the product happened after the transaction, but the product experience stopped at checkout.",
+      ],
+    },
+    {
+      kind: "flowSteps",
+      label: "chance team experience",
+      steps: [
+        "Recruit creators",
+        "Create referral links manually",
+        "Answer creator questions",
+        "Track creator performance manually",
+        "Troubleshoot missing orders",
+        "Coordinate fulfillment issues",
+      ],
+    },
+    {
+      kind: "story",
+      body: [
+        "Internally, we faced another challenge. Creators were one of our primary growth channels, but there was very little visibility into creator performance. Many creators didn't know where to find their referral links, how many users they were bringing to the platform, or how their audiences were converting. As a result, the team spent a significant amount of time manually answering questions, tracking referrals, and helping creators understand their impact. What should have been a scalable growth engine required constant hands-on support.",
+      ],
+    },
+    {
+      kind: "story",
+      eyebrow: "the opportunity",
+      heading: "Reinventing the trading card experience around community, not transactions",
+      body: [
+        "Traditional trading card platforms are optimized around transactions: buy a product, receive a product, repeat. But the excitement of collecting has never just been the card itself. It's the anticipation of opening a pack, sharing a rare pull with friends, watching someone else experience a big moment, and being part of a community that understands the hobby.",
+        "Our north star was building a more connected version of the trading card ecosystem. This changed how I approached the product. Instead of asking, \"How do we add a creator page?\" I started asking:",
+      ],
+      items: [
+        "How do we make creators the center of the collecting experience?",
+        "How do we turn a livestream into an interactive community moment?",
+        "How do we create tools that help creators grow while making collecting more social for buyers?",
+        "How do we build infrastructure that allows this ecosystem to scale?",
+      ],
+    },
+    {
+      kind: "story",
+      eyebrow: "my role",
+      heading: "Turning ambiguity into something the team could build",
+      body: [
+        "The more questions I asked, the more the project shifted from UI design into product design. This is usually the part of design I enjoy most: figuring out what a product should be before figuring out what it should look like.",
+        "Before opening Figma, I try to understand the entire system around the feature: who is using it, what problem it solves, what technical constraints exist, and whether it should exist at all. My first steps are usually not visual. I map flows, talk to users and stakeholders, research competitors, understand the frontend and backend constraints, and identify where confusion or friction might appear before we build. I think of it as measuring twice and cutting once. Once the underlying system makes sense, the interface becomes much easier to design.",
+        "On any given day I'm:",
+      ],
+      items: [
+        "Mapping user flows, edge cases, and product architecture in FigJam",
+        "Talking with creators, watching livestreams, and observing how people use the product",
+        "Designing flows and systems in Figma while building reusable components as we go",
+        "Vibe-coding prototypes in Figma Make to test ideas quickly",
+        "Presenting prototypes to founders and engineers to align around a north star",
+        "Reviewing analytics, finding bugs, and identifying opportunities to improve the product",
+        "Working through our React frontend/backend constraints to make sure designs are actually buildable",
+        "Experimenting with sound design in Reaper because I believe small sensory details can make digital experiences feel more alive",
+      ],
+    },
+    {
+      kind: "story",
+      body: [
+        "The fun (and challenging) part of startup design is the constant context switching. One hour I'm mapping information architecture with engineering, the next I'm testing a prototype, watching a creator livestream, or motion-designing to make an interaction feel more magical. I don't see design as a handoff after decisions are made. I see it as the process of helping a team make better decisions.",
+      ],
+    },
+    {
+      kind: "story",
+      eyebrow: "process",
+      heading: "Finding flaws before they become expensive",
+      body: [
+        "In several conversations with product and engineering, the fastest solution was not always the best long-term solution. My role became advocating for the user experience while understanding the constraints that made certain decisions difficult. The first version of the ecosystem had several assumptions built into it. I pressure-tested them before we committed engineering resources.",
+      ],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/chance-creators/initial-flow.webp",
+      alt: "Initial user flow, one of many flow charts, with sticky-note annotations flagging UX issues",
+      caption: "initial user flow, one of many flow charts",
+      width: 1600,
+      height: 729,
+    },
+    {
+      kind: "insight",
+      eyebrow: "issue 1",
+      heading: "One URL serving two completely different audiences",
+      body: [
+        "The initial direction combined buyer experiences and creator management into the same space. This created confusing states around permissions, navigation, and user intent. I pushed for separating the consumer experience from creator tooling so each side could be optimized for its actual user.",
+      ],
+    },
+    {
+      kind: "insight",
+      eyebrow: "issue 2",
+      heading: "Creator tools appearing where audiences could see them",
+      body: [
+        "Because creators stream through OBS, anything placed inside the streaming experience could accidentally become public. I challenged the assumption that creator controls belonged directly on the streamed page and proposed moving operational tools into a separate private experience.",
+      ],
+    },
+    {
+      kind: "story",
+      eyebrow: "issue 3",
+      heading: "Designing for real behavior, not ideal behavior",
+      body: ["The original assumptions treated creators only as creators. But creators are also collectors. I raised edge cases like:"],
+      items: [
+        "What happens if Creator A wants to buy packs from Creator B?",
+        "What happens if a creator is logged in but wants a buyer experience?",
+        "How do we prevent role confusion?",
+      ],
+    },
+    {
+      kind: "insight",
+      eyebrow: "issue 4",
+      heading: "Potential legal ramifications",
+      body: [
+        "After talking to our lawyer, I realized that some of the feature ideas we had could potentially create serious legal issues (fintech is a highly regulated space). For example, we had this absolutely brilliant idea to ███████████████████████████. Not only that, we also wanted to ███████████████████████. Later on, we had this absolute stroke of genius. What if we ███████████████████████████████? At this point, we were pretty sure we had invented the future of collecting. We were already mentally spending our imaginary Series B money.",
+        "Obviously, none of that should ever make it to prod.",
+      ],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/chance-creators/current-flow.webp",
+      alt: "Current user flow as of July 27th, 2026, split into buyer side and creator side",
+      caption: "current user flow, as of july 27th, 2026",
+      width: 1600,
+      height: 1155,
+    },
+    {
+      kind: "story",
+      eyebrow: "product thinking",
+      heading: "Building five products that work as one",
+      body: ["Five connected experiences, each serving a different purpose."],
+      items: [
+        "Creator Discovery — help users discover creators, browse live streams, and decide who to watch",
+        "Creator Storefront — turn viewers into customers through live shopping, pack purchases, and order tracking",
+        "Creator Queue — the operational side that allows creators to manage purchases, process orders, and fulfill pulls without disrupting their stream",
+        "Creator Dashboard — give creators visibility into referrals, payouts, campaigns, and business performance",
+        "Community Dashboard — help creators understand and celebrate their community through collection insights, milestones, and audience engagement",
+      ],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/chance-creators/creator-dashboard.webp",
+      alt: "Creator dashboard showing referral GMV, cash payout balance, and a live order queue, layered over a pack-opening screen",
+      caption: "the dashboard, order queue, and pack-opening screen this architecture had to connect",
+      width: 1800,
+      height: 1165,
+    },
+    {
+      kind: "story",
+      eyebrow: "systems thinking",
+      heading: "Building the foundation while shipping",
+      body: [
+        "One challenge of being the first designer at a startup is that there is no existing foundation. When I started introducing reusable components and design patterns, the natural concern was: \"Do we have time to build a design system right now?\" My perspective was that a design system wasn't slowing us down. It was how we moved faster.",
+        "So, while defining the creator ecosystem, I was also building the foundations that would allow it to scale. As new experiences emerged, I created reusable components, interaction patterns, and design decisions that could support future creator tools without reinventing every screen.",
+        "For me, a design system is a way to make better decisions faster. It creates consistency for users, reduces ambiguity for engineers, and allows a small team to move quickly without sacrificing quality.",
+      ],
+    },
+    {
+      kind: "story",
+      eyebrow: "vibe-coding as a design tool",
+      heading: "The fastest wireframe is a working product",
+      body: [
+        "One of the biggest shifts in my design process has been realizing that sometimes the best way to explore an idea is to build it. Instead of debating abstract concepts in meetings, I build lightweight prototypes that give everyone something tangible to react to.",
+      ],
+    },
+    { kind: "flowSteps", label: "instead of", steps: ["Idea", "Wireframe", "Mockup", "Prototype", "Test"] },
+    { kind: "flowSteps", label: "the feedback loop becomes", steps: ["Idea", "Prototype", "Test", "Iterate"] },
+    {
+      kind: "story",
+      body: [
+        "For startup environments where speed matters, this has been incredibly valuable. Vibe-coding has become a core part of how I think through product problems. Instead of spending hours perfecting a Figma prototype for a concept that might change, I use AI coding tools to quickly create functional prototypes, test assumptions, and communicate ideas with engineers and founders. AI helps me move faster, but it doesn't replace product judgment. The valuable part isn't generating code. It's knowing what questions to ask, what tradeoffs matter, and what should exist in the first place.",
+      ],
+    },
+    {
+      kind: "story",
+      eyebrow: "prioritization",
+      heading: "Deciding what not to build",
+      body: [
+        "The hardest part of startup design is rarely coming up with ideas. It's deciding which ideas deserve engineering time. Throughout this project, we explored many possible directions:",
+      ],
+      items: ["Creator analytics", "Social systems", "Loyalty mechanics", "Better queue management", "Collection sharing", "Stream interactions", "Advanced notifications"],
+    },
+    {
+      kind: "story",
+      body: [
+        "The challenge is determining what creates the most value today. Every feature competes against engineering resources, timelines, and business priorities. I've spent a lot of time working with founders to identify which features unlock the most learning and move us toward product-market fit the fastest, while intentionally leaving room for future expansion.",
+      ],
+    },
+    {
+      kind: "story",
+      eyebrow: "user testing",
+      heading: "Learning from real behavior",
+      body: [
+        "The best product decisions came from observing real behavior. I watched creator livestreams, reviewed how users interacted with existing flows, talked directly with creators (user interviews), and used those insights to challenge our original assumptions.",
+      ],
+    },
+    {
+      kind: "story",
+      eyebrow: "impact",
+      heading: "Creating the foundation for creator-led growth",
+      body: ["This project is still actively being built, but the work has already influenced how the company thinks about creators. So far I've:"],
+      items: [
+        "Defined the product architecture for a creator ecosystem spanning discovery, commerce, streaming, fulfillment, and analytics",
+        "Identified technical and UX risks before engineering investment",
+        "Established the first creator-facing workflows",
+        "Established reusable design patterns for future creator tooling",
+        "Created prototypes and flows that aligned founders, engineering, and product around a shared vision",
+      ],
+    },
+    {
+      kind: "insight",
+      body: [
+        "Most importantly, I helped transform \"we should build something for creators\" into a system the team can actually execute on.",
+      ],
+    },
+    {
+      kind: "story",
+      eyebrow: "work in progress",
+      body: [
+        "This is an evolving product, so this case study focuses less on polished final screens and more on the thinking behind building from zero. I'll continue updating this with launches, user feedback, and measurable outcomes. For now, this is a snapshot of what founding design looks like for me at a startup: navigating ambiguity, challenging assumptions, making tradeoffs, and helping turn an idea into something real.",
+      ],
+    },
+    {
+      kind: "flag",
+      text: "Added the dashboard and livestream screenshots back in, per your note that they're not real data. This page is still unlisted, not linked from the Work index or nav, matching the \"private, don't share beyond intended audience\" note on your source.",
+    },
+  ],
+};
+
+// Curated for the Work index, not chronological — biggest-scope systems
+// work leads, then the mid-weight case studies, closing on the two
+// lightest/quickest pieces.
 export const projects: Project[] = [
   {
     slug: "chance-live",
     number: "01",
     title: "Summary Revamp",
+    tagline: "Preventing $5,000 accidental swipes in my first 15 hours at a Pokemon card startup",
     company: "Chance.live",
     role: "Systems Designer, Product Growth Strategist",
     year: "2026",
     result: "$5,000 in prevented accidental swipes",
+    metrics: [
+      { value: "$5,000", label: "prevented per accidental swipe" },
+      { value: "15 hrs", label: "problem identified to shipped fix" },
+    ],
     discipline: "product, systems",
     content: chanceLive,
-  },
-  {
-    slug: "adem-user-list",
-    number: "02",
-    title: "ADEM User List Page",
-    company: "Palo Alto Networks",
-    role: "Lead Product Designer",
-    year: "2024",
-    result: "80% fewer clicks, 30 seconds saved per ticket",
-    discipline: "enterprise, systems",
-    content: ademUserList,
+    size: "lg",
   },
   {
     slug: "carinsurance-com",
-    number: "03",
+    number: "05",
     title: "CarInsurance.com",
+    tagline: "Rebuilding a 20-year-old site and soloing its first design system",
     company: "Quinstreet",
     role: "Product Designer",
     year: "2024",
     result: "13% more organic traffic, 98% faster page creation",
+    metrics: [
+      { value: "13%", label: "more organic traffic" },
+      { value: "18%", label: "more quote requests" },
+      { value: "98%", label: "faster page creation" },
+    ],
     discipline: "product, design systems",
     content: carInsurance,
+    size: "lg",
   },
   {
-    slug: "internship-wrapped",
-    number: "04",
-    title: "Internship Wrapped",
+    slug: "adem-user-list",
+    // Restored from the original site: "ADEM User List Page" is the
+    // internal feature name, but the live portfolio called this project
+    // "Network Security" on the work index. That's the more compelling
+    // read for a visitor skimming case studies, so it's back as the title
+    // — case study copy still refers to ADEM throughout, unchanged.
+    number: "02",
+    title: "Network Security",
+    tagline: "Bringing clarity to complex workflows for IT admins",
     company: "Palo Alto Networks",
-    role: "Product Design Intern",
-    year: "2025",
-    result: "Visualizing impact, growth, and design wins as an animated recap",
-    discipline: "motion, storytelling",
-    content: internshipWrapped,
+    role: "Lead Designer + UXR",
+    year: "2024",
+    result: "80% faster user lookup (23s to 5s), 7 workflows unified into 1",
+    metrics: [
+      { value: "7 → 1", label: "workflows consolidated" },
+      { value: "23s → 5s", label: "to find a user at a point in time" },
+      { value: "80%", label: "faster on that task" },
+    ],
+    discipline: "enterprise, systems",
+    content: ademUserList,
+    size: "lg",
   },
   {
     slug: "beyond",
-    number: "05",
+    number: "07",
     title: "Beyond",
+    tagline: "Bridging career and education inequities with empathy",
     company: "Catalyst Designathon",
     role: "UX Designer",
     year: "2024",
     result: "Honorable Mention out of 87 teams",
+    metrics: [
+      { value: "87", label: "teams competed against" },
+      { value: "128", label: "student survey responses" },
+      { value: "2 days", label: "designathon window" },
+    ],
     discipline: "social impact, research",
     content: beyond,
+    size: "md",
+  },
+  {
+    slug: "access-analyzer",
+    number: "03",
+    title: "Access Analyzer",
+    tagline: "Turning ambiguous errors into clear, actionable guidance",
+    company: "Palo Alto Networks",
+    role: "Lead Designer",
+    year: "2024",
+    result: "80% faster troubleshooting (30s to 6s), 22 UX fixes shipped",
+    metrics: [
+      { value: "30s → 6s", label: "to troubleshoot an issue" },
+      { value: "22", label: "UX and accessibility fixes shipped" },
+      { value: "35+", label: "pain points found in UX audit" },
+    ],
+    discipline: "enterprise, ux research",
+    content: accessAnalyzer,
+    size: "md",
+  },
+  {
+    slug: "ai-workflow-toolkit",
+    number: "04",
+    title: "AI Workflow Toolkit",
+    tagline: "Helping a design team test, iterate, and prototype faster",
+    company: "Palo Alto Networks",
+    role: "Product Designer",
+    year: "2024",
+    result: "80% team adoption, 36x faster synthetic user testing",
+    metrics: [
+      { value: "80%", label: "of the design team adopted the toolkit" },
+      { value: "36×", label: "faster synthetic user testing" },
+    ],
+    discipline: "ai, tooling",
+    content: aiWorkflowToolkit,
+    size: "mini",
+  },
+  {
+    slug: "internship-wrapped",
+    number: "06",
+    title: "Internship Wrapped",
+    tagline: "Visualizing impact, growth, and design wins in an animated recap",
+    company: "Palo Alto Networks",
+    role: "Product Design Intern",
+    year: "2025",
+    result: "Visualizing impact, growth, and design wins as an animated recap",
+    metrics: [
+      { value: "50+", label: "teammates reached" },
+      { value: "2 days", label: "concept to delivery" },
+    ],
+    discipline: "motion, storytelling",
+    content: internshipWrapped,
+    size: "mini",
+  },
+  {
+    slug: "chance-creators",
+    number: "—",
+    title: "Chance Creators",
+    tagline: "Building a creator operating system from scratch",
+    company: "Chance.live",
+    role: "Systems Designer, Product Growth Strategist",
+    year: "2026",
+    result: "Defined the product architecture for a 5-part creator ecosystem",
+    metrics: [],
+    discipline: "product, 0-to-1",
+    content: chanceCreators,
+    unlisted: true,
   },
 ];
 

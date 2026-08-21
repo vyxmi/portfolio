@@ -12,10 +12,10 @@ export default function WorkPage() {
         <div className="mb-12">
           <div className="eyebrow mb-3">work</div>
           <h1 className="max-w-2xl text-[28px] font-semibold md:text-[34px]" style={{ letterSpacing: "-.01em" }}>
-            Product design case studies, ordered by when they happened.
+            Product design case studies, from enterprise systems to scrappy weekend builds.
           </h1>
         </div>
-        <WorkIndex projects={projects} />
+        <WorkIndex projects={projects.filter((p) => !p.unlisted)} />
       </main>
       <SiteFooter />
     </div>
