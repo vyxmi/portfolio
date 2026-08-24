@@ -26,6 +26,7 @@ export default function FlowerPoints({
   colorAccent,
   interactive,
   runtime,
+  motionPreset = "legacy",
 }: {
   seed: string | number;
   particleCount: number;
@@ -43,6 +44,7 @@ export default function FlowerPoints({
   colorAccent: string;
   interactive: boolean;
   runtime: RefObject<ParticleRuntimeState>;
+  motionPreset?: "legacy" | "alive";
 }) {
   const geo = useMemo(
     () => buildFlowerGeometry({ seed, particleCount, petalCount }),
@@ -87,6 +89,7 @@ export default function FlowerPoints({
       colorB={colorAccent}
       motionEnabled={interactive}
       runtime={runtime}
+      motionPreset={motionPreset}
     />
   );
 }

@@ -75,7 +75,10 @@ function useAdaptive(baseFlowerCount: number, baseAmbientCount: number) {
  * the flower answers nearby cursor movement with gentle localized
  * turbulence/advection (a soft Gaussian falloff, not a hard radius) — never
  * a radial push, so there's no hole/ring, and never a whole-object
- * transform (no scale/tilt/glow/container movement).
+ * transform (no scale/tilt/glow/container movement). That's the `legacy`
+ * motionPreset (the default); `alive` layers a second drift oscillator,
+ * cursor-proximity-only hover agitation, and denser/clustered ambient — see
+ * types.ts's motionPreset doc.
  * Self-contained: drop it anywhere, it owns its own full-bleed Canvas.
  */
 export default function DigitalBloom({
@@ -94,13 +97,19 @@ export default function DigitalBloom({
   colorPrimary = "#f3f3f6",
   colorAccent = "#8496ea",
   ambientColor = "#aab4e8",
+  motionPreset = "legacy",
   className,
   style,
 }: DigitalBloomProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const inView = useInView(containerRef);
   const reducedMotion = usePrefersReducedMotion();
-  const { flowerCount, ambientCount, dpr, skipPostFX } = useAdaptive(flowerParticleCount, ambientParticleCount);
+  // Ambient-only adjustment: alive gets 3x the desktop ambient density.
+  // useAdaptive itself is untouched — the existing device-scaling formula
+  // still runs on top of this, unmodified, so mobile/low-power still scales
+  // down automatically the same way it always has.
+  const ambientBaseCount = motionPreset === "alive" ? ambientParticleCount * 3 : ambientParticleCount;
+  const { flowerCount, ambientCount, dpr, skipPostFX } = useAdaptive(flowerParticleCount, ambientBaseCount);
   const [formed, setFormed] = useState(true);
   // See the doc comment on ParticleRuntime's pointerEngagedRef prop: r3f's
   // state.pointer defaults to NDC (0,0) before any real pointer event, and
@@ -142,6 +151,7 @@ export default function DigitalBloom({
           color={ambientColor}
           motionEnabled={!reducedMotion}
           runtime={runtime}
+          motionPreset={motionPreset}
         />
         <FlowerPoints
           seed={seed}
@@ -159,6 +169,7 @@ export default function DigitalBloom({
           colorAccent={colorAccent}
           interactive={!reducedMotion}
           runtime={runtime}
+          motionPreset={motionPreset}
         />
         {!skipPostFX && (
           <EffectComposer multisampling={0}>

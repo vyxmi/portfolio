@@ -13,6 +13,9 @@ import type { ParticleRuntimeState } from "./ParticleRuntime";
 // applied here (not baked into the runtime) since it's a rendering choice,
 // not a measurement.
 const WIND_VISUAL_GAIN = 2.2;
+// Internal engine tuning for the alive preset's hover-agitation term (see
+// shaders.ts) — not exposed as a DigitalBloomProps knob in this pass.
+const HOVER_NOISE_BOOST = 1.6;
 
 // The one renderer behind every particle group. A group is entirely data
 // (geometry + these props) — this component never branches on "which
@@ -34,6 +37,7 @@ export default function ParticlePoints({
   motionEnabled,
   runtime,
   outerRadius = 1,
+  motionPreset = "legacy",
 }: {
   geometry: ParticleGroupGeometry;
   /** Whether this group morphs from `base` toward its `target` shape at all. */
@@ -52,6 +56,8 @@ export default function ParticlePoints({
   motionEnabled: boolean;
   runtime: RefObject<ParticleRuntimeState>;
   outerRadius?: number;
+  /** 'legacy' (default) reproduces the original shader output exactly; 'alive' opts into the new drift/hover behavior. See shaders.ts uAlive. */
+  motionPreset?: "legacy" | "alive";
 }) {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   const { gl } = useThree();
@@ -69,6 +75,8 @@ export default function ParticlePoints({
       uInteractionRadius: { value: interactionRadius },
       uDriftStrength: { value: driftStrength },
       uMotionEnabled: { value: motionEnabled ? 1 : 0 },
+      uAlive: { value: motionPreset === "alive" ? 1 : 0 },
+      uHoverNoiseBoost: { value: HOVER_NOISE_BOOST },
       uDepthShade: { value: depthShade ? 1 : 0 },
       uPixelRatio: { value: Math.min(gl.getPixelRatio(), 2) },
       uBaseSize: { value: baseSize },
@@ -94,6 +102,7 @@ export default function ParticlePoints({
     u.uDriftStrength.value = driftStrength;
     u.uBaseSize.value = baseSize;
     u.uMotionEnabled.value = motionEnabled ? 1 : 0;
+    u.uAlive.value = motionPreset === "alive" ? 1 : 0;
     u.uDepthShade.value = depthShade ? 1 : 0;
     (u.uPosition.value as THREE.Vector2).set(position.x, position.y);
     u.uScale.value = scale;
@@ -107,6 +116,7 @@ export default function ParticlePoints({
     driftStrength,
     baseSize,
     motionEnabled,
+    motionPreset,
     depthShade,
     position.x,
     position.y,

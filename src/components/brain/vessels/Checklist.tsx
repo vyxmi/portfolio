@@ -1,23 +1,19 @@
-"use client";
-
-import { useState } from "react";
 import type { BrainObject } from "@/lib/brain/types";
 import { parseChecklist, resolveExpand } from "@/lib/brain/resolvers";
 import { VTitle } from "./parts";
 
 // A long checklist (many sections, dozens of items — e.g. "sewing/altering")
 // shouldn't dump its whole length into the wall just because the CMS marked
-// it expandBehavior: read-more; this vessel never actually honored that
-// until now. Collapsed shows the first few lines and a real read-more
-// toggle, same as VBody's prose does, but sliced by list item since a
-// checklist doesn't clamp like a paragraph.
+// it expandBehavior: read-more. Collapsed shows the first few lines and a
+// "read more" label on the wall; clicking the card opens the full checklist
+// in focus (see BrainCard's `interactive` — read-more is just focus with a
+// clamped wall preview), where every line renders regardless of count.
 const COLLAPSED_COUNT = 6;
 
-export default function Checklist({ o }: { o: BrainObject }) {
-  const [expanded, setExpanded] = useState(false);
+export default function Checklist({ o, presentation = "wall" }: { o: BrainObject; presentation?: "wall" | "focus" }) {
   const lines = parseChecklist(o.content);
-  const readMore = resolveExpand(o) === "read-more" && lines.length > COLLAPSED_COUNT;
-  const visible = readMore && !expanded ? lines.slice(0, COLLAPSED_COUNT) : lines;
+  const readMore = presentation === "wall" && resolveExpand(o) === "read-more" && lines.length > COLLAPSED_COUNT;
+  const visible = readMore ? lines.slice(0, COLLAPSED_COUNT) : lines;
 
   return (
     <>
@@ -38,18 +34,7 @@ export default function Checklist({ o }: { o: BrainObject }) {
           )}
         </ul>
       )}
-      {readMore && (
-        <button
-          type="button"
-          className="readmore-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            setExpanded((v) => !v);
-          }}
-        >
-          {expanded ? "read less" : "read more"}
-        </button>
-      )}
+      {readMore && <span className="readmore-btn">read more</span>}
     </>
   );
 }

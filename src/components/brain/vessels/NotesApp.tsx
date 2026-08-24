@@ -4,7 +4,7 @@ import { VTitle, VBody } from "./parts";
 
 // Render Override apple-note-tiny asks for the same note grammar at a
 // more compact footprint, not a different presentation.
-export default function NotesApp({ o }: { o: BrainObject }) {
+export default function NotesApp({ o, presentation = "wall" }: { o: BrainObject; presentation?: "wall" | "focus" }) {
   const tiny = o.renderOverride === "apple-note-tiny";
   return (
     <div className={tiny ? "notes-tiny" : undefined}>
@@ -12,7 +12,7 @@ export default function NotesApp({ o }: { o: BrainObject }) {
         <span className="notes-dot" aria-hidden />
         <VTitle o={o} />
       </div>
-      <VBody o={o} readMore={resolveExpand(o) === "read-more"} />
+      <VBody o={o} readMore={presentation === "wall" && resolveExpand(o) === "read-more"} />
     </div>
   );
 }

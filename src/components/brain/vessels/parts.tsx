@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { BrainObject } from "@/lib/brain/types";
 import { resolveTitleDisplay, splitParagraphs } from "@/lib/brain/resolvers";
 import { resolveMediaSrc } from "@/lib/brain/media";
@@ -37,30 +37,22 @@ function renderLine(text: string, key: number) {
   return <p key={key}>{nodes}</p>;
 }
 
-// Long content previews and expands in place; short content just shows in
-// full. readMore is true exactly when resolveExpand(o) === "read-more".
+// Long content clamps to a short preview; short content just shows in
+// full. `readMore` is true only on the wall, for objects long enough to
+// clamp (see the vessel's own presentation check) — clicking anywhere on
+// the card opens the full object in focus (see BrainCard's `interactive`),
+// so this renders a plain label, not its own button: a nested clickable
+// here previously fought the card's idle-drift/hover motion and the
+// ambient WebGL canvas for the pointer and could silently eat the click.
 export function VBody({ o, readMore = false, className }: { o: BrainObject; readMore?: boolean; className?: string }) {
-  const [expanded, setExpanded] = useState(false);
   const paragraphs = splitParagraphs(o.content);
   if (!paragraphs.length) return null;
-  const clamp = readMore && !expanded;
   return (
     <>
-      <div className={className ? `v-body ${className}${clamp ? " clamped" : ""}` : `v-body${clamp ? " clamped" : ""}`}>
+      <div className={className ? `v-body ${className}${readMore ? " clamped" : ""}` : `v-body${readMore ? " clamped" : ""}`}>
         {paragraphs.map((p, i) => renderLine(p, i))}
       </div>
-      {readMore && (
-        <button
-          type="button"
-          className="readmore-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            setExpanded((v) => !v);
-          }}
-        >
-          {expanded ? "read less" : "read more"}
-        </button>
-      )}
+      {readMore && <span className="readmore-btn">read more</span>}
     </>
   );
 }

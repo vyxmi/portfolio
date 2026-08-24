@@ -2,13 +2,13 @@ import type { BrainObject } from "@/lib/brain/types";
 import { resolveExpand } from "@/lib/brain/resolvers";
 import { VTitle, VBody } from "./parts";
 
-export default function Journal({ o }: { o: BrainObject }) {
+export default function Journal({ o, presentation = "wall" }: { o: BrainObject; presentation?: "wall" | "focus" }) {
   return (
     <>
       <div className="journal-margin" aria-hidden />
       <div className="journal-page">
         <VTitle o={o} />
-        <VBody o={o} readMore={resolveExpand(o) === "read-more"} />
+        <VBody o={o} readMore={presentation === "wall" && resolveExpand(o) === "read-more"} />
       </div>
     </>
   );

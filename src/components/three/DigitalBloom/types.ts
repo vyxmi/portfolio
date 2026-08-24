@@ -31,6 +31,15 @@ export interface DigitalBloomProps {
   colorAccent?: string;
   /** ambientParticles color. */
   ambientColor?: string;
+  /**
+   * 'legacy' (default) reproduces the original motion exactly — the
+   * original organicDrift-only wobble and cursor-wind/swirl turbulence.
+   * 'alive' opts into a second seeded drift layer, cursor-proximity-only
+   * hover agitation (never cursor direction/velocity), 3x desktop ambient
+   * density, and loose seeded ambient clusters — see shaders.ts/geometry.ts.
+   * Only HomeField.tsx sets this to 'alive' today.
+   */
+  motionPreset?: "legacy" | "alive";
   className?: string;
   style?: CSSProperties;
 }

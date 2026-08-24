@@ -193,6 +193,24 @@ function randRange(rng: () => number, [lo, hi]: [number, number]) {
   return lo + rng() * (hi - lo);
 }
 
+// alive preset only: a handful of seeded soft cluster centers particles
+// can be pulled toward, so the field reads as loose clumps of atmosphere
+// rather than independently-scattered dust. Touches anchor (x/y) generation
+// only — z/size/opacity/speed/interaction/parallax generation below is
+// identical regardless of preset, and flower anchor/target generation
+// (buildFlowerGeometry) is untouched entirely.
+const ALIVE_CLUSTER_COUNT = 5;
+const ALIVE_CLUSTER_FRACTION = 0.35;
+const ALIVE_CLUSTER_SPREAD = 0.22;
+// Radius exponent for alive's non-clustered draws. Sampling a disc via
+// polar angle + pow(rng(), 0.5)*R gives uniform density per unit area (the
+// "unbiased" disc baseline); an exponent above 0.5 concentrates more draws
+// at small radii than that baseline, biasing overall density broadly
+// toward the flower (still full-field, not a hard cluster) — legacy's own
+// exclusion-disc rejection loop (the else branch below) is untouched.
+const ALIVE_CENTER_BIAS_EXPONENT = 1.15;
+const ALIVE_SCATTER_RADIUS = 1.3;
+
 // A depth-plane-driven atmospheric group: no target shape (it never
 // morphs — see ParticlePoints' morph flag), just a scattered rest position
 // and per-particle attributes drawn from whichever plane it was assigned
@@ -203,8 +221,9 @@ export function buildDepthPlaneGeometry(opts: {
   seed: string | number;
   particleCount: number;
   planes: DepthPlaneConfig[];
+  motionPreset?: "legacy" | "alive";
 }): ParticleGroupGeometry {
-  const { seed, particleCount, planes } = opts;
+  const { seed, particleCount, planes, motionPreset = "legacy" } = opts;
   const rng = createRng(`${seed}:ambient`);
   const geo = fillDefaults(particleCount, {});
 
@@ -215,18 +234,46 @@ export function buildDepthPlaneGeometry(opts: {
     return { plane: p, end: cursor };
   });
 
+  const clusterCenters: Array<{ x: number; y: number }> =
+    motionPreset === "alive"
+      ? Array.from({ length: ALIVE_CLUSTER_COUNT }, () => {
+          const angle = rng() * Math.PI * 2;
+          const radius = 0.3 + rng() * 0.6;
+          return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+        })
+      : [];
+
   for (let i = 0; i < particleCount; i++) {
     const plane = (planeBounds.find((b) => i < b.end) ?? planeBounds[planeBounds.length - 1]).plane;
 
-    // Reject-and-resample out of a small central disc so ambient particles
-    // don't visually crowd the flower's own core — a handful of retries is
-    // plenty since the exclusion zone is small relative to the full field.
     let x = 0;
     let y = 0;
-    for (let attempt = 0; attempt < 6; attempt++) {
-      x = (rng() - 0.5) * 2;
-      y = (rng() - 0.5) * 2;
-      if (Math.hypot(x, y) > 0.16) break;
+
+    if (motionPreset === "alive") {
+      if (clusterCenters.length && rng() < ALIVE_CLUSTER_FRACTION) {
+        const c = clusterCenters[Math.floor(rng() * clusterCenters.length)];
+        const angle = rng() * Math.PI * 2;
+        const spread = rng() * ALIVE_CLUSTER_SPREAD;
+        x = c.x + Math.cos(angle) * spread;
+        y = c.y + Math.sin(angle) * spread;
+      } else {
+        for (let attempt = 0; attempt < 6; attempt++) {
+          const angle = rng() * Math.PI * 2;
+          const radius = Math.pow(rng(), ALIVE_CENTER_BIAS_EXPONENT) * ALIVE_SCATTER_RADIUS;
+          x = Math.cos(angle) * radius;
+          y = Math.sin(angle) * radius;
+          if (Math.hypot(x, y) > 0.16) break;
+        }
+      }
+    } else {
+      // Reject-and-resample out of a small central disc so ambient particles
+      // don't visually crowd the flower's own core — a handful of retries is
+      // plenty since the exclusion zone is small relative to the full field.
+      for (let attempt = 0; attempt < 6; attempt++) {
+        x = (rng() - 0.5) * 2;
+        y = (rng() - 0.5) * 2;
+        if (Math.hypot(x, y) > 0.16) break;
+      }
     }
 
     const i3 = i * 3;

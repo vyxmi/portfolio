@@ -56,6 +56,7 @@ export default function AmbientPoints({
   color,
   motionEnabled,
   runtime,
+  motionPreset = "legacy",
 }: {
   seed: string | number;
   particleCount: number;
@@ -66,10 +67,11 @@ export default function AmbientPoints({
   color: string;
   motionEnabled: boolean;
   runtime: RefObject<ParticleRuntimeState>;
+  motionPreset?: "legacy" | "alive";
 }) {
   const geo = useMemo(
-    () => buildDepthPlaneGeometry({ seed, particleCount, planes: AMBIENT_PLANES }),
-    [seed, particleCount]
+    () => buildDepthPlaneGeometry({ seed, particleCount, planes: AMBIENT_PLANES, motionPreset }),
+    [seed, particleCount, motionPreset]
   );
 
   return (
@@ -86,6 +88,7 @@ export default function AmbientPoints({
       colorB={color}
       motionEnabled={motionEnabled}
       runtime={runtime}
+      motionPreset={motionPreset}
     />
   );
 }

@@ -59,14 +59,48 @@ export function resolveWeight(o: BrainObject): Weight {
   return o.weight ?? "normal";
 }
 
+const NUMBER_WORDS = [
+  "zero",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+  "ten",
+  "eleven",
+  "twelve",
+  "thirteen",
+  "fourteen",
+  "fifteen",
+  "sixteen",
+  "seventeen",
+  "eighteen",
+  "nineteen",
+  "twenty",
+];
+
+// Every gallery-vessel media count in the CMS today is well under twenty —
+// this only falls back to the numeral itself past that so a future large
+// set still renders something instead of an out-of-bounds word.
+function spellOut(n: number): string {
+  return NUMBER_WORDS[n] ?? String(n);
+}
+
 export function cursorFor(o: BrainObject): { css: "text" | "zoom-in" | "pointer"; label: string } | null {
   switch (resolveExpand(o)) {
     case "read-more":
-      return { css: "text", label: "read more" };
+      // Clicking opens the full object in focus (see BrainCard) — same
+      // affordance as "focus" below, just its own label since the wall
+      // still shows a clamped preview rather than nothing.
+      return { css: "zoom-in", label: "read more" };
     case "focus":
       return { css: "zoom-in", label: "focus" };
     case "gallery":
-      return { css: "zoom-in", label: o.media ? `view ${o.media.length}` : "gallery" };
+      return { css: "zoom-in", label: o.media ? `view ${spellOut(o.media.length)}` : "gallery" };
     case "external":
       return { css: "pointer", label: "open" };
     default:

@@ -22,6 +22,12 @@ export const vertexShader = /* glsl */ `
   uniform float uInteractionRadius;
   uniform float uDriftStrength;
   uniform float uMotionEnabled;
+  // 0 (legacy) or 1 (alive) — the opt-in motion preset. Legacy paths must
+  // stay byte-for-byte what they were before this uniform existed; every
+  // new behavior in this shader is additively/branch-gated on uAlive so
+  // uAlive=0 reproduces the old output exactly.
+  uniform float uAlive;
+  uniform float uHoverNoiseBoost;
   // 0 or 1 — the flower-specific "further back reads dimmer/cooler"
   // depth cue. Ambient groups already encode their own depth visually
   // through per-plane aOpacity/aSize, so they leave this off rather than
@@ -56,6 +62,24 @@ export const vertexShader = /* glsl */ `
       sin(t * 0.15 * freqMul + rnd.w) * 0.011,
       cos(t * 0.11 * freqMul + rnd.y * 6.28318) * 0.011,
       sin(t * 0.09 * freqMul + rnd.x * 6.28318 + 1.7) * 0.007
+    ) * driftStrength;
+  }
+
+  // alive preset only: a second oscillator at different frequencies/phases
+  // (its own seed offsets, not organicDrift's) layered additively on top —
+  // breaks up organicDrift's single-frequency repetition without changing
+  // organicDrift itself. Amplitudes are ~0.65x organicDrift's own, so the
+  // combined total under alive lands at ~1.65x (within the 1.5-1.75x
+  // target) of legacy's organicDrift-alone amplitude. Also reused, as-is,
+  // as the seeded direction source for alive's hover agitation below — the
+  // same wobble a particle already has, just locally amplified near the
+  // cursor rather than replaced by a cursor-driven direction.
+  vec3 secondaryDrift(vec4 rnd, vec2 motion, float t, float driftStrength) {
+    float freqMul = max(0.05, motion.y);
+    return vec3(
+      sin(t * 0.223 * freqMul + rnd.z * 6.28318 + 2.1) * 0.0072,
+      cos(t * 0.187 * freqMul + rnd.x * 6.28318 + 0.6) * 0.0072,
+      sin(t * 0.161 * freqMul + rnd.w + 4.3) * 0.0046
     ) * driftStrength;
   }
 
@@ -116,12 +140,27 @@ export const vertexShader = /* glsl */ `
     p.xy += radialDir * breathe;
 
     p += organicDrift(aRandom, aMotion, uTime, uDriftStrength) * uMotionEnabled;
+    // alive only, purely additive on top of the untouched line above —
+    // legacy (uAlive=0) contributes nothing here.
+    vec3 secondary = secondaryDrift(aRandom, aMotion, uTime, uDriftStrength);
+    p += secondary * uAlive * uMotionEnabled;
 
-    vec2 force =
-      cursorForce(p.xy, uPointer, uWind, uInteractionRadius, uInteractionStrength * aInteractionMul, aRandom.w, uTime) *
-      uPointerActive *
-      uMotionEnabled;
-    p.xy += force;
+    if (uAlive > 0.5) {
+      // Localized seeded agitation: cursor PROXIMITY only sets how strongly
+      // this particle's own seeded wobble (secondary, already computed
+      // above) shows — never the cursor's direction or velocity, which
+      // never appear in this branch at all (uWind is legacy-only).
+      float d = length(p.xy - uPointer);
+      float falloff = exp(-(d * d) / max(0.0001, 2.0 * uInteractionRadius * uInteractionRadius));
+      float aInteract = uInteractionStrength * aInteractionMul;
+      p.xy += secondary.xy * falloff * uHoverNoiseBoost * aInteract * uPointerActive * uMotionEnabled;
+    } else {
+      vec2 force =
+        cursorForce(p.xy, uPointer, uWind, uInteractionRadius, uInteractionStrength * aInteractionMul, aRandom.w, uTime) *
+        uPointerActive *
+        uMotionEnabled;
+      p.xy += force;
+    }
 
     // Constant, non-falloff pointer parallax — depth-plane dressing, not a
     // localized interaction. Zero for the flower (aParallax is baked 0),

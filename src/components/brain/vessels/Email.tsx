@@ -2,7 +2,7 @@ import type { BrainObject } from "@/lib/brain/types";
 import { resolveExpand } from "@/lib/brain/resolvers";
 import { MediaThumb, VBody } from "./parts";
 
-export default function Email({ o }: { o: BrainObject }) {
+export default function Email({ o, presentation = "wall" }: { o: BrainObject; presentation?: "wall" | "focus" }) {
   return (
     <>
       <div className="email-bar" aria-hidden />
@@ -16,7 +16,7 @@ export default function Email({ o }: { o: BrainObject }) {
           <MediaThumb o={o} fit="contain" />
         </div>
       )}
-      <VBody o={o} readMore={resolveExpand(o) === "read-more"} />
+      <VBody o={o} readMore={presentation === "wall" && resolveExpand(o) === "read-more"} />
     </>
   );
 }

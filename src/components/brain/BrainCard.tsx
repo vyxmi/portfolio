@@ -105,7 +105,15 @@ export default function BrainCard({
     return undefined;
   }, [vessel, o.id]);
 
-  const interactive = presentation === "wall" && expand !== "none" && expand !== "read-more";
+  // read-more used to be its own thing: clamp on the wall, expand in place
+  // via a nested button. That nested button sat inside the same vessel the
+  // idle-drift/hover motion moves and the ambient WebGL canvas can occlude
+  // — both proved able to make a click miss it. Simplest fix: read-more is
+  // just focus now. The wall still clamps (see VBody/Checklist's own
+  // presentation check), but tapping anywhere on the card opens the full
+  // object in the focus modal — the same, already-reliable path "focus"
+  // and "gallery" use — instead of a second, fragile inline toggle.
+  const interactive = presentation === "wall" && expand !== "none";
 
   function activate() {
     if (expand === "external") {
@@ -161,7 +169,7 @@ export default function BrainCard({
         onPointerUp={dragEnabled ? endVesselDrag : undefined}
         onPointerCancel={dragEnabled ? endVesselDrag : undefined}
       >
-        <Vessel o={o} />
+        <Vessel o={o} presentation={presentation} />
       </div>
       <BrainMetaBottom o={o} />
     </div>

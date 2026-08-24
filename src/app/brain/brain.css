@@ -886,14 +886,22 @@
 .case-title + .case-caption {
   margin-top: 2px;
 }
-/* display-case objects are browsed by their contents, not their date —
-   keep the date out of the way and only surface it on hover/focus. */
+/* display-case objects are browsed by their contents, not their date — on
+   the wall, keep the date out of the way and only surface it on hover/tab-
+   focus. Opened in the focus modal (data-presentation="focus", see
+   BrainFocus.tsx), the object is the only thing on screen and there's
+   nothing left to browse past — the date shows outright there, hover or
+   not, rather than staying gated behind a hover the modal has no room to
+   demonstrate. */
 .brain-card:has(> .vessel[data-vessel="display-case"]) .meta-bottom {
   opacity: 0;
   transition: opacity var(--t-micro) var(--e-out);
 }
 .brain-card:has(> .vessel[data-vessel="display-case"]):hover .meta-bottom,
 .brain-card:has(> .vessel[data-vessel="display-case"]):focus-within .meta-bottom {
+  opacity: 1;
+}
+.brain-card[data-presentation="focus"]:has(> .vessel[data-vessel="display-case"]) .meta-bottom {
   opacity: 1;
 }
 

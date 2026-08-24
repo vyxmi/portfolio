@@ -24,7 +24,10 @@ import Fallback from "./Fallback";
 // The controlled vessel vocabulary, one component per physical/digital
 // form. Adding a new vessel is exactly this: write the component, add one
 // line here. Nothing else in the render path needs to know it exists.
-export const VESSELS: Record<string, ComponentType<{ o: BrainObject }>> = {
+// `presentation` is only read by the handful of vessels with read-more
+// clamping (Journal, Email, PlainNote, NotesApp, Checklist) — every other
+// vessel ignores it.
+export const VESSELS: Record<string, ComponentType<{ o: BrainObject; presentation?: "wall" | "focus" }>> = {
   "plain-note": PlainNote,
   "sticky-note": StickyNote,
   journal: Journal,

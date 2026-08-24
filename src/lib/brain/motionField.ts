@@ -15,6 +15,7 @@ export interface MotionFieldState {
   dragActive: boolean; // true while any card is mid-drag
   reducedMotion: boolean;
   paused: boolean; // tab hidden / low-power gate
+  resizing: boolean; // true while the window is actively being resized
   time: number; // running seconds, advances only while !paused
 }
 
@@ -30,8 +31,31 @@ export const motionField: MotionFieldState = {
   dragActive: false,
   reducedMotion: false,
   paused: false,
+  resizing: false,
   time: 0,
 };
+
+// CSS Grid reflows during a resize are discontinuous — column/row layout
+// can jump instantly as the browser recalculates — while idle-drift and
+// scroll-parallax try to smoothly chase a target derived from that layout.
+// Recomputing a smooth chase target dozens of times a second against a
+// layout that's itself churning is what read as cards "moving around and
+// glitching" on resize, no matter how the target itself was smoothed or
+// clamped. The fix is to not run that chase at all while a resize is
+// actively in progress: tickCards holds cards at their plain grid position
+// (see the `motionField.resizing` check there) and this debounce flips
+// back to false ~180ms after the last resize event, at which point the
+// idle motion eases back in through the same lag interpolation it always
+// uses — not a hard cut.
+let resizeSettleTimer: ReturnType<typeof setTimeout> | null = null;
+export function notifyResizeActivity() {
+  motionField.resizing = true;
+  if (resizeSettleTimer) clearTimeout(resizeSettleTimer);
+  resizeSettleTimer = setTimeout(() => {
+    resizeSettleTimer = null;
+    motionField.resizing = false;
+  }, 180);
+}
 
 export interface CardMotionParams {
   depth: number; // 0 (near) .. 1 (far) — also sets parallax reach and lag
@@ -90,19 +114,53 @@ interface CardEntry {
   current: { x: number; y: number; rot: number; scale: number };
   drag: CardDragState | null;
   hover: CardHoverState | null;
+  docTop: number; // el's top relative to the document, cached — see refreshCardRects
+  height: number;
 }
 
 const cards = new Map<string, CardEntry>();
 
+// el.getBoundingClientRect() is a forced-synchronous-layout read. Calling
+// it per card per animation frame (tickCards used to) is expensive at any
+// time and actively fights the browser's own reflow work during a window
+// resize, which is what produced the visible stutter/jumping there.
+// Instead each card's document-relative rect is cached here and only
+// re-measured when layout actually changed — see refreshCardRects.
+function measureCard(entry: CardEntry) {
+  // Strip the live animated transform before measuring — the card almost
+  // always has some idle-drift/parallax offset applied when this runs, and
+  // getBoundingClientRect() reports the rendered (transformed) box, not the
+  // layout one. Without this, docTop bakes in a snapshot of whatever drift
+  // offset happened to be live at that instant.
+  const prevTransform = entry.el.style.transform;
+  entry.el.style.transform = "none";
+  const rect = entry.el.getBoundingClientRect();
+  entry.el.style.transform = prevTransform;
+  entry.docTop = rect.top + motionField.scrollY;
+  entry.height = rect.height;
+}
+
+// Call once layout has settled after a reflow that could have moved cards
+// (masonry re-spanning rows, a breakpoint changing column count, a card's
+// content reflowing). BrainWall's masonry recompute calls this right after
+// it finishes writing grid-row spans.
+export function refreshCardRects() {
+  for (const entry of cards.values()) measureCard(entry);
+}
+
 export function registerCard(id: string, el: HTMLElement, params: CardMotionParams) {
-  cards.set(id, {
+  const entry: CardEntry = {
     el,
     vesselEl: params.vesselDriftX || params.vesselDriftY ? el.querySelector<HTMLElement>(".vessel") : null,
     params,
     current: { x: 0, y: 0, rot: 0, scale: params.scaleReveal ? 0.95 : 1 },
     drag: null,
     hover: null,
-  });
+    docTop: 0,
+    height: 0,
+  };
+  cards.set(id, entry);
+  measureCard(entry);
 }
 
 // Anti-gravity hover: the card eases toward a risen, gently bobbing state
@@ -233,17 +291,39 @@ export function tickCards() {
     // moment it came into view. Viewport-relative is what real scroll
     // parallax means anyway: the offset rides along as the card transits
     // the screen, then settles once it's passed through.
-    const rect = el.getBoundingClientRect();
-    const center = rect.top + rect.height / 2;
-    const viewportProgress = vh > 0 ? (center - vh / 2) / (vh / 2) : 0;
+    // center/height come from the cached docTop (see measureCard) rather
+    // than a live getBoundingClientRect() — this runs every frame for
+    // every card, and a forced-layout read at that frequency is expensive.
+    const center = entry.docTop - motionField.scrollY + entry.height / 2;
+    // Clamped to -1..1 as documented above — unclamped, a card sitting far
+    // outside the viewport accumulates a huge parallax target (invisible
+    // while off-screen). If a resize/reflow then relocates that card into
+    // view — e.g. a masonry column-count change — it visibly sprints to
+    // catch up to that stale target instead of drifting in gently.
+    const viewportProgress = vh > 0 ? Math.max(-1, Math.min(1, (center - vh / 2) / (vh / 2))) : 0;
     const parallaxY = -viewportProgress * params.parallax;
-    const targetX = idle.x;
-    const targetY = idle.y + parallaxY;
-    const targetRot = idle.rot;
+
+    // While the window is actively resizing, the grid layout itself is
+    // churning (see notifyResizeActivity above) — idle drift and parallax
+    // would be chasing a target that's being recomputed against a moving
+    // floor. Target the neutral rest pose instead so the card just sits at
+    // its plain grid position; current.* still eases toward it through the
+    // normal lag below, so this is a smooth settle, not a snap, and the
+    // drift/parallax motion eases back in the same way once resizing ends.
+    // Hover gets the same neutral-target treatment for a different reason:
+    // continuous idle drift means a vessel's own controls (read-more,
+    // gallery, external-link) can visibly slide out from under a cursor
+    // that's held still deciding to click — settling to rest the instant a
+    // card is hovered keeps whatever's under the pointer where the pointer
+    // left it, without a special case for any particular control.
+    const settled = motionField.resizing || !!hover?.active;
+    const targetX = settled ? 0 : idle.x;
+    const targetY = settled ? 0 : idle.y + parallaxY;
+    const targetRot = settled ? 0 : idle.rot;
 
     let targetScale = 1;
-    if (params.scaleReveal) {
-      const dist = Math.abs(center - vh / 2) / (vh / 2 + rect.height);
+    if (params.scaleReveal && !motionField.resizing) {
+      const dist = Math.abs(center - vh / 2) / (vh / 2 + entry.height);
       targetScale = 1 - Math.min(dist, 1) * 0.05;
     }
 
@@ -288,17 +368,22 @@ export function tickCards() {
       }
     }
 
-    // Anti-gravity hover: a slow, weightless rise plus a slower, smaller
-    // bob than the idle float above — reads as buoyant rather than
-    // mechanical. Suppressed while this same card is mid-drag so it hands
-    // off to drag's own lift instead of fighting it.
+    // Anti-gravity hover: a slow, weightless rise that holds once risen —
+    // no continuous bob layered on top, unlike the old version of this
+    // effect. A hovered card is exactly where a user is about to click
+    // (read-more, gallery, external-link…) and a never-ending sine wobble
+    // here meant that target kept sliding under the cursor for as long as
+    // the card stayed hovered, not just during the idle drift this same
+    // hover state already freezes above. Suppressed while this same card
+    // is mid-drag so it hands off to drag's own lift instead of fighting
+    // it.
     let hoverY = 0;
     let hoverScale = 1;
     if (hover) {
       const target = hover.active && !drag?.active ? 1 : 0;
       hover.cur += (target - hover.cur) * 0.05;
       if (hover.cur > 0.001) {
-        hoverY = -hover.cur * 9 + hover.cur * Math.sin(time * 0.45 + params.phase * 1.9) * 3;
+        hoverY = -hover.cur * 9;
         hoverScale = 1 + hover.cur * 0.018;
       }
     }
