@@ -9,11 +9,13 @@ const Z_PLANE = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 // The one thing every particle group reads from, computed exactly once
 // per frame regardless of how many groups exist — raycasting the pointer
 // plane per-group would just be redundant work repeated for flower +
-// every ambient plane.
+// every ambient plane. Deliberately has no notion of cursor velocity/wind:
+// hover is purely proximity-gated (see shaders.ts), so the only thing
+// downstream code ever needs is where the cursor currently is and whether
+// it's meaningfully present.
 export interface ParticleRuntimeState {
   time: number;
   pointer: THREE.Vector2;
-  wind: THREE.Vector2;
   pointerActive: number;
   viewportExtent: THREE.Vector2;
 }
@@ -22,7 +24,6 @@ export function createParticleRuntime(): ParticleRuntimeState {
   return {
     time: 0,
     pointer: new THREE.Vector2(0, 0),
-    wind: new THREE.Vector2(0, 0),
     pointerActive: 0,
     viewportExtent: new THREE.Vector2(1, 1),
   };
@@ -49,8 +50,6 @@ export default function ParticleRuntime({
   interactive: boolean;
 }) {
   const raycastTarget = useRef(new THREE.Vector3());
-  const prevWorldPointer = useRef(new THREE.Vector2(0, 0));
-  const hasPrevWorldPointer = useRef(false);
 
   useFrame((state) => {
     const rt = runtimeRef.current;
@@ -59,7 +58,6 @@ export default function ParticleRuntime({
 
     if (!interactive) {
       rt.pointerActive = 0;
-      rt.wind.set(0, 0);
       return;
     }
 
@@ -72,28 +70,8 @@ export default function ParticleRuntime({
     if (hit) {
       rt.pointer.x += (hit.x - rt.pointer.x) * 0.14;
       rt.pointer.y += (hit.y - rt.pointer.y) * 0.14;
-
-      if (!hasPrevWorldPointer.current) {
-        prevWorldPointer.current.set(hit.x, hit.y);
-        hasPrevWorldPointer.current = true;
-      }
-      const dx = hit.x - prevWorldPointer.current.x;
-      const dy = hit.y - prevWorldPointer.current.y;
-      prevWorldPointer.current.set(hit.x, hit.y);
-
-      // Clamp the raw per-frame step so a fast flick can't spike into an
-      // oversized gust — speed still comes through, just capped.
-      const rawSpeed = Math.hypot(dx, dy);
-      const maxStep = 0.05;
-      const stepScale = rawSpeed > maxStep ? maxStep / rawSpeed : 1;
-      rt.wind.x += (dx * stepScale - rt.wind.x) * 0.18;
-      rt.wind.y += (dy * stepScale - rt.wind.y) * 0.18;
-
       rt.pointerActive += (1 - rt.pointerActive) * 0.12;
     } else {
-      hasPrevWorldPointer.current = false;
-      rt.wind.x += (0 - rt.wind.x) * 0.06;
-      rt.wind.y += (0 - rt.wind.y) * 0.06;
       rt.pointerActive += (0 - rt.pointerActive) * 0.06;
     }
   });

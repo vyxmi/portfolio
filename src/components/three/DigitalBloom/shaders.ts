@@ -6,32 +6,39 @@
 // adding a new kind of group means writing a geometry builder that fills
 // the same attribute contract (see geometry.ts's ParticleGroupGeometry),
 // not touching GLSL.
+//
+// Motion model: every particle has a stable anchor (its scatterAnchor, or —
+// once shapeBound and forming/formed — a mix toward its shapeTarget) plus a
+// seeded, independent, slow, bounded float around that anchor. The exact
+// same functions run for every group and every state (ambient, dispersed
+// flower, forming flower, formed flower) — only uDriftStrength/uIdleClamp
+// and each particle's own seed/speed ever vary the result. There is no
+// concept of wind, pointer velocity, or a shared/group transform anywhere
+// in this file: a particle's motion is a pure function of its own seed and
+// time, plus (for hover) its distance from the cursor.
 export const vertexShader = /* glsl */ `
   uniform float uTime;
   uniform float uBloomProgress;
   // 0 or 1 — whether this group morphs from its scattered base position
-  // toward a target shape at all. Ambient/atmospheric groups never morph
-  // (mix(base, target, eased * uMorph) collapses to base regardless of
+  // toward a target shape at all (shapeBound vs free). Free/ambient groups
+  // never morph (mix(base, target, eased) collapses to base regardless of
   // uBloomProgress or whatever garbage sits in the unused target buffer).
   uniform float uMorph;
-  uniform float uOuterRadius;
   uniform vec2 uPointer;
-  uniform vec2 uWind;
   uniform float uPointerActive;
   uniform float uInteractionStrength;
   uniform float uInteractionRadius;
   uniform float uDriftStrength;
   uniform float uMotionEnabled;
-  // 0 (legacy) or 1 (alive) — the opt-in motion preset. Legacy paths must
-  // stay byte-for-byte what they were before this uniform existed; every
-  // new behavior in this shader is additively/branch-gated on uAlive so
-  // uAlive=0 reproduces the old output exactly.
-  uniform float uAlive;
-  uniform float uHoverNoiseBoost;
-  // 0 or 1 — the flower-specific "further back reads dimmer/cooler"
-  // depth cue. Ambient groups already encode their own depth visually
-  // through per-plane aOpacity/aSize, so they leave this off rather than
-  // layering a second, differently-tuned depth effect on top.
+  // Max length of the combined independentFloat displacement once a
+  // shapeBound group is formed — see the clamp in main() below. Ramped out
+  // entirely while dispersed/mid-formation, and always for free/ambient
+  // groups (uMorph = 0), which have no spacing to protect.
+  uniform float uIdleClamp;
+  // 0 or 1 — the flower-specific "further back reads dimmer/cooler" depth
+  // cue. Ambient groups already encode their own depth visually through
+  // per-plane aOpacity/aSize, so they leave this off rather than layering a
+  // second, differently-tuned depth effect on top.
   uniform float uDepthShade;
   uniform float uPixelRatio;
   uniform float uBaseSize;
@@ -45,16 +52,16 @@ export const vertexShader = /* glsl */ `
   attribute float aSize;
   attribute float aOpacity;
   attribute float aInteractionMul;
-  attribute float aParallax;
 
   varying float vAlpha;
   varying float vColorMix;
 
   float easeOutQuint(float x) { return 1.0 - pow(1.0 - x, 5.0); }
 
-  // Continuous per-particle noise wobble — the thing that keeps a
-  // "formed"/at-rest particle from ever reading as frozen. Shared,
-  // unchanged in character, by every group; only uDriftStrength and each
+  // independentFloat(seed, time), part one: continuous per-particle noise
+  // wobble around the anchor — the thing that keeps a "formed"/at-rest
+  // particle from ever reading as frozen. Shared, unchanged in character,
+  // by every group and every state; only uDriftStrength and each
   // particle's own aMotion.y (speed) vary how strongly/quickly it shows.
   vec3 organicDrift(vec4 rnd, vec2 motion, float t, float driftStrength) {
     float freqMul = max(0.05, motion.y);
@@ -65,15 +72,13 @@ export const vertexShader = /* glsl */ `
     ) * driftStrength;
   }
 
-  // alive preset only: a second oscillator at different frequencies/phases
-  // (its own seed offsets, not organicDrift's) layered additively on top —
-  // breaks up organicDrift's single-frequency repetition without changing
-  // organicDrift itself. Amplitudes are ~0.65x organicDrift's own, so the
-  // combined total under alive lands at ~1.65x (within the 1.5-1.75x
-  // target) of legacy's organicDrift-alone amplitude. Also reused, as-is,
-  // as the seeded direction source for alive's hover agitation below — the
-  // same wobble a particle already has, just locally amplified near the
-  // cursor rather than replaced by a cursor-driven direction.
+  // independentFloat(seed, time), part two: a second oscillator at
+  // different frequencies/phases (its own seed offsets, not organicDrift's)
+  // layered additively on top — breaks up organicDrift's single-frequency
+  // repetition without changing organicDrift itself. Combined, these two
+  // are a particle's entire idle motion: bounded, per-particle-seeded,
+  // multidirectional, and never a shared direction or whole-field
+  // translation.
   vec3 secondaryDrift(vec4 rnd, vec2 motion, float t, float driftStrength) {
     float freqMul = max(0.05, motion.y);
     return vec3(
@@ -83,28 +88,21 @@ export const vertexShader = /* glsl */ `
     ) * driftStrength;
   }
 
-  // Localized turbulence/advection: nearby particles get carried a little
-  // in whatever direction the cursor is *currently moving* (wind), plus a
-  // small perpendicular swirl so it reads as loosening rather than a clean
-  // directional gust — never a push directly away from a fixed point, so
-  // there's no hole/ring to form. The falloff is a Gaussian (no radius
-  // uniform ever hard-zeroes it, just fades toward negligible) and the
-  // whole thing is naturally springy: wind itself decays to zero over time
-  // once the cursor stops moving or leaves (see ParticleRuntime), so
-  // there's nothing here to explicitly "return" — it just stops being fed.
-  vec2 cursorForce(vec2 p, vec2 pointer, vec2 wind, float sigma, float strength, float seed, float t) {
-    vec2 toP = p - pointer;
-    float d = length(toP);
-    float falloff = exp(-(d * d) / max(0.0001, 2.0 * sigma * sigma));
-    vec2 dirN = d > 1e-5 ? toP / d : vec2(0.0);
-    vec2 perp = vec2(-dirN.y, dirN.x);
-    // Swirl magnitude rides on actual cursor speed (windMag), not just
-    // presence — a cursor that stops moving but stays near the flower
-    // must produce zero force here, or it reads as a static ring/hole
-    // instead of "loosens while moving."
-    float windMag = length(wind);
-    float swirl = sin(t * 1.4 + seed * 6.28318) * windMag * 1.6;
-    return (wind * falloff * strength) + (perp * swirl * falloff * strength * 0.35);
+  // seededNoiseDirection(seed, time) — the hover displacement's entire
+  // direction/magnitude source. Its own frequencies/phase offsets (distinct
+  // from both drift oscillators above, and folded in with aMotion.x — an
+  // otherwise-unused per-particle random sign — for extra variety) so a
+  // hovered particle doesn't just look like its own idle wobble turned up.
+  // Still a pure function of the particle's seed and time: the cursor's
+  // position/velocity never appears here, only in main()'s proximity gate,
+  // which decides *how much* of this shows, never *which way*.
+  vec2 seededNoiseDirection(vec4 rnd, vec2 motion, float t) {
+    float freqMul = max(0.05, motion.y);
+    float phase = motion.x * 3.14159265;
+    return vec2(
+      sin(t * 0.31 * freqMul + rnd.x * 6.28318 + phase + 4.7) * 0.035,
+      cos(t * 0.26 * freqMul + rnd.z * 6.28318 - phase + 1.9) * 0.035
+    );
   }
 
   void main() {
@@ -122,50 +120,58 @@ export const vertexShader = /* glsl */ `
     // the instant it mounts, and only its position animates from there.
     float eased = easeOutQuint(local) * uMorph;
 
-    vec2 radialDir = normalize(target.xy - uPosition + vec2(1e-5));
-    vec2 tangentDir = vec2(-radialDir.y, radialDir.x);
-    float bulge = sin(eased * 3.14159265) * aMotion.x * 0.20 * uScale;
+    // anchor = shapeBound ? mix(scatterAnchor, shapeTarget, formProgress) : scatterAnchor.
+    // Free/ambient groups have uMorph = 0 so eased is always 0, collapsing
+    // this to plain base regardless of bloom progress.
+    vec3 anchor = mix(base, target, eased);
 
-    vec3 p = mix(base, target, eased);
-    p.xy += tangentDir * bulge * (1.0 - eased * 0.5);
-
-    float rNorm = clamp(length(target.xy - uPosition) / max(0.0001, uOuterRadius), 0.0, 1.0);
-    // Non-morphing groups (ambient) are always "at rest" — formedness is
-    // just 1. Morphing groups only pick up the extra radial "breathing"
-    // once they've actually settled near their target.
+    // Free/ambient groups are always "at rest" — formedness is just 1, but
+    // multiplying by uMorph below zeroes their idle clamp entirely, since
+    // they have no silhouette spacing to protect. shapeBound groups only
+    // tighten their clamp once actually settled near target.
     float formedness = mix(1.0, smoothstep(0.82, 1.0, uBloomProgress), uMorph);
 
-    float breathe =
-      sin(uTime * 0.35 + aRandom.w) * (0.009 + rNorm * 0.012) * formedness * uDriftStrength * uMorph * uMotionEnabled;
-    p.xy += radialDir * breathe;
+    // 2x overall float strength — a flat multiplier on top of the two
+    // seeded oscillators rather than doubling their baked-in amplitudes
+    // individually, so their relative balance (organicDrift vs
+    // secondaryDrift) is untouched.
+    vec3 drift = (organicDrift(aRandom, aMotion, uTime, uDriftStrength)
+                + secondaryDrift(aRandom, aMotion, uTime, uDriftStrength)) * 2.0 * uMotionEnabled;
 
-    p += organicDrift(aRandom, aMotion, uTime, uDriftStrength) * uMotionEnabled;
-    // alive only, purely additive on top of the untouched line above —
-    // legacy (uAlive=0) contributes nothing here.
-    vec3 secondary = secondaryDrift(aRandom, aMotion, uTime, uDriftStrength);
-    p += secondary * uAlive * uMotionEnabled;
-
-    if (uAlive > 0.5) {
-      // Localized seeded agitation: cursor PROXIMITY only sets how strongly
-      // this particle's own seeded wobble (secondary, already computed
-      // above) shows — never the cursor's direction or velocity, which
-      // never appear in this branch at all (uWind is legacy-only).
-      float d = length(p.xy - uPointer);
-      float falloff = exp(-(d * d) / max(0.0001, 2.0 * uInteractionRadius * uInteractionRadius));
-      float aInteract = uInteractionStrength * aInteractionMul;
-      p.xy += secondary.xy * falloff * uHoverNoiseBoost * aInteract * uPointerActive * uMotionEnabled;
-    } else {
-      vec2 force =
-        cursorForce(p.xy, uPointer, uWind, uInteractionRadius, uInteractionStrength * aInteractionMul, aRandom.w, uTime) *
-        uPointerActive *
-        uMotionEnabled;
-      p.xy += force;
+    // Formed flower: clamp the combined independentFloat displacement under
+    // a fraction of the flower's own point spacing (uIdleClamp, estimated
+    // in JS from particle count/radius — see FlowerPoints) so idle wobble
+    // can't visibly loosen the silhouette. Ramped from effectively
+    // unclamped (dispersed/mid-formation) up to uIdleClamp as the shape
+    // settles; always unclamped for free/ambient groups via the uMorph term.
+    float clampRadius = mix(1000.0, uIdleClamp, formedness * uMorph);
+    float driftLen = length(drift.xy);
+    if (driftLen > clampRadius) {
+      drift.xy *= clampRadius / driftLen;
     }
 
-    // Constant, non-falloff pointer parallax — depth-plane dressing, not a
-    // localized interaction. Zero for the flower (aParallax is baked 0),
-    // so the silhouette itself never shifts as a whole.
-    p.xy += uPointer * aParallax * uMotionEnabled;
+    vec3 p = anchor + drift;
+
+    // Hover: proximity = gaussian(distance(anchor, pointer)) — measured
+    // from the particle's stable ANCHOR, not its current drifted position,
+    // so the responsive radius doesn't wander with idle wobble. Direction
+    // and magnitude both come from seededNoiseDirection (the particle's own
+    // seed + time); the cursor only ever selects which particles react and
+    // how strongly, never which way they move — no cursor position delta,
+    // velocity, or shared direction appears anywhere in this file. There is
+    // no stored per-particle offset, so as proximity/uPointerActive decay
+    // (cursor moves away or leaves), this term shrinks back toward zero on
+    // its own — a spring-like return to the anchor, while drift (above)
+    // keeps the particle floating throughout.
+    float d = length(anchor.xy - uPointer);
+    float proximity = exp(-(d * d) / max(0.0001, 2.0 * uInteractionRadius * uInteractionRadius));
+    vec2 hoverOffset =
+      seededNoiseDirection(aRandom, aMotion, uTime) *
+      proximity *
+      uInteractionStrength * aInteractionMul *
+      uPointerActive *
+      uMotionEnabled;
+    p.xy += hoverOffset;
 
     vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mvPosition;

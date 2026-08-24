@@ -69,17 +69,19 @@ function useAdaptive(baseFlowerCount: number, baseAmbientCount: number) {
  *    formed; only flowerParticles ever move this way.
  *  - ambientParticles are a separate, sparser group across three depth
  *    planes (deep/middle/near) that never converges into any shape — it
- *    just floats, in every state, using the exact same drift/interaction
+ *    just floats, in every state, using the exact same drift/hover
  *    machinery as the flower.
- * Both keep drifting via continuous per-particle noise even at rest, and
- * the flower answers nearby cursor movement with gentle localized
- * turbulence/advection (a soft Gaussian falloff, not a hard radius) — never
- * a radial push, so there's no hole/ring, and never a whole-object
- * transform (no scale/tilt/glow/container movement). That's the `legacy`
- * motionPreset (the default); `alive` layers a second drift oscillator,
- * cursor-proximity-only hover agitation, and denser/clustered ambient — see
- * types.ts's motionPreset doc.
- * Self-contained: drop it anywhere, it owns its own full-bleed Canvas.
+ * Every particle — ambient, dispersed flower, forming flower, or formed
+ * flower — is a miniature independent body: a stable anchor (its scatter
+ * position, or once shapeBound, a mix toward its shape target) plus a
+ * seeded, bounded, slow float unique to that particle. There is no wind,
+ * no pointer velocity, and no shared/group transform anywhere in this
+ * engine — cursor proximity only ever selects which particles react and
+ * how strongly; the direction they move always comes from their own seed.
+ * The formed flower clamps that idle float tighter (relative to its own
+ * point spacing) to keep the silhouette crisp; every other state floats
+ * freely. Self-contained: drop it anywhere, it owns its own full-bleed
+ * Canvas.
  */
 export default function DigitalBloom({
   seed = "digital-bloom",
@@ -97,18 +99,17 @@ export default function DigitalBloom({
   colorPrimary = "#f3f3f6",
   colorAccent = "#8496ea",
   ambientColor = "#aab4e8",
-  motionPreset = "legacy",
   className,
   style,
 }: DigitalBloomProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const inView = useInView(containerRef);
   const reducedMotion = usePrefersReducedMotion();
-  // Ambient-only adjustment: alive gets 3x the desktop ambient density.
-  // useAdaptive itself is untouched — the existing device-scaling formula
-  // still runs on top of this, unmodified, so mobile/low-power still scales
-  // down automatically the same way it always has.
-  const ambientBaseCount = motionPreset === "alive" ? ambientParticleCount * 3 : ambientParticleCount;
+  // 3x the base ambient density — useAdaptive itself is untouched — the
+  // existing device-scaling formula still runs on top of this, unmodified,
+  // so mobile/low-power still scales down automatically the same way it
+  // always has.
+  const ambientBaseCount = ambientParticleCount * 3;
   const { flowerCount, ambientCount, dpr, skipPostFX } = useAdaptive(flowerParticleCount, ambientBaseCount);
   const [formed, setFormed] = useState(true);
   // See the doc comment on ParticleRuntime's pointerEngagedRef prop: r3f's
@@ -151,7 +152,6 @@ export default function DigitalBloom({
           color={ambientColor}
           motionEnabled={!reducedMotion}
           runtime={runtime}
-          motionPreset={motionPreset}
         />
         <FlowerPoints
           seed={seed}
@@ -169,7 +169,6 @@ export default function DigitalBloom({
           colorAccent={colorAccent}
           interactive={!reducedMotion}
           runtime={runtime}
-          motionPreset={motionPreset}
         />
         {!skipPostFX && (
           <EffectComposer multisampling={0}>

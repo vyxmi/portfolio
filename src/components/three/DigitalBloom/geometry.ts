@@ -14,15 +14,13 @@ export interface ParticleGroupGeometry {
   base: Float32Array;
   /** x=bloom stagger (0..1), y=color-mix seed, z=reserved, w=drift phase. */
   random: Float32Array;
-  /** x=tangential bulge amount (shape entrance only), y=drift speed multiplier. */
+  /** x=extra per-particle phase offset (folded into the drift/hover noise functions for variety), y=drift speed multiplier. */
   motion: Float32Array;
   size: Float32Array;
   /** Static per-particle base alpha — never driven by entrance/transition progress. */
   opacity: Float32Array;
-  /** Multiplier on cursor-driven turbulence/advection strength. */
+  /** Multiplier on cursor-proximity hover displacement strength (each particle's own interaction response). */
   interactionMul: Float32Array;
-  /** Multiplier on the constant (non-falloff) pointer-parallax offset. */
-  parallax: Float32Array;
   count: number;
 }
 
@@ -35,7 +33,6 @@ function fillDefaults(count: number, geo: Partial<ParticleGroupGeometry>): Parti
     size: geo.size ?? new Float32Array(count),
     opacity: geo.opacity ?? new Float32Array(count),
     interactionMul: geo.interactionMul ?? new Float32Array(count),
-    parallax: geo.parallax ?? new Float32Array(count),
     count,
   };
 }
@@ -163,13 +160,12 @@ export function buildFlowerGeometry(opts: {
     geo.random[i4 + 3] = rng() * Math.PI * 2;
 
     const i2 = i * 2;
-    geo.motion[i2] = (rng() - 0.5) * 2; // bulge
+    geo.motion[i2] = (rng() - 0.5) * 2; // extra phase offset
     geo.motion[i2 + 1] = 0.6 + rng() * 0.8; // drift speed
 
     geo.size[i] = (0.55 + rng() * 0.9) * (0.75 + 0.35 * (cell.weight / 8));
     geo.opacity[i] = 0.55 + rng() * 0.45;
     geo.interactionMul[i] = 0.85 + rng() * 0.3;
-    geo.parallax[i] = 0; // the flower silhouette never shifts with the cursor — no whole-object transform
   }
 
   return { ...geo, outerRadius: headRadius };
@@ -183,47 +179,43 @@ export interface DepthPlaneConfig {
   opacity: [number, number];
   /** Drift speed multiplier — how fast this plane's noise phase evolves. */
   speed: [number, number];
-  /** Cursor turbulence/advection strength multiplier. */
+  /** Cursor-proximity hover displacement strength multiplier. */
   interaction: [number, number];
-  /** Constant (non-falloff) pointer-parallax multiplier. */
-  parallax: [number, number];
 }
 
 function randRange(rng: () => number, [lo, hi]: [number, number]) {
   return lo + rng() * (hi - lo);
 }
 
-// alive preset only: a handful of seeded soft cluster centers particles
-// can be pulled toward, so the field reads as loose clumps of atmosphere
-// rather than independently-scattered dust. Touches anchor (x/y) generation
-// only — z/size/opacity/speed/interaction/parallax generation below is
-// identical regardless of preset, and flower anchor/target generation
-// (buildFlowerGeometry) is untouched entirely.
-const ALIVE_CLUSTER_COUNT = 5;
-const ALIVE_CLUSTER_FRACTION = 0.35;
-const ALIVE_CLUSTER_SPREAD = 0.22;
-// Radius exponent for alive's non-clustered draws. Sampling a disc via
-// polar angle + pow(rng(), 0.5)*R gives uniform density per unit area (the
-// "unbiased" disc baseline); an exponent above 0.5 concentrates more draws
-// at small radii than that baseline, biasing overall density broadly
-// toward the flower (still full-field, not a hard cluster) — legacy's own
-// exclusion-disc rejection loop (the else branch below) is untouched.
-const ALIVE_CENTER_BIAS_EXPONENT = 1.15;
-const ALIVE_SCATTER_RADIUS = 1.3;
+// A handful of seeded soft cluster centers particles can be pulled toward,
+// so the field reads as loose clumps of atmosphere rather than
+// independently-scattered dust. Clusters only ever bias where a particle's
+// anchor is placed at build time — every particle still moves entirely
+// independently at runtime (see shaders.ts), so members of the same
+// cluster share a neighborhood, never a movement transform.
+const CLUSTER_COUNT = 5;
+const CLUSTER_FRACTION = 0.35;
+const CLUSTER_SPREAD = 0.22;
+// Radius exponent for non-clustered draws. Sampling a disc via polar angle
+// + pow(rng(), 0.5)*R gives uniform density per unit area (the "unbiased"
+// disc baseline); an exponent above 0.5 concentrates more draws at small
+// radii than that baseline, biasing overall density broadly toward the
+// flower (still full-field, not a hard cluster, and never a halo/ring).
+const CENTER_BIAS_EXPONENT = 1.15;
+const SCATTER_RADIUS = 1.3;
 
-// A depth-plane-driven atmospheric group: no target shape (it never
-// morphs — see ParticlePoints' morph flag), just a scattered rest position
-// and per-particle attributes drawn from whichever plane it was assigned
-// to. Every plane shares the exact same drift/interaction machinery as
+// A depth-plane-driven atmospheric (free) group: no target shape (it never
+// morphs — see ParticlePoints' morph flag), just a scattered anchor and
+// per-particle attributes drawn from whichever plane it was assigned to.
+// Every plane shares the exact same drift/hover machinery as
 // flowerParticles (see the shared vertex shader) — only the per-particle
-// numbers differ, never the animation logic.
+// numbers (and how densely anchors cluster) differ, never the motion logic.
 export function buildDepthPlaneGeometry(opts: {
   seed: string | number;
   particleCount: number;
   planes: DepthPlaneConfig[];
-  motionPreset?: "legacy" | "alive";
 }): ParticleGroupGeometry {
-  const { seed, particleCount, planes, motionPreset = "legacy" } = opts;
+  const { seed, particleCount, planes } = opts;
   const rng = createRng(`${seed}:ambient`);
   const geo = fillDefaults(particleCount, {});
 
@@ -234,14 +226,11 @@ export function buildDepthPlaneGeometry(opts: {
     return { plane: p, end: cursor };
   });
 
-  const clusterCenters: Array<{ x: number; y: number }> =
-    motionPreset === "alive"
-      ? Array.from({ length: ALIVE_CLUSTER_COUNT }, () => {
-          const angle = rng() * Math.PI * 2;
-          const radius = 0.3 + rng() * 0.6;
-          return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
-        })
-      : [];
+  const clusterCenters = Array.from({ length: CLUSTER_COUNT }, () => {
+    const angle = rng() * Math.PI * 2;
+    const radius = 0.3 + rng() * 0.6;
+    return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+  });
 
   for (let i = 0; i < particleCount; i++) {
     const plane = (planeBounds.find((b) => i < b.end) ?? planeBounds[planeBounds.length - 1]).plane;
@@ -249,29 +238,18 @@ export function buildDepthPlaneGeometry(opts: {
     let x = 0;
     let y = 0;
 
-    if (motionPreset === "alive") {
-      if (clusterCenters.length && rng() < ALIVE_CLUSTER_FRACTION) {
-        const c = clusterCenters[Math.floor(rng() * clusterCenters.length)];
-        const angle = rng() * Math.PI * 2;
-        const spread = rng() * ALIVE_CLUSTER_SPREAD;
-        x = c.x + Math.cos(angle) * spread;
-        y = c.y + Math.sin(angle) * spread;
-      } else {
-        for (let attempt = 0; attempt < 6; attempt++) {
-          const angle = rng() * Math.PI * 2;
-          const radius = Math.pow(rng(), ALIVE_CENTER_BIAS_EXPONENT) * ALIVE_SCATTER_RADIUS;
-          x = Math.cos(angle) * radius;
-          y = Math.sin(angle) * radius;
-          if (Math.hypot(x, y) > 0.16) break;
-        }
-      }
+    if (rng() < CLUSTER_FRACTION) {
+      const c = clusterCenters[Math.floor(rng() * clusterCenters.length)];
+      const angle = rng() * Math.PI * 2;
+      const spread = rng() * CLUSTER_SPREAD;
+      x = c.x + Math.cos(angle) * spread;
+      y = c.y + Math.sin(angle) * spread;
     } else {
-      // Reject-and-resample out of a small central disc so ambient particles
-      // don't visually crowd the flower's own core — a handful of retries is
-      // plenty since the exclusion zone is small relative to the full field.
       for (let attempt = 0; attempt < 6; attempt++) {
-        x = (rng() - 0.5) * 2;
-        y = (rng() - 0.5) * 2;
+        const angle = rng() * Math.PI * 2;
+        const radius = Math.pow(rng(), CENTER_BIAS_EXPONENT) * SCATTER_RADIUS;
+        x = Math.cos(angle) * radius;
+        y = Math.sin(angle) * radius;
         if (Math.hypot(x, y) > 0.16) break;
       }
     }
@@ -290,13 +268,12 @@ export function buildDepthPlaneGeometry(opts: {
     geo.random[i4 + 3] = rng() * Math.PI * 2;
 
     const i2 = i * 2;
-    geo.motion[i2] = 0; // no entrance bulge
+    geo.motion[i2] = (rng() - 0.5) * 2; // extra phase offset
     geo.motion[i2 + 1] = randRange(rng, plane.speed);
 
     geo.size[i] = randRange(rng, plane.size);
     geo.opacity[i] = randRange(rng, plane.opacity);
     geo.interactionMul[i] = randRange(rng, plane.interaction);
-    geo.parallax[i] = randRange(rng, plane.parallax);
   }
 
   return geo;

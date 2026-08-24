@@ -7,16 +7,6 @@ import type { ParticleGroupGeometry } from "./geometry";
 import { vertexShader, fragmentShader } from "./shaders";
 import type { ParticleRuntimeState } from "./ParticleRuntime";
 
-// A cursor-velocity gust reads as noticeably stronger on-screen than the
-// same magnitude of raw pointer displacement — this is purely a visual
-// tuning constant on top of ParticleRuntime's physically-smoothed wind,
-// applied here (not baked into the runtime) since it's a rendering choice,
-// not a measurement.
-const WIND_VISUAL_GAIN = 2.2;
-// Internal engine tuning for the alive preset's hover-agitation term (see
-// shaders.ts) — not exposed as a DigitalBloomProps knob in this pass.
-const HOVER_NOISE_BOOST = 1.6;
-
 // The one renderer behind every particle group. A group is entirely data
 // (geometry + these props) — this component never branches on "which
 // group am I," so a future text/vessel group is just another
@@ -36,8 +26,7 @@ export default function ParticlePoints({
   colorB,
   motionEnabled,
   runtime,
-  outerRadius = 1,
-  motionPreset = "legacy",
+  idleClamp = 1000,
 }: {
   geometry: ParticleGroupGeometry;
   /** Whether this group morphs from `base` toward its `target` shape at all. */
@@ -55,9 +44,8 @@ export default function ParticlePoints({
   colorB: string;
   motionEnabled: boolean;
   runtime: RefObject<ParticleRuntimeState>;
-  outerRadius?: number;
-  /** 'legacy' (default) reproduces the original shader output exactly; 'alive' opts into the new drift/hover behavior. See shaders.ts uAlive. */
-  motionPreset?: "legacy" | "alive";
+  /** Morphing (shapeBound) groups only — see uIdleClamp in shaders.ts. Default is effectively unclamped for groups that don't pass one (ambient is never gated on this anyway, since it doesn't morph). */
+  idleClamp?: number;
 }) {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   const { gl } = useThree();
@@ -67,16 +55,13 @@ export default function ParticlePoints({
       uTime: { value: 0 },
       uBloomProgress: { value: 0 },
       uMorph: { value: morph ? 1 : 0 },
-      uOuterRadius: { value: outerRadius * scale },
       uPointer: { value: new THREE.Vector2(0, 0) },
-      uWind: { value: new THREE.Vector2(0, 0) },
       uPointerActive: { value: 0 },
       uInteractionStrength: { value: interactionStrength },
       uInteractionRadius: { value: interactionRadius },
       uDriftStrength: { value: driftStrength },
       uMotionEnabled: { value: motionEnabled ? 1 : 0 },
-      uAlive: { value: motionPreset === "alive" ? 1 : 0 },
-      uHoverNoiseBoost: { value: HOVER_NOISE_BOOST },
+      uIdleClamp: { value: idleClamp },
       uDepthShade: { value: depthShade ? 1 : 0 },
       uPixelRatio: { value: Math.min(gl.getPixelRatio(), 2) },
       uBaseSize: { value: baseSize },
@@ -96,27 +81,25 @@ export default function ParticlePoints({
   useEffect(() => {
     const u = materialRef.current?.uniforms;
     if (!u) return;
-    u.uOuterRadius.value = outerRadius * scale;
     u.uInteractionStrength.value = interactionStrength;
     u.uInteractionRadius.value = interactionRadius;
     u.uDriftStrength.value = driftStrength;
     u.uBaseSize.value = baseSize;
     u.uMotionEnabled.value = motionEnabled ? 1 : 0;
-    u.uAlive.value = motionPreset === "alive" ? 1 : 0;
+    u.uIdleClamp.value = idleClamp;
     u.uDepthShade.value = depthShade ? 1 : 0;
     (u.uPosition.value as THREE.Vector2).set(position.x, position.y);
     u.uScale.value = scale;
     (u.uColorA.value as THREE.Color).set(colorA);
     (u.uColorB.value as THREE.Color).set(colorB);
   }, [
-    outerRadius,
     scale,
     interactionStrength,
     interactionRadius,
     driftStrength,
     baseSize,
     motionEnabled,
-    motionPreset,
+    idleClamp,
     depthShade,
     position.x,
     position.y,
@@ -137,7 +120,6 @@ export default function ParticlePoints({
     if (!motionEnabled) return;
 
     (u.uPointer.value as THREE.Vector2).copy(rt.pointer);
-    (u.uWind.value as THREE.Vector2).copy(rt.wind).multiplyScalar(WIND_VISUAL_GAIN);
     u.uPointerActive.value = rt.pointerActive;
   });
 
@@ -151,7 +133,6 @@ export default function ParticlePoints({
         <bufferAttribute attach="attributes-aSize" args={[geometry.size, 1]} />
         <bufferAttribute attach="attributes-aOpacity" args={[geometry.opacity, 1]} />
         <bufferAttribute attach="attributes-aInteractionMul" args={[geometry.interactionMul, 1]} />
-        <bufferAttribute attach="attributes-aParallax" args={[geometry.parallax, 1]} />
       </bufferGeometry>
       <shaderMaterial
         ref={materialRef}

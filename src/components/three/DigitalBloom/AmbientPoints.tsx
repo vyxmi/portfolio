@@ -11,7 +11,7 @@ import type { ParticleRuntimeState } from "./ParticleRuntime";
 // flowerParticles and the only plane that meaningfully answers the cursor
 // (a faint sense of shared medium around the vessel, not a strong effect).
 // Every number here is the *only* thing that varies between planes — the
-// drift/interaction/rendering machinery is identical, shared with
+// drift/hover/rendering machinery is identical, shared with
 // flowerParticles through ParticlePoints.
 export const AMBIENT_PLANES: DepthPlaneConfig[] = [
   {
@@ -21,7 +21,6 @@ export const AMBIENT_PLANES: DepthPlaneConfig[] = [
     opacity: [0.04, 0.1],
     speed: [0.05, 0.16],
     interaction: [0, 0],
-    parallax: [0.004, 0.016],
   },
   {
     weight: 0.28,
@@ -30,7 +29,6 @@ export const AMBIENT_PLANES: DepthPlaneConfig[] = [
     opacity: [0.1, 0.2],
     speed: [0.22, 0.5],
     interaction: [0.02, 0.06],
-    parallax: [0.02, 0.045],
   },
   {
     weight: 0.1,
@@ -39,13 +37,14 @@ export const AMBIENT_PLANES: DepthPlaneConfig[] = [
     opacity: [0.2, 0.38],
     speed: [0.45, 0.85],
     interaction: [0.14, 0.32],
-    parallax: [0.06, 0.11],
   },
 ];
 
 // The ambientParticles group: never converges into the flower or any
 // other shape (morph is off) — see AMBIENT_PLANES above for what actually
-// varies between the three depths.
+// varies between the three depths. Depth planes only ever change size,
+// opacity, drift range, and hover strength — they never move together as
+// layers (no shared parallax/translation of any kind).
 export default function AmbientPoints({
   seed,
   particleCount,
@@ -56,7 +55,6 @@ export default function AmbientPoints({
   color,
   motionEnabled,
   runtime,
-  motionPreset = "legacy",
 }: {
   seed: string | number;
   particleCount: number;
@@ -67,11 +65,10 @@ export default function AmbientPoints({
   color: string;
   motionEnabled: boolean;
   runtime: RefObject<ParticleRuntimeState>;
-  motionPreset?: "legacy" | "alive";
 }) {
   const geo = useMemo(
-    () => buildDepthPlaneGeometry({ seed, particleCount, planes: AMBIENT_PLANES, motionPreset }),
-    [seed, particleCount, motionPreset]
+    () => buildDepthPlaneGeometry({ seed, particleCount, planes: AMBIENT_PLANES }),
+    [seed, particleCount]
   );
 
   return (
@@ -88,7 +85,6 @@ export default function AmbientPoints({
       colorB={color}
       motionEnabled={motionEnabled}
       runtime={runtime}
-      motionPreset={motionPreset}
     />
   );
 }

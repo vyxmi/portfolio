@@ -9,7 +9,7 @@ export default function HomeField() {
       {/* No bounding box — the canvas is the full field, so ambient
           particles and the dispersed flower scatter can genuinely span the
           whole viewport instead of a fixed square patch of it. */}
-      <DigitalBloom className="absolute inset-0" motionPreset="alive" />
+      <DigitalBloom className="absolute inset-0" />
       {/* Same flower, same spot, on mobile — just dimmed so the hero text
           (which has nowhere else to sit on a narrow screen) stays readable
           over it, instead of shrinking or moving the flower out of the way. */}

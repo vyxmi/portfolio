@@ -26,7 +26,6 @@ export default function FlowerPoints({
   colorAccent,
   interactive,
   runtime,
-  motionPreset = "legacy",
 }: {
   seed: string | number;
   particleCount: number;
@@ -44,12 +43,19 @@ export default function FlowerPoints({
   colorAccent: string;
   interactive: boolean;
   runtime: RefObject<ParticleRuntimeState>;
-  motionPreset?: "legacy" | "alive";
 }) {
   const geo = useMemo(
     () => buildFlowerGeometry({ seed, particleCount, petalCount }),
     [seed, particleCount, petalCount]
   );
+
+  // See shaders.ts uIdleClamp: estimated average spacing between
+  // neighboring flower points — a disc of radius outerRadius*scale covered
+  // by particleCount points has per-point area pi*r^2/N, so typical spacing
+  // is r*sqrt(pi/N). Clamping idle drift to 0.6x that keeps points from
+  // visibly loosening the silhouette once formed, without needing a real
+  // neighbor search.
+  const idleClamp = (geo.outerRadius * scale * Math.sqrt(Math.PI / particleCount)) * 0.6;
 
   // Bloom progress is a value the toggle drives toward 0 (dispersed) or 1
   // (formed) with a frame-rate-independent exponential ease — a damped
@@ -78,7 +84,6 @@ export default function FlowerPoints({
       morph
       progressRef={progressRef}
       depthShade
-      outerRadius={geo.outerRadius}
       position={position}
       scale={scale}
       driftStrength={driftStrength}
@@ -89,7 +94,7 @@ export default function FlowerPoints({
       colorB={colorAccent}
       motionEnabled={interactive}
       runtime={runtime}
-      motionPreset={motionPreset}
+      idleClamp={idleClamp}
     />
   );
 }

@@ -17,9 +17,9 @@ export interface DigitalBloomProps {
   scale?: number;
   /** Multiplier on the continuous idle noise drift — shared by flowerParticles and every ambientParticles depth plane. */
   driftStrength?: number;
-  /** Multiplier on the localized cursor turbulence/advection. Scaled per-particle (strongest on flowerParticles, faint on the near ambient plane, ~0 on middle/deep) — see AmbientPoints' AMBIENT_PLANES. */
+  /** Multiplier on the localized cursor-proximity hover displacement. Scaled per-particle (strongest on flowerParticles, faint on the near ambient plane, ~0 on middle/deep) — see AmbientPoints' AMBIENT_PLANES. */
   interactionStrength?: number;
-  /** Soft Gaussian falloff radius for cursor turbulence — a characteristic distance, not a hard cutoff; effect never truly reaches zero, just fades toward negligible. */
+  /** Soft Gaussian falloff radius for cursor-proximity hover — a characteristic distance, not a hard cutoff; effect never truly reaches zero, just fades toward negligible. */
   interactionRadius?: number;
   /** Base point size in CSS px at unit distance, for flowerParticles. */
   baseSize?: number;
@@ -31,15 +31,6 @@ export interface DigitalBloomProps {
   colorAccent?: string;
   /** ambientParticles color. */
   ambientColor?: string;
-  /**
-   * 'legacy' (default) reproduces the original motion exactly — the
-   * original organicDrift-only wobble and cursor-wind/swirl turbulence.
-   * 'alive' opts into a second seeded drift layer, cursor-proximity-only
-   * hover agitation (never cursor direction/velocity), 3x desktop ambient
-   * density, and loose seeded ambient clusters — see shaders.ts/geometry.ts.
-   * Only HomeField.tsx sets this to 'alive' today.
-   */
-  motionPreset?: "legacy" | "alive";
   className?: string;
   style?: CSSProperties;
 }
