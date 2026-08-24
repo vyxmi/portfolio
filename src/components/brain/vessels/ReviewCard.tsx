@@ -4,7 +4,10 @@ import { MediaThumb, VTitle, RatingRow, VBody } from "./parts";
 export default function ReviewCard({ o }: { o: BrainObject }) {
   return (
     <div className="review-row">
-      {o.media && o.media.length > 0 && <MediaThumb o={o} className="review-cover" />}
+      {/* contain, not the default cover: every review-card object today is
+          a movie poster, and cropping a poster loses real information a
+          center-crop can't safely guess at. */}
+      {o.media && o.media.length > 0 && <MediaThumb o={o} className="review-cover" fit="contain" />}
       <div className="review-info">
         <VTitle o={o} />
         <RatingRow rating={o.rating} />

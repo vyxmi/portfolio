@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
-import { motionField, tickCards } from "@/lib/brain/motionField";
+import { motionField, tickCards, registerLenisController } from "@/lib/brain/motionField";
 
 // Owns the Brain page's one animation loop: Lenis smooths native window
 // scroll (no wrapper div, no scroll-jacking — it intercepts wheel/touch and
@@ -24,6 +24,8 @@ export default function BrainScrollProvider() {
       easing: (t: number) => 1 - Math.pow(1 - t, 3),
       smoothWheel: true,
     });
+
+    registerLenisController({ stop: () => lenis.stop(), start: () => lenis.start() });
 
     let lastScroll = lenis.scroll;
 
@@ -63,6 +65,7 @@ export default function BrainScrollProvider() {
       gsap.ticker.remove(onTick);
       window.removeEventListener("pointermove", onPointerMove);
       document.removeEventListener("visibilitychange", onVisibility);
+      registerLenisController(null);
       lenis.destroy();
     };
   }, []);

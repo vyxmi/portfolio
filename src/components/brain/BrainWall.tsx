@@ -1,8 +1,8 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { BrainObject } from "@/lib/brain/types";
-import { resolveWeight, sortDate } from "@/lib/brain/resolvers";
+import { resolveWeight, sortDate, isPrivate } from "@/lib/brain/resolvers";
 import { refreshCardRects, notifyResizeActivity } from "@/lib/brain/motionField";
 import CursorZone from "@/components/CursorZone";
 import BrainCard from "./BrainCard";
@@ -67,10 +67,32 @@ function useMasonry(dep: unknown) {
     // of its too-short reserved area and visibly overlaps whatever's in
     // the row below. Each call is O(1) forced reflows (batched
     // read-then-write above), so running it on every trigger is cheap.
+    // Clearing maxHeights on every single resize event would defeat the
+    // high-water-mark protection at exactly the moments it's needed most:
+    // mid-drag, a cleared map means whatever the oscillation happens to be
+    // reading at that instant becomes the new, unprotected baseline. Two
+    // approaches were tried and both reopened the overlap under a
+    // continuous synthetic resize sweep: clearing on a fixed "quiet for
+    // 300ms" debounce (an in-progress-but-slower-than-300ms-per-step drag
+    // still hit the window), and clearing only when the wall got wider
+    // than before (each individual widening step is itself a fresh,
+    // unprotected read, and a continuous widening drag is many such steps
+    // in a row). So: recompute immediately on every resize (protection
+    // only ever grows, all through the gesture, in both directions), and
+    // reclaim conservatively-over-reserved space with a single debounced
+    // clear+recompute once resizing has been fully quiet — long enough
+    // that no further resize step can land inside the window and catch
+    // the map freshly cleared.
+    let settleTimer: ReturnType<typeof setTimeout> | null = null;
     function onWindowResize() {
       notifyResizeActivity();
-      maxHeights.clear();
       recompute();
+      if (settleTimer) clearTimeout(settleTimer);
+      settleTimer = setTimeout(() => {
+        settleTimer = null;
+        maxHeights.clear();
+        recompute();
+      }, 500);
     }
 
     // The ResizeObserver path, by contrast, MUST be debounced — for at
@@ -118,19 +140,27 @@ function useMasonry(dep: unknown) {
       window.removeEventListener("resize", onWindowResize);
       wallEl.removeEventListener("load", recompute, true);
       if (roTimer) clearTimeout(roTimer);
+      if (settleTimer) clearTimeout(settleTimer);
     };
   }, [dep]);
 
   return { wallRef };
 }
 
-export default function BrainWall({ objects }: { objects: BrainObject[] }) {
+export default function BrainWall({ objects, intro }: { objects: BrainObject[]; intro?: ReactNode }) {
   const [filterType, setFilterType] = useState("all");
   const [sortMode, setSortMode] = useState<SortMode>("newest");
   const [openId, setOpenId] = useState<string | null>(null);
 
+  // Private objects are excluded here, before anything else — filtering,
+  // sorting, the visible count, and the open/focus lookup below all read
+  // from this, never the raw `objects` prop, so a private object can never
+  // surface through any of those paths. Not deleted, just never handed to
+  // the rest of the wall.
+  const publicObjects = useMemo(() => objects.filter((o) => !isPrivate(o)), [objects]);
+
   const visible = useMemo(() => {
-    let list = objects;
+    let list = publicObjects;
     if (filterType !== "all") list = list.filter((o) => o.type === filterType);
     const sorted = [...list];
     sorted.sort((a, b) => {
@@ -139,21 +169,22 @@ export default function BrainWall({ objects }: { objects: BrainObject[] }) {
       return sortDate(b) - sortDate(a);
     });
     return sorted;
-  }, [objects, filterType, sortMode]);
+  }, [publicObjects, filterType, sortMode]);
 
-  const openObject = openId ? (objects.find((o) => o.id === openId) ?? null) : null;
+  const openObject = openId ? (publicObjects.find((o) => o.id === openId) ?? null) : null;
   const { wallRef } = useMasonry(visible);
 
   return (
     <CursorZone>
       <BrainBar
-        total={objects.length}
+        total={publicObjects.length}
         count={visible.length}
         filterType={filterType}
         onFilterType={setFilterType}
         sortMode={sortMode}
         onSortMode={setSortMode}
       />
+      {intro}
       <div ref={wallRef} className="wall" data-focus-active={openObject ? "true" : undefined}>
         {visible.map((o) => (
           <BrainCard key={o.id} o={o} onOpen={(obj) => setOpenId(obj.id)} motionEnhanced />

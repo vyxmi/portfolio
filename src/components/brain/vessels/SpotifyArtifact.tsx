@@ -3,6 +3,7 @@ import { MediaThumb, VTitle, VBody } from "./parts";
 
 const KIND_LABEL: Record<string, string> = {
   "spotify-library": "library",
+  "spotify-library-playlists": "playlists",
   "spotify-playlist": "playlist",
   "spotify-playlist-series": "playlist series",
 };

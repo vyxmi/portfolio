@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { BrainObject } from "@/lib/brain/types";
-import { resolveTitleDisplay, splitParagraphs } from "@/lib/brain/resolvers";
+import { entryDateLabel, resolveTitleDisplay, splitParagraphs } from "@/lib/brain/resolvers";
 import { resolveMediaSrc } from "@/lib/brain/media";
 
 // Title only renders when a real title exists — resolveTitleDisplay never
@@ -54,6 +54,24 @@ export function VBody({ o, readMore = false, className }: { o: BrainObject; read
       </div>
       {readMore && <span className="readmore-btn">read more</span>}
     </>
+  );
+}
+
+// For objects whose "content" is really a list of separately-dated lines
+// (see BrainContentEntry in types.ts) rather than one continuous block —
+// each entry's date renders on its own, formatted via entryDateLabel, next
+// to its text rather than living inside the text itself.
+export function VEntries({ entries, className }: { entries: BrainObject["contentEntries"]; className?: string }) {
+  if (!entries || !entries.length) return null;
+  return (
+    <div className={className ? `v-entries ${className}` : "v-entries"}>
+      {entries.map((entry, i) => (
+        <div className="v-entry" key={i}>
+          <span className="v-entry-date">{entryDateLabel(entry.date)}</span>
+          <p className="v-entry-text">{entry.text}</p>
+        </div>
+      ))}
+    </div>
   );
 }
 

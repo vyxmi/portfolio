@@ -47,6 +47,25 @@ export const motionField: MotionFieldState = {
 // back to false ~180ms after the last resize event, at which point the
 // idle motion eases back in through the same lag interpolation it always
 // uses — not a hard cut.
+// BrainScrollProvider owns the Lenis instance and registers stop/start here
+// once it exists. BrainFocus calls stopBackgroundScroll/startBackgroundScroll
+// while a card is expanded — `document.body.style.overflow = "hidden"` alone
+// doesn't stop the wall from scrolling, since Lenis drives scroll position
+// itself (intercepting wheel/touch) independent of the native overflow
+// property. A no-op fallback when nothing's registered (e.g. reduced-motion,
+// where BrainScrollProvider never creates a Lenis instance and native
+// overflow:hidden already works on its own).
+let lenisController: { stop: () => void; start: () => void } | null = null;
+export function registerLenisController(controller: { stop: () => void; start: () => void } | null) {
+  lenisController = controller;
+}
+export function stopBackgroundScroll() {
+  lenisController?.stop();
+}
+export function startBackgroundScroll() {
+  lenisController?.start();
+}
+
 let resizeSettleTimer: ReturnType<typeof setTimeout> | null = null;
 export function notifyResizeActivity() {
   motionField.resizing = true;
@@ -310,16 +329,19 @@ export function tickCards() {
     // its plain grid position; current.* still eases toward it through the
     // normal lag below, so this is a smooth settle, not a snap, and the
     // drift/parallax motion eases back in the same way once resizing ends.
-    // Hover gets the same neutral-target treatment for a different reason:
-    // continuous idle drift means a vessel's own controls (read-more,
-    // gallery, external-link) can visibly slide out from under a cursor
-    // that's held still deciding to click — settling to rest the instant a
-    // card is hovered keeps whatever's under the pointer where the pointer
-    // left it, without a special case for any particular control.
-    const settled = motionField.resizing || !!hover?.active;
-    const targetX = settled ? 0 : idle.x;
-    const targetY = settled ? 0 : idle.y + parallaxY;
-    const targetRot = settled ? 0 : idle.rot;
+    const hovered = !!hover?.active;
+    const targetX = motionField.resizing ? 0 : hovered ? current.x : idle.x;
+    // Hover freezes drift too, but at wherever the card *currently* is, not
+    // the neutral rest pose — continuous idle drift means a vessel's own
+    // controls (read-more, gallery, external-link) can slide under a
+    // cursor that's holding still to click. Snapping the target to the
+    // neutral pose (like resizing does) would ease the card *back toward
+    // rest* over the next several frames — moving the exact thing the
+    // cursor is aimed at. Targeting current.x/y/rot instead means the
+    // (target - current) delta each tick is already ~0: the card simply
+    // stops advancing, in place, with no settle-motion at all.
+    const targetY = motionField.resizing ? 0 : hovered ? current.y : idle.y + parallaxY;
+    const targetRot = motionField.resizing ? 0 : hovered ? current.rot : idle.rot;
 
     let targetScale = 1;
     if (params.scaleReveal && !motionField.resizing) {

@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, type CSSProperties, type KeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
 import type { BrainObject } from "@/lib/brain/types";
-import { resolveVessel, resolveExpand, resolveWeight, cursorFor } from "@/lib/brain/resolvers";
+import { resolveVessel, resolveExpand, resolveWeight, resolveSizeVariant, cursorFor } from "@/lib/brain/resolvers";
 import { hashSeed } from "@/lib/brain/hash";
 import { motionField, beginCardDrag, dragCardTo, endCardDrag, setCardHover } from "@/lib/brain/motionField";
 import { useCardMotion } from "./useCardMotion";
@@ -32,6 +32,7 @@ export default function BrainCard({
   const vessel = resolveVessel(o);
   const expand = resolveExpand(o);
   const weight = resolveWeight(o);
+  const size = resolveSizeVariant(o);
   const cursor = cursorFor(o);
   const Vessel = VESSELS[vessel] ?? VESSELS.__fallback__;
   const cardRef = useRef<HTMLDivElement>(null);
@@ -158,6 +159,7 @@ export default function BrainCard({
         data-subtype={o.subtype}
         data-material={o.material}
         data-expand={expand}
+        data-size={size}
         style={{ ...vesselStyle, cursor: clickable ? cursor?.css : undefined }}
         data-cursor={clickable ? cursor?.label : undefined}
         role={clickable ? "button" : undefined}

@@ -399,6 +399,31 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+/* Discrete dated entries (see VEntries/BrainContentEntry) — each line's own
+   date sits beside it, same mono/muted treatment as the external meta-date,
+   never folded into the entry's own text. */
+.v-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.v-entry {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+.v-entry-date {
+  flex: none;
+  font-family: var(--font-mono-sys), ui-monospace, monospace;
+  font-size: 10.5px;
+  color: var(--void-mute);
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+.v-entry-text {
+  margin: 0;
+  color: var(--void-soft);
+}
 .readmore-btn {
   margin-top: 8px;
   font-family: var(--font-mono-sys), ui-monospace, monospace;
@@ -418,6 +443,55 @@
   color: #050506;
   border-radius: 2px;
   letter-spacing: 0.02em;
+}
+
+/* -------------------------------- vessel sizing system -------------------------------- */
+/* Every vessel's [data-size] step lives here, one small group of rules per
+   vessel type, so the whole system stays in one place instead of scattered
+   through each vessel's own section. "medium" is always that vessel's
+   existing baseline and needs no rule at all — an object with no
+   sizeVariant (resolveSizeVariant's default) renders exactly as it did
+   before this system existed. "small"/"large" are real CSS dimensions
+   (never transform: scale, never one-off inline widths), and each rule
+   here is written so the card wrapper, hover/click area, and meta rows
+   all resolve to the same width as a side effect of ordinary layout —
+   see each vessel's own comment for how.
+   Two mechanisms, chosen per vessel's own sizing model:
+   - track-filling vessels (film-strip, checklist, notes-app) size via
+     grid-column span — a real column count, so the card and its meta
+     rows are never asked to stretch to a width the vessel itself isn't
+     using. "narrow" (checklist/notes-app) is just this same idea at half
+     a normally-two-column object's span: one column is exactly 50% of
+     two, with zero height side effect.
+   - fit-content vessels (display-case, scan) size via their own existing
+     per-object dimension (case photo height, scan sheet width%) — the
+     same mechanism their vessel already used for normal/featured, just
+     extended with one more step.
+   Resizing (an object's sizeVariant changing) is an ordinary layout
+   change like any other prop edit — BrainWall's own ResizeObserver-driven
+   remeasurement (see useMasonry) picks it up the same way it picks up a
+   font/image load change, so nothing extra is needed here for that. */
+.brain-card:has(> .vessel[data-vessel="film-strip"][data-size="large"]) {
+  grid-column: span 2;
+}
+.vessel[data-vessel="display-case"][data-size="large"] .case-items .thumb img {
+  height: 340px;
+}
+.vessel[data-vessel="display-case"][data-size="small"] .case-items .thumb img {
+  height: 190px;
+}
+.vessel[data-vessel="scan"][data-size="small"] .scan-sheet {
+  width: 56%;
+}
+.vessel[data-vessel="scan"][data-size="large"] .scan-sheet {
+  width: 100%;
+}
+.brain-card:has(> .vessel[data-vessel="scan"][data-size="large"]) {
+  grid-column: span 2;
+}
+.brain-card:has(> .vessel[data-vessel="checklist"][data-size="narrow"]),
+.brain-card:has(> .vessel[data-vessel="notes-app"][data-size="narrow"]) {
+  grid-column: span 1;
 }
 
 /* -------------------------------- media thumbs + grain -------------------------------- */
@@ -649,9 +723,36 @@
   margin: 0 -12px 12px;
 }
 .email-head {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
   margin-bottom: 10px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--void-line);
+}
+/* One row per available field — From/To/Subject/Date each only render
+   when EmailField actually receives a value (see Email.tsx), so this never
+   has to account for an empty label sitting next to nothing. */
+.email-field {
+  display: flex;
+  gap: 6px;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.email-field-label {
+  flex: none;
+  width: 46px;
+  font-family: var(--font-mono-sys), ui-monospace, monospace;
+  font-size: 10px;
+  color: var(--void-mute);
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+  padding-top: 1px;
+}
+.email-field-value {
+  color: var(--void-ink);
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 .email-attachment {
   margin-bottom: 12px;
@@ -1015,7 +1116,10 @@
    and thumb cap. */
 .vessel[data-vessel="media-card"][data-subtype="inspiration"] {
   width: 100%;
-  max-width: 420px;
+  /* Vessel-sizing system, universal preset change: 75% of this vessel's
+     former 420px default (was 420px, unconditionally, for every
+     inspiration object — not a per-object override). */
+  max-width: 315px;
   padding: 0;
   overflow: hidden;
   background: var(--void-3);
@@ -1079,6 +1183,19 @@
   height: 52px;
   flex: none;
   border-radius: var(--r-sm);
+}
+/* Playlist covers anchor to their top-left corner rather than centering —
+   most of these are collages/screenshots where the meaningful content
+   (the actual art, not surrounding chrome) sits toward that corner. */
+.spotify-cover img {
+  object-position: top left;
+}
+/* B-0119 and B-0121 specifically: each a 2x2 grid of album covers, not a
+   single square image — cropping any edge loses one of the four. Shows the
+   whole collage inside the same square slot instead of filling/cropping it. */
+.brain-card[data-id="B-0119"] .spotify-cover img,
+.brain-card[data-id="B-0121"] .spotify-cover img {
+  object-fit: contain;
 }
 .spotify-info {
   flex: 1;
@@ -1191,15 +1308,11 @@
 .brain-card[data-presentation="wall"][data-id="B-0131"] .scan-sheet {
   width: 320px;
 }
-/* internship outfits: featured (2-column) for a bigger presence, but the
-   raw scan at full track width overwhelms the wall — scale it down within
-   that wider footprint instead. Percentage width is safe here (unlike
-   B-0129/B-0131 above) because a featured card without justify-self:start
-   stretches to fill its two-column track, giving .scan-sheet's ancestor a
-   real width to be a percentage of. */
-.brain-card[data-id="B-0052"] .scan-sheet {
-  width: 56%;
-}
+/* internship outfits (B-0052) used to get a bare per-ID 56% override here —
+   retired in favor of the vessel-sizing system's own "small" scan preset
+   below (same 56%, same reasoning: percentage width is safe against a
+   featured card because it stretches to fill its two-column track,
+   giving .scan-sheet's ancestor a real width to be a percentage of). */
 
 /* scrap: raw off-cut, irregular per instance, faint fold, pen-ink text */
 .vessel[data-vessel="scrap"] {
@@ -1399,19 +1512,25 @@
   padding: 0;
   overflow: hidden;
 }
+/* Fixed height, not the image's own intrinsic size — frames in the same
+   gallery can have different aspect ratios, and letting the box shrink to
+   fit each one meant everything below it (title, body, prev/next arrows)
+   reflowed and shifted position every time you paged through. A constant
+   box + object-fit: contain keeps that whole stack, arrows included, glued
+   to the same screen position across every frame. */
 .focus-gallery-img {
   overflow: hidden;
   background: var(--void-3);
-  text-align: center;
+  height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .focus-gallery-img img {
   display: block;
-  width: auto;
-  height: auto;
-  max-width: 100%;
-  max-height: 70vh;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  margin: 0 auto;
 }
 .focus-gallery-vessel .v-title,
 .focus-gallery-vessel .v-body {

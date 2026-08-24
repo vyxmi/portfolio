@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { BrainObject } from "@/lib/brain/types";
 import { resolveExpand } from "@/lib/brain/resolvers";
 import { resolveMediaSrc } from "@/lib/brain/media";
+import { stopBackgroundScroll, startBackgroundScroll } from "@/lib/brain/motionField";
 import BrainCard from "./BrainCard";
 import { BrainMetaTop, BrainMetaBottom } from "./BrainMeta";
 
@@ -16,12 +17,18 @@ export default function BrainFocus({ o, onClose }: { o: BrainObject | null; onCl
     if (!o) return;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    // body overflow:hidden alone doesn't stop the wall scrolling behind the
+    // scrim — Lenis (see BrainScrollProvider) drives scroll itself, so it
+    // needs to be told to stop too, or a wheel/touch gesture over the modal
+    // keeps moving the page underneath it.
+    stopBackgroundScroll();
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prevOverflow;
+      startBackgroundScroll();
       window.removeEventListener("keydown", onKey);
     };
   }, [o, onClose]);

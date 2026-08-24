@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { brainObjects } from "@/lib/brain/objects";
-
 const items = [
   { href: "/", label: "home" },
   { href: "/brain", label: "brain" },
@@ -12,7 +10,7 @@ const items = [
   { href: "/about", label: "about" },
 ];
 
-export default function MobileNav() {
+export default function MobileNav({ objectCount }: { objectCount: number }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const active = items.find((it) => (it.href === "/" ? pathname === "/" : pathname.startsWith(it.href))) ?? items[0];
@@ -30,7 +28,7 @@ export default function MobileNav() {
           <span style={{ color: "var(--lift)" }}>{active.label}</span>
           {isBrain && (
             <span style={{ color: "var(--void-mute)" }}>
-              {brainObjects.length} {brainObjects.length === 1 ? "object" : "objects"}
+              {objectCount} {objectCount === 1 ? "object" : "objects"}
             </span>
           )}
         </span>

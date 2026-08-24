@@ -1,6 +1,6 @@
 "use client";
 
-const TYPES = ["all", "thought", "memory", "thing", "work"] as const;
+const TYPES = ["all", "thought", "memory", "thing"] as const;
 const SORTS = [
   { value: "newest", label: "newest" },
   { value: "oldest", label: "oldest" },

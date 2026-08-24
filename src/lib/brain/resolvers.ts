@@ -1,4 +1,4 @@
-import type { BrainObject, ExpandBehavior, Weight } from "./types";
+import type { BrainObject, ExpandBehavior, VesselSize, Weight } from "./types";
 
 const VESSEL_DEFAULT_EXPAND: Record<string, ExpandBehavior> = {
   "plain-note": "none",
@@ -57,6 +57,20 @@ export function resolveExpand(o: BrainObject): ExpandBehavior {
 
 export function resolveWeight(o: BrainObject): Weight {
   return o.weight ?? "normal";
+}
+
+// The vessel-sizing system's per-object step — see VesselSize's own doc
+// comment in types.ts. "medium" is always the vessel preset's own default,
+// so an object with no sizeVariant needs no CSS rule to match it.
+export function resolveSizeVariant(o: BrainObject): VesselSize {
+  return o.sizeVariant ?? "medium";
+}
+
+// Private objects are excluded upstream (see BrainWall's `objects` filter)
+// before filtering/sorting/search ever sees them — this is the one place
+// that decision is made, so nothing downstream has to remember to check it.
+export function isPrivate(o: BrainObject): boolean {
+  return o.private === true;
 }
 
 const NUMBER_WORDS = [
@@ -161,12 +175,46 @@ function parseApproxDate(str: string): Date | null {
   return null;
 }
 
-// Quiet, lowercase, lives outside the vessel. The CMS already resolved
-// precision into either a real ISO date or a hand-formatted override
-// string ("June 2026", "2025–present") — this only chooses which to show,
-// never reformats the override.
+const MONTH_ABBR: Record<string, string> = {
+  january: "Jan",
+  february: "Feb",
+  march: "Mar",
+  april: "Apr",
+  may: "May",
+  june: "Jun",
+  july: "Jul",
+  august: "Aug",
+  september: "Sep",
+  october: "Oct",
+  november: "Nov",
+  december: "Dec",
+};
+
+// Overrides are hand-written CMS text and cover more than plain month/year
+// ("2025–present", "since 2022", "Thanksgiving 2024") — reformatting those
+// would be guessing at intent. Only a bare "<Month> <Year>" override is
+// unambiguous, so only that shape gets abbreviated to match the Jan/Feb/Mar
+// standard everywhere else; anything else passes through untouched.
+function abbreviateMonthYear(s: string): string {
+  const m = s.match(/^([A-Za-z]+)\s+(\d{4})$/);
+  if (!m) return s;
+  const abbr = MONTH_ABBR[m[1].toLowerCase()];
+  return abbr ? `${abbr} ${m[2]}` : s;
+}
+
+// Lives outside the vessel (or, for email, inside the header — see
+// Email.tsx). The CMS already resolved precision into either a real ISO
+// date or a hand-formatted override string ("June 2026", "2025–present") —
+// this only chooses which to show, abbreviating a plain month name where
+// unambiguous, never otherwise reformatting the override. Returns
+// standard-cased month abbreviations (Jan, Feb, Mar…) — e.g. "Mar 2023" —
+// rather than lowercasing them itself; the external meta-bottom slot's own
+// `text-transform: lowercase` is what makes it read lowercase there,
+// matching the rest of that slot's mono/quiet treatment, while the email
+// header (which doesn't apply that transform) shows the date as-returned.
+// Year-only precision returns bare digits ("2025"), unaffected by case.
 export function dateLabel(o: BrainObject): string {
-  if (o.displayDateOverride) return o.displayDateOverride.toLowerCase();
+  if (o.displayDateOverride) return abbreviateMonthYear(o.displayDateOverride);
   if (!o.originalDate) return "";
 
   if (o.datePrecision === "exact" || o.datePrecision === "date") {
@@ -174,9 +222,7 @@ export function dateLabel(o: BrainObject): string {
     if (!isNaN(d.getTime())) {
       const now = new Date();
       const sameYear = d.getFullYear() === now.getFullYear();
-      return d
-        .toLocaleDateString("en-US", { month: "short", day: "numeric", year: sameYear ? undefined : "numeric" })
-        .toLowerCase();
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: sameYear ? undefined : "numeric" });
     }
   }
   // month precision without an override still carries a real "YYYY-MM"
@@ -186,7 +232,7 @@ export function dateLabel(o: BrainObject): string {
     const m = o.originalDate.match(/^(\d{4})-(\d{2})/);
     if (m) {
       const d = new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, 1);
-      return d.toLocaleDateString("en-US", { month: "short", year: "numeric" }).toLowerCase();
+      return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
     }
   }
   if (o.datePrecision === "year") {
@@ -213,4 +259,16 @@ export function sortDate(o: BrainObject): number {
     if (!isNaN(d.getTime())) return d.getTime();
   }
   return 0;
+}
+
+// Formats one BrainContentEntry's ISO date (see types.ts) the same way
+// dateLabel formats a full-precision originalDate — "Mar 15" this year,
+// "Mar 15, 2022" otherwise — kept separate from dateLabel since an entry
+// has no BrainObject/datePrecision of its own to branch on, just a plain
+// exact date string.
+export function entryDateLabel(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  const sameYear = d.getFullYear() === new Date().getFullYear();
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: sameYear ? undefined : "numeric" });
 }
