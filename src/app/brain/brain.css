@@ -21,13 +21,9 @@
 /* -------------------------------- ambient background -------------------------------- */
 /* Fixed behind the wall (z-index 0; .brain-bar/.wall/.brain-ambient are the
    only three z-indexed layers on this page, in that reading) — the cheap
-   CSS/SVG stand-in for BrainFieldScene on reduced-motion/low-power devices.
-   Three restrained systems, same as the WebGL one: a single low-contrast
-   flow layer, a couple of faint organic filaments, and a sparse handful of
-   small dark/periwinkle-gray particles that react a few pixels to the
-   cursor via --mx/--my (set in AmbientBackground's pointermove handler)
-   times each particle's own --depth. Never opaque enough to read as
-   content, never a distinct shape a viewer could name. */
+   CSS stand-in for BrainFieldScene on reduced-motion/low-power devices: a
+   single low-contrast flow layer, same as the WebGL one. Never opaque
+   enough to read as content, never a distinct shape a viewer could name. */
 .brain-ambient {
   position: fixed;
   inset: 0;
@@ -35,8 +31,6 @@
   overflow: hidden;
   pointer-events: none;
   background: var(--void);
-  --mx: 0px;
-  --my: 0px;
 }
 
 /* fluid flow field: one huge, ultra-low-contrast gradient standing in for
@@ -60,93 +54,18 @@
   }
 }
 
-/* connective filaments: faint organic tendrils, never a network-diagram
-   line — no dash pattern, softened stroke, barely legible as a path. */
-.ambient-filaments {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-.ambient-filaments path {
-  fill: none;
-  stroke: rgba(var(--ambient-grey), 0.08);
-  stroke-width: 1.5;
-  stroke-linecap: round;
-  filter: blur(0.6px);
-}
-
-.ambient-parallax {
-  position: absolute;
-  transform: translate3d(calc(var(--mx) * var(--depth, 0.5)), calc(var(--my) * var(--depth, 0.5)), 0);
-  transition: transform 700ms var(--e-out);
-  will-change: transform;
-}
-.ambient-dot {
-  display: block;
-  border-radius: 50%;
-}
-.ambient-drift {
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-.ambient-drift-0 {
-  animation-name: ambientDrift0;
-}
-.ambient-drift-1 {
-  animation-name: ambientDrift1;
-}
-.ambient-drift-2 {
-  animation-name: ambientDrift2;
-}
-.ambient-drift-3 {
-  animation-name: ambientDrift3;
-}
-@keyframes ambientDrift0 {
-  from {
-    transform: translate(0, 0);
-  }
-  to {
-    transform: translate(9px, -7px);
-  }
-}
-@keyframes ambientDrift1 {
-  from {
-    transform: translate(0, 0);
-  }
-  to {
-    transform: translate(-8px, 6px);
-  }
-}
-@keyframes ambientDrift2 {
-  from {
-    transform: translate(0, 0);
-  }
-  to {
-    transform: translate(6px, 9px);
-  }
-}
-@keyframes ambientDrift3 {
-  from {
-    transform: translate(0, 0);
-  }
-  to {
-    transform: translate(-7px, -8px);
-  }
-}
 @media (prefers-reduced-motion: reduce) {
-  .ambient-parallax {
-    transition: none;
-    transform: none !important;
-  }
-  .ambient-drift,
   .ambient-flow {
     animation: none !important;
   }
 }
 
 /* -------------------------------- brain bar -------------------------------- */
+/* Bleeds past .main's own padding on both sides so the sticky bar's
+   background spans the full content width (edge to edge of the rail
+   layout) rather than sitting inset — .brain-bar-row re-adds that same
+   padding so the title/pills/sort text lands at the exact x-position it
+   held before the bleed. */
 .brain-bar {
   position: sticky;
   top: 0;
@@ -154,8 +73,18 @@
   background: rgba(10, 10, 13, 0.92);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--void-line);
-  margin: 0 0 24px;
+  margin: 0 -64px 24px;
 }
+.brain-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 64px;
+  flex-wrap: wrap;
+}
+/* Placed after the base .brain-bar-row rule above (not before, as an
+   equal-specificity earlier declaration would just lose to that rule's
+   padding shorthand) so this actually wins the cascade on mobile. */
 @media (max-width: 767px) {
   .brain-bar {
     top: 56px;
@@ -166,13 +95,6 @@
     padding-left: 24px;
     padding-right: 24px;
   }
-}
-.brain-bar-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 4px;
-  flex-wrap: wrap;
 }
 .brain-bar-title {
   font-weight: 700;
@@ -242,7 +164,7 @@
   grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: 4px;
   grid-auto-flow: row;
-  gap: 26px;
+  gap: 34px;
   align-items: start;
   transition: opacity var(--t-interface) var(--e-io), filter var(--t-interface) var(--e-io);
 }
@@ -254,55 +176,18 @@
 @media (max-width: 760px) {
   .wall {
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+    gap: 32px;
   }
 }
 @media (max-width: 560px) {
   .wall {
     grid-template-columns: 1fr;
-    gap: 26px;
+    gap: 34px;
   }
 }
 .wall[data-focus-active="true"] {
   opacity: 0.4;
   filter: blur(1.5px);
-}
-
-/* -------------------------------- gap blobs -------------------------------- */
-/* Grid-integrated ambient shapes, distinct from the fixed-background
-   BrainField behind the whole page: these live inside .wall itself, sized
-   to real leftover space at the ragged bottom of shorter masonry columns
-   (computed read-only in gapFillers.ts — never written back into
-   grid-row/grid-column, so they can never widen a gap or shift a card).
-   position:absolute is what makes that safe: an absolutely positioned
-   grid item is pulled out of grid auto-placement entirely, so this layer
-   consumes no track no matter where it sits in the DOM. Softened by a
-   feathered radial gradient rather than a blur filter, so it reads crisp
-   up close instead of hazy, and every blob gets its own randomized
-   silhouette/tone/timing (see gapFillers.ts) so no two look alike.
-   GapBlobs.tsx owns `transform` on .gap-blob every frame (idle drift +
-   cursor repulsion) — nothing here may animate that same property, or
-   the CSS side would just get overridden each tick. */
-.gap-blob-layer {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  overflow: visible;
-}
-.gap-blob {
-  position: absolute;
-  pointer-events: auto;
-  mix-blend-mode: screen;
-  transition: opacity var(--t-interface) var(--e-out), filter var(--t-interface) var(--e-out);
-}
-.gap-blob:hover {
-  filter: brightness(1.4) saturate(1.15);
-}
-@media (max-width: 760px) {
-  .gap-blob-layer {
-    display: none;
-  }
 }
 
 .brain-card {
@@ -1364,6 +1249,46 @@
   font-size: 9.5px;
   color: var(--lift);
   text-transform: lowercase;
+}
+
+/* No card, no border, no fill — the object floats free of the vessel shell
+   entirely (unlike display-case/scan, which still cast their own shadow on
+   the photo). Width stays fluid so the ascii flower's own resize logic
+   (AsciiFlower measures its wrapper) keeps redrawing at the right scale
+   across breakpoints. */
+.vessel[data-vessel="floating"] {
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+  width: 100%;
+  max-width: 380px;
+}
+/* Vessel is capped narrower than the grid track (see max-width above), so
+   the card shrinks to that width too — otherwise meta-bottom's date would
+   sit flush with the track's far edge, stranded well past the flower. */
+.brain-card:has(> .vessel[data-vessel="floating"]) {
+  justify-self: start;
+}
+.floating-flower {
+  display: block;
+  outline-offset: 6px;
+}
+/* Metadata (meta-top/meta-bottom, rendered by BrainCard around the vessel)
+   stays hidden until something proves intent to look closer — mouse hover,
+   Tab focus, or a tap (which lands focus on .floating-flower, see
+   Floating.tsx) — rather than sitting on permanently next to a piece that's
+   meant to just be looked at. */
+.brain-card:has(> .vessel[data-vessel="floating"]) .meta-top,
+.brain-card:has(> .vessel[data-vessel="floating"]) .meta-bottom {
+  opacity: 0;
+  transition: opacity var(--t-interface) var(--e-out);
+}
+.brain-card:has(> .vessel[data-vessel="floating"]):hover .meta-top,
+.brain-card:has(> .vessel[data-vessel="floating"]):hover .meta-bottom,
+.brain-card:has(> .vessel[data-vessel="floating"]):focus-within .meta-top,
+.brain-card:has(> .vessel[data-vessel="floating"]):focus-within .meta-bottom {
+  opacity: 1;
 }
 
 /* -------------------------------- vessel material -------------------------------- */

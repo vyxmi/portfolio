@@ -18,6 +18,7 @@ import Spreadsheet from "./Spreadsheet";
 import Browser from "./Browser";
 import Scan from "./Scan";
 import Scrap from "./Scrap";
+import Floating from "./Floating";
 import Fallback from "./Fallback";
 
 // The controlled vessel vocabulary, one component per physical/digital
@@ -42,5 +43,6 @@ export const VESSELS: Record<string, ComponentType<{ o: BrainObject }>> = {
   browser: Browser,
   scan: Scan,
   scrap: Scrap,
+  floating: Floating,
   __fallback__: Fallback,
 };

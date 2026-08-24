@@ -19,6 +19,7 @@ const VESSEL_DEFAULT_EXPAND: Record<string, ExpandBehavior> = {
   scan: "focus",
   scrap: "focus",
   "review-card": "focus",
+  floating: "none",
   __fallback__: "focus",
 };
 

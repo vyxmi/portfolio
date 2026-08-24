@@ -1,33 +1,53 @@
-import { hashSeed } from "./hash";
+import { createRng } from "./hash";
 import type { BrainObject } from "./types";
 import type { CardMotionParams } from "./motionField";
 
-// Applied to every object on the wall — the motion language is proven, and
-// every number below is derived from a per-object hash so it's stable
-// across re-renders/filters without inventing new CMS columns, and so
-// objects don't all move identically (see the ranges — several params
-// are gated to a subset of hash buckets rather than applying to every
-// card, per "don't animate every object aggressively").
-export function deriveCardMotionParams(o: BrainObject): CardMotionParams {
-  const seed = hashSeed(o.id);
-  const depth = 0.15 + ((seed % 100) / 100) * 0.85;
+function lerp(rng: () => number, lo: number, hi: number) {
+  return lo + rng() * (hi - lo);
+}
 
-  const rotates = seed % 3 === 0;
-  const floats = seed % 5 === 0 || seed % 5 === 1;
-  const scaleReveal = seed % 2 === 0;
+// Every number here is pulled from one PRNG stream seeded on the object's
+// own CMS uid (o.id) alone — never its vessel type or its position in the
+// filtered/sorted array — so two objects rendered through the same vessel
+// still drift differently, and a given object's motion survives re-sorts,
+// re-filters, and re-renders untouched (same uid always replays the same
+// stream, regardless of when/where deriveCardMotionParams is called). See
+// tickCards() in motionField.ts for how duration/phase/direction actually
+// get blended into a multi-frequency, non-looping path; this function only
+// derives the per-object numbers that feed it.
+export function deriveCardMotionParams(o: BrainObject): CardMotionParams {
+  const rng = createRng(o.id);
+
+  const depth = lerp(rng, 0.15, 1.0);
+  const scaleReveal = rng() < 0.5;
   const hasGlassDrift = o.material === "smoked" || o.material === "frosted";
+
+  // Position dominates: 6-24px of idle travel. Rotation is secondary and
+  // barely perceptible per frame (0.15-0.6deg) — a hint of unsteadiness on
+  // top of the drift, not a competing motion.
+  const driftAmpX = lerp(rng, 6, 18);
+  const driftAmpY = lerp(rng, 8, 24);
+  const rotationAmp = lerp(rng, 0.15, 0.6);
+  const duration = lerp(rng, 12, 24);
+  const phase = rng() * Math.PI * 2;
+  // A single seeded angle: orients the xy drift ellipse (so paths aren't
+  // all axis-aligned the same way across objects) and, via which half of
+  // the circle it falls in, biases which way this object's rotation leans
+  // — see tickCards() for both uses.
+  const direction = rng() * Math.PI * 2;
 
   return {
     depth,
     parallax: 14 + (1 - depth) * 46,
-    driftX: 4 + ((seed >> 3) % 9),
-    driftY: 3 + ((seed >> 5) % 7),
-    rotation: rotates ? 1.2 + ((seed >> 2) % 30) / 10 : 0,
-    floatAmplitude: floats ? 2 + ((seed >> 4) % 5) : 0,
     lag: 0.045 + (1 - depth) * 0.05,
     scaleReveal,
-    phase: (seed % 628) / 100,
-    vesselDriftX: hasGlassDrift ? 2 + ((seed >> 6) % 5) : 0,
-    vesselDriftY: hasGlassDrift ? 2 + ((seed >> 7) % 4) : 0,
+    driftAmpX,
+    driftAmpY,
+    rotationAmp,
+    duration,
+    phase,
+    direction,
+    vesselDriftX: hasGlassDrift ? lerp(rng, 2, 7) : 0,
+    vesselDriftY: hasGlassDrift ? lerp(rng, 2, 6) : 0,
   };
 }

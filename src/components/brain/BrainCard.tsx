@@ -94,11 +94,13 @@ export default function BrainCard({
   const vesselStyle = useMemo<CSSProperties | undefined>(() => {
     if (vessel === "scrap") {
       const seed = hashSeed(o.id);
-      return { "--scrap-rot": `${(seed % 9) - 4}deg` } as CSSProperties;
+      // Base tilt halved from the original ±4deg range.
+      return { "--scrap-rot": `${((seed % 9) - 4) * 0.5}deg` } as CSSProperties;
     }
     if (vessel === "sticky-note") {
       const seed = hashSeed(o.id + "-sticky");
-      return { "--sticky-rot": `${(seed % 7) - 3}deg` } as CSSProperties;
+      // Base tilt halved from the original ±3deg range.
+      return { "--sticky-rot": `${((seed % 7) - 3) * 0.5}deg` } as CSSProperties;
     }
     return undefined;
   }, [vessel, o.id]);

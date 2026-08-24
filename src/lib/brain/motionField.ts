@@ -34,15 +34,24 @@ export const motionField: MotionFieldState = {
 };
 
 export interface CardMotionParams {
-  depth: number; // 0 (near) .. 1 (far)
+  depth: number; // 0 (near) .. 1 (far) — also sets parallax reach and lag
   parallax: number; // px of scroll-driven travel at full depth range
-  driftX: number; // idle drift half-range, px
-  driftY: number;
-  rotation: number; // idle rotation half-range, deg (0 = never rotates)
-  floatAmplitude: number; // idle vertical bob amplitude, px (0 = no float)
   lag: number; // 0..1 lerp factor per tick toward target (lower = laggier)
   scaleReveal: boolean; // whether this card scales 0.95->1 near viewport center
-  phase: number; // seconds, offsets idle sine so cards don't move in unison
+
+  // Idle multidirectional drift — the dominant motion. Two low-frequency
+  // sines per axis (this object's own `duration` as the fundamental, plus
+  // a non-integer-ratio second frequency derived from `direction`) are
+  // blended in tickCards() so the path never closes into a short, obvious
+  // loop, then the composite xy vector is rotated by `direction` so it
+  // isn't every object bobbing along the same x/y axes.
+  driftAmpX: number; // px, primary drift amplitude
+  driftAmpY: number; // px
+  rotationAmp: number; // deg — secondary motion, far smaller than drift
+  duration: number; // seconds, this object's fundamental drift period
+  phase: number; // radians, offsets every sine so cards never move in unison
+  direction: number; // radians, orients the drift ellipse + biases rotation lean
+
   vesselDriftX: number; // independent inner-layer drift for glass materials
   vesselDriftY: number;
 }
@@ -167,6 +176,44 @@ export function endCardDrag(id: string) {
   refreshDragActive();
 }
 
+// Two low-frequency sines per axis, blended — this object's own `duration`
+// sets the fundamental angular frequency, and a non-integer-ratio second
+// frequency (derived from `direction`, so it's still fully seeded per
+// object rather than a shared constant) keeps the composite from ever
+// closing into a short, obvious loop. The blended xy vector is then
+// rotated by `direction` so objects don't all bob along the same x/y axes
+// — that's what makes the field read as irregular/multidirectional rather
+// than a wall of cards floating straight up and down in sync. Rotation
+// reuses the same two frequencies at a fraction of the weight, so a card's
+// tilt drifts in the same unhurried rhythm as its position instead of
+// spinning on its own clock.
+function idleDrift(params: CardMotionParams, t: number) {
+  const omega1 = (Math.PI * 2) / params.duration;
+  const ratio2 = 0.32 + 0.22 * (0.5 + 0.5 * Math.sin(params.direction * 3.1));
+  const omega2 = omega1 * ratio2;
+
+  const rawX =
+    Math.sin(t * omega1 + params.phase) * 0.68 +
+    Math.sin(t * omega2 + params.phase * 1.9 + params.direction) * 0.32;
+  const rawY =
+    Math.sin(t * omega1 * 0.83 + params.phase * 1.3 + params.direction) * 0.62 +
+    Math.sin(t * omega2 * 1.21 + params.phase * 0.7) * 0.38;
+
+  const cosA = Math.cos(params.direction);
+  const sinA = Math.sin(params.direction);
+  const x = (rawX * cosA - rawY * sinA) * params.driftAmpX;
+  const y = (rawX * sinA + rawY * cosA) * params.driftAmpY;
+
+  const rotationDir = params.direction < Math.PI ? 1 : -1;
+  const rot =
+    (Math.sin(t * omega1 * 0.9 + params.phase * 2.3) * 0.7 +
+      Math.sin(t * omega2 * 1.4 + params.direction * 1.6) * 0.3) *
+    params.rotationAmp *
+    rotationDir;
+
+  return { x, y, rot };
+}
+
 // Called once per gsap.ticker tick by BrainScrollProvider. Pure DOM writes,
 // no React involved — this is the "one animation loop" for card motion.
 export function tickCards() {
@@ -177,8 +224,7 @@ export function tickCards() {
   for (const entry of cards.values()) {
     const { el, vesselEl, params, current, drag, hover } = entry;
 
-    const targetX = params.driftX ? Math.sin(time * 0.18 + params.phase) * params.driftX : 0;
-    const targetYIdle = params.floatAmplitude ? Math.sin(time * 0.26 + params.phase * 1.4) * params.floatAmplitude : 0;
+    const idle = idleDrift(params, time);
 
     // Parallax keyed to the card's own position in the viewport (how far
     // its center is from mid-screen, -1..1), not absolute page scrollY.
@@ -191,8 +237,9 @@ export function tickCards() {
     const center = rect.top + rect.height / 2;
     const viewportProgress = vh > 0 ? (center - vh / 2) / (vh / 2) : 0;
     const parallaxY = -viewportProgress * params.parallax;
-    const targetY = targetYIdle + parallaxY;
-    const targetRot = params.rotation ? Math.sin(time * 0.14 + params.phase * 0.7) * params.rotation : 0;
+    const targetX = idle.x;
+    const targetY = idle.y + parallaxY;
+    const targetRot = idle.rot;
 
     let targetScale = 1;
     if (params.scaleReveal) {

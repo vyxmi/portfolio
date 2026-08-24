@@ -3,12 +3,10 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { BrainObject } from "@/lib/brain/types";
 import { resolveWeight, sortDate } from "@/lib/brain/resolvers";
-import { computeColumnGaps, blobsFromGaps, type BlobSpec } from "@/lib/brain/gapFillers";
 import CursorZone from "@/components/CursorZone";
 import BrainCard from "./BrainCard";
 import BrainFocus from "./BrainFocus";
 import BrainBar, { type SortMode } from "./BrainBar";
-import GapBlobs from "./GapBlobs";
 
 // .wall uses a fine-grained grid-auto-rows (see brain.css) so a card's real
 // height, not its row's tallest neighbor, decides how much vertical space it
@@ -18,7 +16,6 @@ import GapBlobs from "./GapBlobs";
 // separate window listener is needed.
 function useMasonry(dep: unknown) {
   const wallRef = useRef<HTMLDivElement>(null);
-  const [blobs, setBlobs] = useState<BlobSpec[]>([]);
 
   useLayoutEffect(() => {
     const wallEl = wallRef.current;
@@ -33,9 +30,6 @@ function useMasonry(dep: unknown) {
         const span = Math.max(1, Math.ceil((h + rowGap) / (rowH + rowGap)));
         card.style.gridRowEnd = `span ${span}`;
       });
-      // Reads final post-span layout (the writes above already forced it) —
-      // purely measurement, so this can never feed back into card spacing.
-      setBlobs(blobsFromGaps(computeColumnGaps(wallEl!)));
     }
 
     recompute();
@@ -52,7 +46,7 @@ function useMasonry(dep: unknown) {
     };
   }, [dep]);
 
-  return { wallRef, blobs };
+  return { wallRef };
 }
 
 export default function BrainWall({ objects }: { objects: BrainObject[] }) {
@@ -73,7 +67,7 @@ export default function BrainWall({ objects }: { objects: BrainObject[] }) {
   }, [objects, filterType, sortMode]);
 
   const openObject = openId ? (objects.find((o) => o.id === openId) ?? null) : null;
-  const { wallRef, blobs } = useMasonry(visible);
+  const { wallRef } = useMasonry(visible);
 
   return (
     <CursorZone>
@@ -86,7 +80,6 @@ export default function BrainWall({ objects }: { objects: BrainObject[] }) {
         onSortMode={setSortMode}
       />
       <div ref={wallRef} className="wall" data-focus-active={openObject ? "true" : undefined}>
-        <GapBlobs blobs={blobs} />
         {visible.map((o) => (
           <BrainCard key={o.id} o={o} onOpen={(obj) => setOpenId(obj.id)} motionEnhanced />
         ))}

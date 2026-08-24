@@ -27,7 +27,8 @@ export type BrainVessel =
   | "browser"
   | "scan"
   | "scrap"
-  | "review-card";
+  | "review-card"
+  | "floating";
 
 export type ExpandBehavior = "auto" | "none" | "read-more" | "focus" | "gallery" | "external";
 export type TitleDisplay = "auto" | "show" | "hide";

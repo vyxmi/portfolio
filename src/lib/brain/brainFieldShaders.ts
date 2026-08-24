@@ -1,8 +1,7 @@
-// GLSL for the two BrainField layers where a shader materially earns its
+// GLSL for the one BrainField layer where a shader materially earns its
 // keep: the volumetric flow field (a slow fbm-noise pressure field —
-// impossible to fake cheaply with mesh primitives) and the particle
-// sprites (soft circular falloff per point). The filaments are plain
-// geometry driven from JS, which is simpler and just as restrained.
+// impossible to fake cheaply with mesh primitives). The filaments are
+// plain geometry driven from JS, which is simpler and just as restrained.
 
 export const flowFieldVertexShader = /* glsl */ `
   varying vec2 vUv;
@@ -88,28 +87,5 @@ export const flowFieldFragmentShader = /* glsl */ `
     float alpha = (density * 0.42 + wake + pointerGlow) * uOpacity;
     vec3 color = mix(uColorA, uColorB, clamp(density * 0.7 + wake, 0.0, 1.0));
     gl_FragColor = vec4(color, clamp(alpha, 0.0, 1.0));
-  }
-`;
-
-export const particleVertexShader = /* glsl */ `
-  attribute float aSize;
-  attribute float aBrightness;
-  varying float vBrightness;
-  void main() {
-    vBrightness = aBrightness;
-    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-    gl_PointSize = aSize * (280.0 / -mvPosition.z);
-    gl_Position = projectionMatrix * mvPosition;
-  }
-`;
-
-export const particleFragmentShader = /* glsl */ `
-  uniform vec3 uColor;
-  varying float vBrightness;
-  void main() {
-    vec2 d = gl_PointCoord - 0.5;
-    float dist = length(d);
-    float alpha = smoothstep(0.5, 0.08, dist) * vBrightness;
-    gl_FragColor = vec4(uColor, alpha);
   }
 `;
