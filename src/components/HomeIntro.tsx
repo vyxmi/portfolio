@@ -23,14 +23,18 @@ const DISPLAY: CSSProperties = {
   letterSpacing: "-.02em",
   color: "var(--void-ink)",
 };
-// The role/tagline — deliberately quieter than both the name/heading above
-// it and the mono lines around it, so it reads as secondary context, not
-// another headline.
-const ROLE: CSSProperties = {
+// The role/tagline — closing line now, under "my brain" rather than
+// between the name and the brain heading. White mono instead of the muted
+// sans used elsewhere for secondary text: it reads as a byline/credit line
+// (same register as the mono greeting lines) rather than another headline.
+const TAGLINE: CSSProperties = {
+  fontFamily: "var(--font-mono-sys), ui-monospace, monospace",
   fontWeight: 400,
-  fontSize: "clamp(14px, 1.8vw, 16px)",
+  fontSize: "clamp(12.5px, 1.6vw, 14px)",
+  letterSpacing: ".03em",
   lineHeight: 1.4,
-  color: "var(--void-mute)",
+  color: "var(--void-ink)",
+  textTransform: "lowercase",
 };
 
 interface IntroLine {
@@ -44,9 +48,9 @@ interface IntroLine {
 const LINES: IntroLine[] = [
   { text: "nice to meet you, i'm", style: MONO, dotSize: 6, marginBottom: 6 },
   { text: "vyomi seth", style: DISPLAY, dotSize: 10, marginBottom: 22 },
-  { text: "product designer + engineer · bay area", style: ROLE, dotSize: 6, marginBottom: 26 },
   { text: "here's the inside of", style: MONO, dotSize: 6, marginBottom: 6 },
-  { text: "my brain", style: DISPLAY, dotSize: 10, marginBottom: 0 },
+  { text: "my brain", style: DISPLAY, dotSize: 10, marginBottom: 22 },
+  { text: "bay area • product designer • product engineer", style: TAGLINE, dotSize: 6, marginBottom: 0 },
 ];
 
 // Starts while the flower is still mid-converge (its bloomDuration settles

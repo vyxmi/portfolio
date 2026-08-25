@@ -119,6 +119,10 @@ export default function DigitalBloom({
   const runtime = useRef(createParticleRuntime());
 
   const camera = useMemo(() => ({ position: [0, 0, 4.2] as [number, number, number], fov: 40, near: 0.1, far: 20 }), []);
+  // Flower-only: cursor-proximity hover radius cut to a third of the shared
+  // interactionRadius prop. Ambient keeps the full radius unchanged — this
+  // narrows only how close the cursor needs to be to nudge flower particles.
+  const flowerInteractionRadius = interactionRadius / 3;
 
   return (
     <div
@@ -163,7 +167,7 @@ export default function DigitalBloom({
           scale={scale}
           driftStrength={driftStrength}
           interactionStrength={interactionStrength}
-          interactionRadius={interactionRadius}
+          interactionRadius={flowerInteractionRadius}
           baseSize={baseSize}
           colorPrimary={colorPrimary}
           colorAccent={colorAccent}

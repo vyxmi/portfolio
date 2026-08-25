@@ -50,8 +50,28 @@ const chanceLive: CaseStudyContent = {
       heading: "Context",
       body: [
         "Chance.live is a startup reimagining how people buy, open, collect, and trade Pokemon cards online. I joined as its first in house designer shortly after the company secured $3M+ in funding and launched its beta.",
-        "A single accidental swipe could cost users $5000+. This irreversible action was causing them to leave.",
       ],
+    },
+    {
+      kind: "story",
+      eyebrow: "the problem",
+      heading: "One wrong swipe, and it's gone",
+      body: [
+        "A single accidental swipe could cost users $5,000+, and selling is irreversible.",
+        "This issue also generated support tickets, which created additional operational costs for an already lean team of eight people.",
+      ],
+      items: [
+        "Open a pack",
+        "Accidentally swipe a card",
+        "Realize the mistake too late — selling is irreversible",
+        "Lose trust in the platform",
+        "Stop using Chance entirely",
+      ],
+    },
+    {
+      kind: "video",
+      src: "/case-studies/chance-live/accidental-swipe-before.mp4",
+      caption: "before: an accidental swipe on mobile, with no way back",
     },
     { kind: "statement", heading: "How might we make card swiping resilient to human error while still feeling sleek, premium, and magical?" },
     {
@@ -89,6 +109,7 @@ const chanceLive: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/chance-live/ux-walkthrough.webp",
+      transparentMedia: true,
       alt: "Annotated screenshot of the sell flow with real first-time-user questions and a recommendation sticky note",
       caption: "walking the flow as a first-time user, sticky notes and all",
       width: 1400,
@@ -97,6 +118,7 @@ const chanceLive: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/chance-live/full-ux-audit.webp",
+      transparentMedia: true,
       alt: "The complete UX audit board, wider than it is tall, covering the full sell flow with annotations",
       caption: "the full audit board — click to zoom, it's a wide one",
       width: 4000,
@@ -113,6 +135,7 @@ const chanceLive: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/chance-live/wireframes.webp",
+      transparentMedia: true,
       alt: "Low-fidelity grayscale wireframes exploring card, vault, and sell layouts",
       caption: "some early wireframes, before any visual polish",
       width: 2000,
@@ -127,6 +150,7 @@ const chanceLive: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/chance-live/midfi-exploration.webp",
+      transparentMedia: true,
       alt: "Mid-fidelity exploration of the vaulted and sold confirmation states",
       caption: "a mid-fidelity exploration of the confirmation states",
       width: 1800,
@@ -144,6 +168,7 @@ const chanceLive: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/chance-live/intro-variations.webp",
+      transparentMedia: true,
       alt: "The intro page shown across 1, 2, 3, 4, and 5 card counts, plus the summary state",
       caption: "how the intro page changes depending on how many cards are opened",
       width: 1800,
@@ -160,6 +185,7 @@ const chanceLive: CaseStudyContent = {
       images: [
         {
           src: "/case-studies/chance-live/mobile-flow.webp",
+          transparentMedia: true,
           alt: "Part of the mobile 5-card user flow, swiping between collect and sell states",
           caption: "part of the mobile 5-card user flow",
           width: 1800,
@@ -167,6 +193,7 @@ const chanceLive: CaseStudyContent = {
         },
         {
           src: "/case-studies/chance-live/desktop-flow.webp",
+          transparentMedia: true,
           alt: "Desktop 1-card user flow, from collect/sell choice to confirmation",
           caption: "the desktop 1-card user flow",
           width: 1800,
@@ -201,6 +228,7 @@ const chanceLive: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/chance-live/edge-case-states.webp",
+      transparentMedia: true,
       alt: "Confirmation states across different card counts and mixed collect/sell selections",
       caption: "confirmation states across different card counts and mixed collect/sell selections",
       width: 1800,
@@ -264,6 +292,130 @@ const chanceLive: CaseStudyContent = {
   ],
 };
 
+const chanceDepositFlow: CaseStudyContent = {
+  heroLine:
+    "I redesigned one of the biggest drop-off points in our purchase funnel. One week after shipping, order volume was up 1.8x.",
+  facts: [
+    { label: "company", value: "Chance.live" },
+    { label: "role", value: "Systems Designer, Product Growth Strategist" },
+  ],
+  blocks: [
+    { kind: "flag", text: "Waiting on the old-flow/new-flow GIFs and a funnel screenshot for this opening section — drop them in and I'll place them right here, above the metrics." },
+    { kind: "statement", heading: "People aren't on Chance to deposit money." },
+    {
+      kind: "story",
+      body: [
+        "They're here to open Pokémon packs.",
+        "But if someone tried to buy a pack without enough money in their account, we sent them through a completely separate deposit flow. They had to leave what they were doing, figure out how much money to add, go through CoinFlow, come back, and try buying the pack again. At minimum, it took 7 clicks.",
+      ],
+    },
+    {
+      kind: "insight",
+      body: [
+        "75% of users who entered CoinFlow dropped off before depositing.",
+        "The problem seemed pretty straightforward: people wanted to buy something, and we were making them do a bunch of other stuff first.",
+      ],
+    },
+    {
+      kind: "story",
+      eyebrow: "research",
+      heading: "I started with the funnel, not the modal.",
+      body: [
+        "I mapped the full transaction from clicking Buy to actually getting USDC into the user's account. That meant learning how CoinFlow, our balance, cryptocurrency transactions, and redemption worked together before deciding what I could remove from the UI.",
+      ],
+      items: ["deposit conversion", "where people dropped off", "pack purchase behavior", "creator vs. organic traffic", "how much people usually bought", "existing vs. first-time depositors"],
+    },
+    { kind: "flag", text: "The FigJam funnel visual goes here — send it over and I'll drop it in above the insight below." },
+    { kind: "insight", body: ["“Deposit money” usually wasn't the user's actual goal. “Buy this pack” was.", "That changed how I thought about the whole flow."] },
+    {
+      kind: "story",
+      eyebrow: "systems thinking",
+      heading: "I had to understand what was actually happening to the money.",
+      body: [
+        "Before changing the flow, I learned how Chance was carrying transactions through the backend using cryptocurrency.",
+        "One of the weirdest parts of the old experience happened after someone had already paid. Users still had to redeem a separate coupon to access their USDC.",
+        "If you already understood crypto, maybe that made sense. If you didn't, it felt like we'd introduced an entirely new concept right after asking you for money. I thought that was way too much backend complexity leaking into the product.",
+        "So I redesigned redemption into a one-click action that got users to their funds faster without requiring them to understand what was happening underneath.",
+      ],
+    },
+    { kind: "flag", text: "Old redeem flow vs. one-click redeem — send the before/after and I'll place it right after this section." },
+    { kind: "statement", heading: "Users shouldn't need to understand our cryptocurrency infrastructure to buy a Pokémon pack." },
+    {
+      kind: "story",
+      eyebrow: "the redesign",
+      heading: "What if we just finished what they were already trying to do?",
+      body: ["If a pack costs $50 and you have $12, Chance already knows you're $38 short. The old flow basically made you figure that out yourself."],
+    },
+    { kind: "flowSteps", label: "the old flow", steps: ["Buy", "Deposit", "Choose amount", "Pay", "Return", "Buy again"] },
+    { kind: "flowSteps", label: "the new flow", steps: ["Buy", "Add $38", "Pay"] },
+    { kind: "ratio", before: "7", beforeLabel: "clicks, minimum, old flow", after: "2", afterLabel: "clicks, new flow" },
+    { kind: "story", body: ["The deposit flow stopped feeling like its own feature and became part of buying the pack."] },
+    {
+      kind: "story",
+      eyebrow: "design debate",
+      heading: "Fewer clicks wasn't automatically better.",
+      body: [
+        "We had a lot of disagreements during this project.",
+        "One idea was to automatically open the deposit modal for users with a low balance. Technically, that removed friction. I didn't like it.",
+        "Someone having $0 in their account doesn't mean they're ready to give us money. They might still be browsing. Popping up a payment flow before they've actually tried to buy something felt annoying and way too aggressive. So we didn't do it.",
+        "We also debated whether users should immediately continue with the exact amount they needed or see an amount-selection step first. The shortest version was 2 clicks. The other was 3 clicks, but gave people more control over how much they deposited.",
+        "There were reasonable arguments for both, so I didn't want us to pick one based on whoever argued hardest.",
+      ],
+    },
+    { kind: "statement", heading: "We're A/B testing them instead." },
+    { kind: "flag", text: "2-click vs. 3-click comparison visual goes here — send it and I'll place it above the validation block below." },
+    {
+      kind: "validation",
+      eyebrow: "validation",
+      heading: "Does giving people control over the deposit amount matter more than saving a click?",
+      body: [
+        "I'm looking at deposit completion first, with average deposit size and purchase completion as guardrails.",
+        "The goal isn't just “fewer clicks.” It's figuring out whether that extra decision is actually useful.",
+      ],
+    },
+    {
+      kind: "story",
+      eyebrow: "process",
+      heading: "I also changed how I designed it.",
+      body: [
+        "By this point, I'd gotten comfortable enough with front-end development and AI coding tools that I didn't need every idea to become a polished Figma prototype first. For interaction-heavy decisions, I could just build them.",
+      ],
+    },
+    { kind: "flowSteps", label: "instead of", steps: ["Idea", "Wireframes", "Prototype", "Meeting", "Revisions", "Handoff"] },
+    { kind: "flowSteps", label: "the loop became", steps: ["Idea", "Working prototype", "Use it", "Argue about something real", "Iterate"] },
+    { kind: "flag", text: "Prototype/code/final-product visual goes here — send it and I'll place it above the paragraph below." },
+    {
+      kind: "story",
+      body: [
+        "This was especially useful here because a lot of our disagreements were about behavior, not visuals. When does the modal appear? What gets prefilled? Where do you land after paying? What happens if you already have some balance? Those are much easier to judge when the thing actually works.",
+      ],
+    },
+    {
+      kind: "story",
+      eyebrow: "impact",
+      heading: "One week later",
+      body: [
+        "In the week after we shipped the new flow, order volume was 1.8x higher.",
+        "It's still early, and there are other things that can affect order volume, so I'm not pretending the redesign alone caused a 1.8x increase. But it's a pretty encouraging first signal.",
+        "I'm continuing to watch the funnel and the 2-click vs. 3-click experiment to see what actually sticks.",
+      ],
+    },
+    {
+      kind: "insight",
+      eyebrow: "takeaways",
+      heading: "Users shouldn't have to think about depositing.",
+      body: [
+        "I went into this thinking the goal was to make depositing easier. I think the better solution was making users think about depositing less in the first place.",
+        "They already told us what they wanted when they clicked Buy. The product should do as much as it can from there.",
+      ],
+    },
+    {
+      kind: "flag",
+      text: "This case study is text-only for now, per your note that you'll attach pics/vids later — I've dropped a flag at every spot a visual belongs (opening GIFs/funnel, FigJam funnel map, redeem flow before/after, 2-click vs. 3-click comparison, prototype/code/final product) so you can see exactly what's missing at a glance. I also don't have an exact date/duration or team size for this project — inferred year 2026 from your other Chance.live work; send the real numbers and I'll fill those in too.",
+    },
+  ],
+};
+
 const ademUserList: CaseStudyContent = {
   heroLine:
     "Streamlined complex ADEM workflows by consolidating scattered information, designing a new user list page empowering IT admins to quickly solve customer issues.",
@@ -297,6 +449,7 @@ const ademUserList: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/adem-user-list/fragmented-dashboards.webp",
+      transparentMedia: true,
       alt: "Three fragmented ADEM dashboards showing application experience, connectivity and user data",
       caption: "the same user data, scattered across three separate dashboards",
       width: 2048,
@@ -305,6 +458,7 @@ const ademUserList: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/adem-user-list/consolidation-direction.webp",
+      transparentMedia: true,
       alt: "The same three dashboards with arrows showing them consolidating into a single Users page",
       caption: "the direction: three dashboards, converging on one page",
       width: 1600,
@@ -329,6 +483,7 @@ const ademUserList: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/adem-user-list/workflow-map.webp",
+      transparentMedia: true,
       alt: "Flowchart mapping an IT admin's troubleshooting workflow from ticket to resolution",
       caption: "mapping the real troubleshooting workflow, ticket to resolution",
       width: 1600,
@@ -343,6 +498,7 @@ const ademUserList: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/adem-user-list/ux-critique.webp",
+      transparentMedia: true,
       alt: "Annotated critique of the existing Application Experience page, with sticky notes flagging buried information and unclear charts",
       caption: "auditing the existing page against real troubleshooting workflows",
       width: 849,
@@ -407,6 +563,7 @@ const ademUserList: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/adem-user-list/timeline-detail.webp",
+      transparentMedia: true,
       alt: "Six week sprint broken into Research & Audit, Requirements & Alignment, Wireframes/IA/User Flows, High-Fidelity Design, Testing & Iteration, and Finalization & Handoff",
       caption: "6 week sprint, july to september",
       width: 2000,
@@ -425,7 +582,7 @@ const ademUserList: CaseStudyContent = {
 
 const accessAnalyzer: CaseStudyContent = {
   heroLine: "I redesigned a key diagnostic tool used by IT administrators to troubleshoot user access issues and shipped 22 UX fixes.",
-  heroImage: { src: "/case-studies/access-analyzer/query-results.webp", alt: "Access Analyzer query results, showing User & Endpoint, Network, Application, and Security Policy health checks", width: 1089, height: 632 },
+  heroImage: { src: "/case-studies/access-analyzer/query-results.webp", alt: "Access Analyzer query results, showing User & Endpoint, Network, Application, and Security Policy health checks", width: 1089, height: 632, transparentMedia: true },
   facts: [
     { label: "company", value: "Palo Alto Networks" },
     { label: "role", value: "Lead Designer" },
@@ -444,6 +601,7 @@ const accessAnalyzer: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/access-analyzer/entry-point.webp",
+      transparentMedia: true,
       alt: "The Access Analyzer landing page, with a natural-language search bar and example questions",
       caption: "the entry point: ask a question, get a diagnosis",
       width: 1032,
@@ -552,7 +710,7 @@ const accessAnalyzer: CaseStudyContent = {
 const aiWorkflowToolkit: CaseStudyContent = {
   heroLine:
     "I designed and built an AI workflow toolkit to help designers test, iterate, and prototype faster. I combined research from my Cognitive Science background with prompt engineering to optimize internal design tools for creativity and speed.",
-  heroImage: { src: "/case-studies/ai-workflow-toolkit/personashift.webp", alt: "PersonaShift, an AI tool analyzing a design against a named user persona", width: 550, height: 396 },
+  heroImage: { src: "/case-studies/ai-workflow-toolkit/personashift.webp", alt: "PersonaShift, an AI tool analyzing a design against a named user persona", width: 550, height: 396, transparentMedia: true },
   facts: [
     { label: "company", value: "Palo Alto Networks" },
     { label: "team", value: "1 UX Director, 1 UX Researcher" },
@@ -574,6 +732,7 @@ const aiWorkflowToolkit: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/ai-workflow-toolkit/personashift.webp",
+      transparentMedia: true,
       alt: "PersonaShift, an AI tool analyzing a design against a named user persona",
       caption: "PersonaShift: AI-generated persona feedback on a design, before it reaches real users",
       width: 550,
@@ -601,7 +760,7 @@ const aiWorkflowToolkit: CaseStudyContent = {
 
 const carInsurance: CaseStudyContent = {
   heroLine: "Turning 200+ inconsistent pages into a scalable design foundation that improved conversions, increased organic traffic, and changed how the team shipped product.",
-  heroImage: { src: "/case-studies/carinsurance-com/atomic-design-ladder.webp", alt: "Atomic Design ladder: Sub Atomic, Atoms, Molecules, Organisms, Templates, and Pages, each shown with real UI", width: 1600, height: 778 },
+  heroImage: { src: "/case-studies/carinsurance-com/atomic-design-ladder.webp", alt: "Atomic Design ladder: Sub Atomic, Atoms, Molecules, Organisms, Templates, and Pages, each shown with real UI", width: 1600, height: 778, transparentMedia: true },
   facts: [
     { label: "company", value: "QuinStreet" },
     { label: "role", value: "Product Designer" },
@@ -663,6 +822,7 @@ const carInsurance: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/carinsurance-com/competitor-audit.webp",
+      transparentMedia: true,
       alt: "A competitor UI pattern audit, annotating design choices across several insurance and finance sites",
       caption: "auditing competitor UI patterns, not just their content",
       width: 2000,
@@ -706,6 +866,7 @@ const carInsurance: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/carinsurance-com/type-scale.webp",
+      transparentMedia: true,
       alt: "Desktop and mobile type scale, from Heading 1 down to Subtitle Regular, with exact sizes and line heights",
       caption: "one of the atoms: a type scale that holds up from a 48px desktop H1 down to 12px mobile subtitle text",
       width: 1400,
@@ -714,6 +875,7 @@ const carInsurance: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/carinsurance-com/color-palette.webp",
+      transparentMedia: true,
       alt: "The design system's color palette: Primary, Neutral, and Accent groups with hex, rgb, and hsl values",
       caption: "another atom: the primary, neutral, and accent color system",
       width: 1190,
@@ -722,6 +884,7 @@ const carInsurance: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/carinsurance-com/component-variants.webp",
+      transparentMedia: true,
       alt: "A sheet of component variants: buttons, toggles, dropdowns, tables, and star ratings at multiple sizes and states",
       caption: "component variants — every size and state, defined once",
       width: 1800,
@@ -730,6 +893,7 @@ const carInsurance: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/carinsurance-com/atomic-system.webp",
+      transparentMedia: true,
       alt: "A dense sheet of CarInsurance.com UI components and page explorations",
       caption: "a slice of the 670+ component library this system grew into",
       width: 2048,
@@ -750,6 +914,7 @@ const carInsurance: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/carinsurance-com/calculator-example.webp",
+      transparentMedia: true,
       alt: "A redesigned \"will my insurance go up if I move\" calculator, with rate comparisons by ZIP code",
       caption: "one of the redesigned calculators — real numbers, clear comparisons",
       width: 760,
@@ -773,6 +938,7 @@ const carInsurance: CaseStudyContent = {
       images: [
         {
           src: "/case-studies/carinsurance-com/expert-quotes-redesign.webp",
+          transparentMedia: true,
           alt: "Before and after of the expert-quotes module, from a plain accordion to a selectable expert-tip card",
           caption: "before → after: expert quotes, redesigned",
           width: 1751,
@@ -780,6 +946,7 @@ const carInsurance: CaseStudyContent = {
         },
         {
           src: "/case-studies/carinsurance-com/review-page-redesign.webp",
+          transparentMedia: true,
           alt: "Before and after of a company review page, from plain text to a scored, structured review layout",
           caption: "before → after: company reviews, redesigned",
           width: 1796,
@@ -803,6 +970,7 @@ const carInsurance: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/carinsurance-com/article-team-redesign.webp",
+      transparentMedia: true,
       alt: "Before and after of the article byline module, from a single author to a full, credited Article Team list",
       caption: "before → after: giving editors and contributors real credit",
       width: 1790,
@@ -912,6 +1080,7 @@ const beyond: CaseStudyContent = {
     // (onboarding through create-account) is a real single-row montage
     // that covers cleanly at any of the work-index aspect ratios.
     src: "/case-studies/beyond/screens-row1.webp",
+    transparentMedia: true,
     alt: "Beyond app screens: onboarding, login, and create account",
     width: 2048,
     height: 800,
@@ -959,7 +1128,7 @@ const beyond: CaseStudyContent = {
         "Whether someone is a high school student exploring careers for the first time, a college student looking for direction, or a professional considering a career change, Beyond provides a supportive environment to learn, connect, and grow.",
       ],
     },
-    { kind: "flag", text: "Your source mentions a “Video demo”, if you have the actual demo file/link, send it and I'll embed it here." },
+    { kind: "youtube", id: "vXNB0LHcTrA", caption: "Beyond — video demo" },
     {
       kind: "story",
       eyebrow: "survey",
@@ -991,7 +1160,7 @@ const beyond: CaseStudyContent = {
       heading: "Designing for people at different stages of self-discovery",
       body: ["After looking at the survey demographics and insights, we decided to cater the app towards 4 main groups of users."],
     },
-    { kind: "image", src: "/case-studies/beyond/personas.webp", alt: "Four user personas: Chun Ho Li, Carissa White, Maria Gonzalez, and Jessica Thompson", caption: "Four user personas built from the survey and affinity mapping", width: 1843, height: 2048 },
+    { kind: "image", src: "/case-studies/beyond/personas.webp", alt: "Four user personas: Chun Ho Li, Carissa White, Maria Gonzalez, and Jessica Thompson", caption: "Four user personas built from the survey and affinity mapping", width: 1843, height: 2048, transparentMedia: true },
     {
       kind: "story",
       eyebrow: "market research",
@@ -1011,6 +1180,7 @@ const beyond: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/beyond/user-flow.webp",
+      transparentMedia: true,
       alt: "User flow diagram mapping onboarding, industry exploration, the connect page, and the profile page",
       caption: "the user flow, mapping key features and screens before we designed them",
       width: 1400,
@@ -1032,6 +1202,7 @@ const beyond: CaseStudyContent = {
       images: [
         {
           src: "/case-studies/beyond/explore-jobs-screens.webp",
+          transparentMedia: true,
           alt: "Explore Industries, Technology & Software, IT Project Managers, and Find Certificates screens",
           caption: "explore jobs and industries, down to specific salary ranges and certifications",
           width: 1400,
@@ -1039,6 +1210,7 @@ const beyond: CaseStudyContent = {
         },
         {
           src: "/case-studies/beyond/profile-connect-screens.webp",
+          transparentMedia: true,
           alt: "Profile and connect screens, shown in both English and Bahasa Indonesia",
           caption: "profile and connect, localized — accessibility was part of the brief",
           width: 1400,
@@ -1215,6 +1387,7 @@ const chanceCreators: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/chance-creators/initial-flow.webp",
+      transparentMedia: true,
       alt: "Initial user flow, one of many flow charts, with sticky-note annotations flagging UX issues",
       caption: "initial user flow, one of many flow charts",
       width: 1600,
@@ -1259,6 +1432,7 @@ const chanceCreators: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/chance-creators/current-flow.webp",
+      transparentMedia: true,
       alt: "Current user flow as of July 27th, 2026, split into buyer side and creator side",
       caption: "current user flow, as of july 27th, 2026",
       width: 1600,
@@ -1280,6 +1454,7 @@ const chanceCreators: CaseStudyContent = {
     {
       kind: "image",
       src: "/case-studies/chance-creators/creator-dashboard.webp",
+      transparentMedia: true,
       alt: "Creator dashboard showing referral GMV, cash payout balance, and a live order queue, layered over a pack-opening screen",
       caption: "the dashboard, order queue, and pack-opening screen this architecture had to connect",
       width: 1800,
@@ -1386,7 +1561,7 @@ export const projects: Project[] = [
     ],
     discipline: "product, systems",
     content: chanceLive,
-    size: "lg",
+    size: "md",
   },
   {
     slug: "carinsurance-com",
@@ -1404,7 +1579,7 @@ export const projects: Project[] = [
     ],
     discipline: "product, design systems",
     content: carInsurance,
-    size: "lg",
+    size: "md",
   },
   {
     slug: "adem-user-list",
@@ -1427,7 +1602,7 @@ export const projects: Project[] = [
     ],
     discipline: "enterprise, systems",
     content: ademUserList,
-    size: "lg",
+    size: "md",
   },
   {
     slug: "beyond",
@@ -1454,7 +1629,7 @@ export const projects: Project[] = [
     tagline: "Turning ambiguous errors into clear, actionable guidance",
     company: "Palo Alto Networks",
     role: "Lead Designer",
-    year: "2024",
+    year: "2025",
     result: "80% faster troubleshooting (30s to 6s), 22 UX fixes shipped",
     metrics: [
       { value: "30s → 6s", label: "to troubleshoot an issue" },
@@ -1463,6 +1638,24 @@ export const projects: Project[] = [
     ],
     discipline: "enterprise, ux research",
     content: accessAnalyzer,
+    size: "mini",
+  },
+  {
+    slug: "chance-deposit-flow",
+    number: "08",
+    title: "Deposit Flow",
+    tagline: "Cutting our deposit flow from 7 clicks to 2",
+    company: "Chance.live",
+    role: "Systems Designer, Product Growth Strategist",
+    year: "2026",
+    result: "Deposit flow cut from 7 clicks to 2, 1.8x order volume in the week after launch",
+    metrics: [
+      { value: "7 → 2", label: "clicks, buy to paid" },
+      { value: "75%", label: "dropped off before depositing, pre-redesign" },
+      { value: "1.8×", label: "order volume in the week after launch" },
+    ],
+    discipline: "product, growth",
+    content: chanceDepositFlow,
     size: "md",
   },
   {
@@ -1472,7 +1665,7 @@ export const projects: Project[] = [
     tagline: "Helping a design team test, iterate, and prototype faster",
     company: "Palo Alto Networks",
     role: "Product Designer",
-    year: "2024",
+    year: "2025",
     result: "80% team adoption, 36x faster synthetic user testing",
     metrics: [
       { value: "80%", label: "of the design team adopted the toolkit" },

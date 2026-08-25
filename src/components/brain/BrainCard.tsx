@@ -26,7 +26,10 @@ export default function BrainCard({
 }: {
   o: BrainObject;
   onOpen?: (o: BrainObject) => void;
-  presentation?: "wall" | "focus";
+  // "home" is the homepage constellation's card: same click/focus behavior
+  // as "wall" (see `interactive` below), just without BrainMetaTop/Bottom —
+  // the homepage shows objects, not their metadata.
+  presentation?: "wall" | "focus" | "home";
   motionEnhanced?: boolean;
 }) {
   const vessel = resolveVessel(o);
@@ -36,7 +39,12 @@ export default function BrainCard({
   const cursor = cursorFor(o);
   const Vessel = VESSELS[vessel] ?? VESSELS.__fallback__;
   const cardRef = useRef<HTMLDivElement>(null);
-  const dragEnabled = motionEnhanced && presentation === "wall";
+  // "home" gets the exact same motionField-driven drift/drag as "wall" —
+  // the homepage constellation is meant to float and drag identically to
+  // the /brain wall, just anchored to authored positions instead of a
+  // grid (see HomeBrainCanvas, which drives motionField.tickCards itself
+  // since the homepage has no BrainScrollProvider/Lenis of its own).
+  const dragEnabled = motionEnhanced && (presentation === "wall" || presentation === "home");
   useCardMotion(cardRef, o, dragEnabled);
 
   function onPointerEnter() {
@@ -114,7 +122,7 @@ export default function BrainCard({
   // presentation check), but tapping anywhere on the card opens the full
   // object in the focus modal — the same, already-reliable path "focus"
   // and "gallery" use — instead of a second, fragile inline toggle.
-  const interactive = presentation === "wall" && expand !== "none";
+  const interactive = (presentation === "wall" || presentation === "home") && expand !== "none";
 
   function activate() {
     if (expand === "external") {
@@ -149,10 +157,15 @@ export default function BrainCard({
       data-type={o.type}
       data-weight={weight}
       data-presentation={presentation}
+      // Whether this object has an image at all — the homepage constellation
+      // (see home-brain.css) uses it to hide text content on anything with
+      // media, showing just the image, while leaving pure-text notes (no
+      // media to fall back on) readable as-is.
+      data-has-media={o.media && o.media.length > 0 ? "true" : undefined}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
     >
-      <BrainMetaTop o={o} />
+      {presentation !== "home" && <BrainMetaTop o={o} />}
       <div
         className="vessel"
         data-vessel={vessel}
@@ -173,7 +186,7 @@ export default function BrainCard({
       >
         <Vessel o={o} presentation={presentation} />
       </div>
-      <BrainMetaBottom o={o} />
+      {presentation !== "home" && <BrainMetaBottom o={o} />}
     </div>
   );
 }

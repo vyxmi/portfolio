@@ -18,17 +18,22 @@ function CaseImage({
   caption,
   width,
   height,
+  transparentMedia,
 }: {
   src: string;
   alt: string;
   caption: string;
   width: number;
   height: number;
+  transparentMedia?: boolean;
 }) {
   return (
     <ScrollReveal className="not-prose">
       <Zoomable src={src} alt={alt}>
-        <div className="relative w-full overflow-hidden" style={{ background: "var(--paper-dim)", border: "1px solid var(--line)" }}>
+        <div
+          className="relative w-full overflow-hidden"
+          style={transparentMedia ? undefined : { background: "var(--paper-dim)", border: "1px solid var(--line)" }}
+        >
           <Image src={src} alt={alt} width={width} height={height} className="h-auto w-full" style={{ display: "block" }} />
         </div>
       </Zoomable>
@@ -37,12 +42,85 @@ function CaseImage({
   );
 }
 
+function CaseVideo({
+  src,
+  caption,
+  aspect = "9/16",
+  maxWidth = 340,
+}: {
+  src: string;
+  caption?: string;
+  aspect?: string;
+  maxWidth?: number;
+}) {
+  return (
+    <ScrollReveal className="not-prose">
+      <div className="mx-auto w-full" style={{ maxWidth }}>
+        {/* A dark bezel (thick border + large radius) rather than a plain
+            rectangle — this is a portrait phone screen recording, and
+            framing it like one is the point. overflow:hidden + border-
+            radius on this same element clips the video to match the
+            rounded inner edge automatically, no extra radius needed on
+            the <video> itself. object-cover (not contain) crops to fill
+            that frame edge-to-edge, like a real device screen — no
+            letterbox bars breaking the illusion. */}
+        <div
+          className="relative w-full overflow-hidden"
+          style={{ aspectRatio: aspect, background: "var(--paper-dim)", border: "10px solid var(--ink)", borderRadius: 32 }}
+        >
+          <video src={src} controls playsInline muted className="absolute inset-0 h-full w-full object-cover" />
+        </div>
+      </div>
+      {caption && <div className="cap mt-2 text-center">{caption}</div>}
+    </ScrollReveal>
+  );
+}
+
+// A hosted demo video (YouTube), not a local file — 16:9, full prose width,
+// same paper/border/caption treatment as CaseImage so it reads as the same
+// kind of media block, not a foreign embed dropped in.
+function CaseYouTube({ id, caption }: { id: string; caption?: string }) {
+  return (
+    <ScrollReveal className="not-prose">
+      <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16/9", background: "var(--paper-dim)", border: "1px solid var(--line)" }}>
+        <iframe
+          src={`https://www.youtube.com/embed/${id}`}
+          title={caption ?? "Video demo"}
+          className="absolute inset-0 h-full w-full"
+          style={{ border: 0 }}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+        />
+      </div>
+      {caption && <div className="cap mt-2">{caption}</div>}
+    </ScrollReveal>
+  );
+}
+
 function Block({ block }: { block: Block }) {
   switch (block.kind) {
     case "statement":
+      // The brain wall's paper-toned vessels (scrap, journal, scan…) sit on
+      // that page's dark void, so their card chrome alone reads as "a white
+      // note." Case study pages are already on --paper (white), so the
+      // same chrome would be invisible here — --paper-dim (a shade off
+      // pure white) plus that same shadow is what actually reads as a
+      // distinct card against this page's own white. Text size and the
+      // block's width (the `measure` cap) are untouched — only a card
+      // frame (background/shadow/corner, lighter padding than a real
+      // vessel's) wraps the exact same statement.
       return (
         <ScrollReveal>
-          <p className="measure py-4 text-[22px] font-medium leading-snug md:text-[27px]" style={{ letterSpacing: "-.01em" }}>
+          <p
+            className="measure text-[22px] font-medium leading-snug md:text-[27px]"
+            style={{
+              letterSpacing: "-.01em",
+              background: "var(--paper-dim)",
+              boxShadow: "var(--shadow-paper)",
+              borderRadius: "var(--r-sm)",
+              padding: "14px 18px",
+            }}
+          >
             {block.heading}
           </p>
         </ScrollReveal>
@@ -85,7 +163,16 @@ function Block({ block }: { block: Block }) {
       return <Flag>{block.text}</Flag>;
 
     case "image":
-      return <CaseImage src={block.src} alt={block.alt} caption={block.caption} width={block.width} height={block.height} />;
+      return (
+        <CaseImage
+          src={block.src}
+          alt={block.alt}
+          caption={block.caption}
+          width={block.width}
+          height={block.height}
+          transparentMedia={block.transparentMedia}
+        />
+      );
 
     case "imagePair":
       return (
@@ -94,7 +181,10 @@ function Block({ block }: { block: Block }) {
             {block.images.map((img, i) => (
               <div key={i}>
                 <Zoomable src={img.src} alt={img.alt}>
-                  <div className="relative w-full overflow-hidden" style={{ background: "var(--paper-dim)", border: "1px solid var(--line)" }}>
+                  <div
+                    className="relative w-full overflow-hidden"
+                    style={img.transparentMedia ? undefined : { background: "var(--paper-dim)", border: "1px solid var(--line)" }}
+                  >
                     <Image src={img.src} alt={img.alt} width={img.width} height={img.height} className="h-auto w-full" />
                   </div>
                 </Zoomable>
@@ -104,6 +194,12 @@ function Block({ block }: { block: Block }) {
           </div>
         </ScrollReveal>
       );
+
+    case "video":
+      return <CaseVideo src={block.src} caption={block.caption} aspect={block.aspect} maxWidth={block.maxWidth} />;
+
+    case "youtube":
+      return <CaseYouTube id={block.id} caption={block.caption} />;
 
     case "ratio":
       return <RatioStat {...block} />;
@@ -193,6 +289,7 @@ export function CaseStudyHero({ project, content }: { project: Project; content:
             caption={project.result}
             width={content.heroImage.width}
             height={content.heroImage.height}
+            transparentMedia={content.heroImage.transparentMedia}
           />
         </div>
       )}

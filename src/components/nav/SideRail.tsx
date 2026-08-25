@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const items = [
-  { href: "/", label: "home" },
   { href: "/brain", label: "brain" },
   { href: "/work", label: "work" },
   { href: "/about", label: "about" },
@@ -17,10 +16,15 @@ export default function SideRail() {
   const itemRefs = useRef<Array<HTMLAnchorElement | null>>([]);
   const [progress, setProgress] = useState(0);
 
-  const isCaseStudy = /^\/work\/[^/]+$/.test(pathname);
+  // Long-form reading pages (a case study, or the about page) get the
+  // right-edge scroll progress bar; index/listing routes don't.
+  const showScrollProgress = /^\/work\/[^/]+$/.test(pathname) || pathname === "/about";
 
-  const activeHref =
-    items.find((it) => (it.href === "/" ? pathname === "/" : pathname.startsWith(it.href))) ?? items[0];
+  const isHome = pathname === "/";
+  // No fallback to items[0]: home has no entry of its own here (see the
+  // logo/icon link instead), so on "/" none of these three should read as
+  // active — falling back to "brain" would be a lie about where you are.
+  const activeHref = items.find((it) => pathname.startsWith(it.href));
 
   // cursor proximity: nearby items lift slightly, others recede
   useEffect(() => {
@@ -46,9 +50,9 @@ export default function SideRail() {
     };
   }, []);
 
-  // scroll progress, only meaningful on a case study route
+  // scroll progress, only meaningful on a long-form reading route
   useEffect(() => {
-    if (!isCaseStudy) return;
+    if (!showScrollProgress) return;
     function onScroll() {
       const h = document.documentElement.scrollHeight - window.innerHeight;
       setProgress(h > 0 ? Math.min(1, Math.max(0, window.scrollY / h)) : 0);
@@ -56,7 +60,7 @@ export default function SideRail() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [isCaseStudy]);
+  }, [showScrollProgress]);
 
   return (
     <div
@@ -64,19 +68,40 @@ export default function SideRail() {
       className="fixed left-0 top-0 bottom-0 z-40 hidden md:flex flex-col"
       style={{ width: "var(--rail-w)", borderRight: "1px solid var(--void-line)", background: "var(--void)" }}
     >
-      <Link
-        href="/"
-        className="block px-6 pt-6 font-mono text-[10px] leading-tight tracking-wide lowercase"
-        style={{ color: "var(--void-mute)" }}
-      >
-        vyomi
-        <br />
-        seth
+      {/* group: lets the image react to hovering the link itself, since the
+          image is pointer-events-none. Hover only steps opacity up when not
+          already home — being on the page it links to is the stronger
+          state and shouldn't dim on hover. */}
+      <Link href="/" className="group relative block overflow-hidden" style={{ height: 96 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/nav/logo-bloom.png"
+          alt=""
+          aria-hidden
+          className={`pointer-events-none absolute object-contain transition-opacity duration-300 ${
+            isHome ? "opacity-70" : "opacity-30 group-hover:opacity-50"
+          }`}
+          /* The source PNG is opaque black behind the flower dots, not
+             transparent — screen blending drops that black background out
+             against the rail's own near-black void, leaving just the dots.
+             Insets are asymmetric (not 18 on both sides) to nudge the whole
+             flower left a touch while staying the same size and fully
+             inside this overflow-hidden box, so nothing gets clipped. */
+          style={{ top: 18, left: 10, right: 26, bottom: 18, mixBlendMode: "screen" }}
+        />
+        <span
+          className="relative flex h-full w-full items-center justify-center font-mono text-[19px] tracking-wide lowercase"
+          style={{ color: "var(--void-ink)" }}
+        >
+          vs
+        </span>
       </Link>
 
-      <nav className="flex flex-1 flex-col items-start justify-center gap-6 px-6">
+      {/* Top-left, directly under the icon — not vertically centered in
+          the rail — now that the icon itself is the home link. */}
+      <nav className="flex flex-col items-start gap-8 px-6 pt-10 lg:gap-10">
         {items.map((it, i) => {
-          const active = it.href === activeHref.href;
+          const active = it.href === activeHref?.href;
           return (
             <Link
               key={it.href}
@@ -101,8 +126,12 @@ export default function SideRail() {
         })}
       </nav>
 
-      {isCaseStudy && (
-        <div aria-hidden className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: "var(--void-line)" }}>
+      {showScrollProgress && (
+        <div
+          aria-hidden
+          className="absolute top-0 bottom-0 w-[4px]"
+          style={{ right: -2, background: "var(--void-line)" }}
+        >
           <div
             className="w-full"
             style={{ height: `${progress * 100}%`, background: "var(--lift)", transition: "height 80ms linear" }}

@@ -27,7 +27,6 @@ export default function BrainBar({
   return (
     <div className="brain-bar">
       <div className="brain-bar-row">
-        <span className="brain-bar-title">brain</span>
         <span className="brain-bar-count">
           {count} {count === 1 ? "object" : "objects"}
           {count !== total ? ` of ${total}` : ""}

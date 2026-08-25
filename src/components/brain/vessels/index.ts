@@ -27,7 +27,7 @@ import Fallback from "./Fallback";
 // `presentation` is only read by the handful of vessels with read-more
 // clamping (Journal, Email, PlainNote, NotesApp, Checklist) — every other
 // vessel ignores it.
-export const VESSELS: Record<string, ComponentType<{ o: BrainObject; presentation?: "wall" | "focus" }>> = {
+export const VESSELS: Record<string, ComponentType<{ o: BrainObject; presentation?: "wall" | "focus" | "home" }>> = {
   "plain-note": PlainNote,
   "sticky-note": StickyNote,
   journal: Journal,

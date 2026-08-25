@@ -10,9 +10,9 @@ import { VTitle } from "./parts";
 // clamped wall preview), where every line renders regardless of count.
 const COLLAPSED_COUNT = 6;
 
-export default function Checklist({ o, presentation = "wall" }: { o: BrainObject; presentation?: "wall" | "focus" }) {
+export default function Checklist({ o, presentation = "wall" }: { o: BrainObject; presentation?: "wall" | "focus" | "home" }) {
   const lines = parseChecklist(o.content);
-  const readMore = presentation === "wall" && resolveExpand(o) === "read-more" && lines.length > COLLAPSED_COUNT;
+  const readMore = presentation !== "focus" && resolveExpand(o) === "read-more" && lines.length > COLLAPSED_COUNT;
   const visible = readMore ? lines.slice(0, COLLAPSED_COUNT) : lines;
 
   return (

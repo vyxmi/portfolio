@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import SiteFooter from "@/components/SiteFooter";
 import Zoomable from "@/components/ui/Zoomable";
+import TextLink from "@/components/ui/TextLink";
 
 export const metadata: Metadata = { title: "About, Vyomi Seth" };
+
+// Kept intentionally smaller than the prose column (was full-width) so
+// photos read as accents alongside the text rather than full-bleed
+// breaks in it — centered so they don't lean toward either margin.
+const IMAGE_MAX_WIDTH = 380;
 
 function AboutImage({
   src,
@@ -19,7 +26,7 @@ function AboutImage({
   height: number;
 }) {
   return (
-    <div className="not-prose">
+    <div className="not-prose mx-auto w-full" style={{ maxWidth: IMAGE_MAX_WIDTH }}>
       <Zoomable src={src} alt={alt}>
         <div className="relative w-full overflow-hidden" style={{ background: "var(--paper-dim)", border: "1px solid var(--line)" }}>
           <Image src={src} alt={alt} width={width} height={height} className="h-auto w-full" style={{ display: "block" }} />
@@ -27,6 +34,56 @@ function AboutImage({
       </Zoomable>
       {caption && <div className="cap mt-2">{caption}</div>}
     </div>
+  );
+}
+
+type ExperienceEntry = {
+  role: string;
+  company: string;
+  href?: string;
+  external?: boolean;
+};
+
+// Sourced from the old site's hero (vyomiseth.com, "recently" / "less
+// recently"). Case-study companies link to their write-up here; the rest
+// have no page to point to, so they stay plain text rather than a
+// fabricated link.
+const EXPERIENCE: { group: string; entries: ExperienceEntry[] }[] = [
+  {
+    group: "recently",
+    entries: [
+      { role: "Founding Designer, Growth Strategy & Sound Design", company: "Chance.live", href: "/work/chance-live" },
+      { role: "Creative Direction", company: "KSDT Radio + Tokens Magazine" },
+      { role: "B.S. Cognitive Science + Business", company: "UC San Diego", href: "https://ucsd.edu/", external: true },
+    ],
+  },
+  {
+    group: "less recently",
+    entries: [
+      { role: "Campus Growth Leader", company: "Framer", href: "https://www.framer.com/", external: true },
+      { role: "Product Design Intern", company: "Palo Alto Networks", href: "/work/adem-user-list" },
+      { role: "Founding Designer", company: "Boba Quest" },
+    ],
+  },
+];
+
+function ExperienceRow({ role, company, href, external }: ExperienceEntry) {
+  const companyNode = href ? (
+    <TextLink href={href} kind={external ? "external" : "next"} className="text-[15px] font-medium">
+      {company}
+    </TextLink>
+  ) : (
+    <span className="text-[15px] font-medium" style={{ color: "var(--ink)" }}>
+      {company}
+    </span>
+  );
+  return (
+    <li className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+      <span className="text-[15px]" style={{ color: "var(--ink-soft)" }}>
+        {role}
+      </span>
+      {companyNode}
+    </li>
   );
 }
 
@@ -45,24 +102,31 @@ export default function AboutPage() {
 
           <section className="mb-16 mt-14">
             <h2 className="mb-5 text-[13px] font-semibold uppercase tracking-wide" style={{ color: "var(--ink-mute)" }}>
+              Where I&rsquo;ve been
+            </h2>
+            <div className="flex flex-col gap-8">
+              {EXPERIENCE.map((group) => (
+                <div key={group.group}>
+                  <div className="cap mb-3">{group.group}</div>
+                  <ul className="flex flex-col gap-3">
+                    {group.entries.map((entry) => (
+                      <ExperienceRow key={`${entry.role}-${entry.company}`} {...entry} />
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="mb-16" style={{ borderTop: "1px solid var(--line)", paddingTop: 48 }}>
+            <h2 className="mb-5 text-[13px] font-semibold uppercase tracking-wide" style={{ color: "var(--ink-mute)" }}>
               Before design
             </h2>
             <div className="flex flex-col gap-5 text-[17px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
               <p>
                 I liked knowing how things work. As a kid, I took apart anything I could get my hands on (much to my
-                parents&rsquo; dismay), built popsicle stick houses for bugs, got micro famous on{" "}
-                <span className="inline-flex items-baseline gap-1">
-                  Scratch
-                  <Image
-                    src="/about/scratch-avatar.webp"
-                    alt="A pixel-art avatar from Vyomi's Scratch days"
-                    width={300}
-                    height={360}
-                    className="inline-block h-[1.3em] w-auto translate-y-[0.15em]"
-                    style={{ imageRendering: "pixelated" }}
-                  />
-                </span>
-                , and drew logos for my friends&rsquo; bands.
+                parents&rsquo; dismay), built popsicle stick houses for bugs, got micro famous on Scratch, and drew
+                logos for my friends&rsquo; bands.
               </p>
               <p>I wasn&rsquo;t trying to become a designer. I just liked making things. If I had an idea, I wanted to see it exist.</p>
               <p>
@@ -174,6 +238,36 @@ export default function AboutPage() {
                 TL;DR: I love making things that add a little more joie de vivre* to the world, by design.
               </p>
               <p className="cap">*French for &quot;joy of living&quot;, but more pretentious.</p>
+            </div>
+          </section>
+
+          <section style={{ borderTop: "1px solid var(--line)", paddingTop: 48 }}>
+            <div className="eyebrow mb-3">say hello</div>
+            <h2 className="mb-5 text-[28px] font-semibold md:text-[34px]" style={{ letterSpacing: "-.01em" }}>
+              Let&rsquo;s make something beautiful.
+            </h2>
+            <p className="measure mb-8 text-[17px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+              Open to select design work and collaborations. If you&rsquo;ve got an idea, a problem worth untangling,
+              or just connected with something inside{" "}
+              <Link href="/brain" className="underline" style={{ color: "var(--link-accent, var(--accent))" }}>
+                my brain
+              </Link>
+              , my inbox is open.
+            </p>
+            <div className="flex flex-wrap items-center gap-x-10 gap-y-4">
+              <TextLink href="mailto:vyomi.seth@gmail.com" kind="external" className="text-[16px]">
+                vyomi.seth@gmail.com
+              </TextLink>
+              <TextLink
+                href="https://drive.google.com/file/d/17mbrWJjjch7fsVCZxFVA194IxyuPhgIu/view?usp=sharing"
+                kind="download"
+                className="text-[16px]"
+              >
+                resume
+              </TextLink>
+              <TextLink href="https://www.linkedin.com/in/vyomi-seth/" kind="external" className="text-[16px]">
+                linkedin
+              </TextLink>
             </div>
           </section>
         </div>

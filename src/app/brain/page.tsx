@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import "./brain.css";
+// brain.css is imported once, globally, in the root layout — the homepage
+// constellation reuses the same vessel/card/focus styles.
 import { brainObjects } from "@/lib/brain/objects";
 import { isPrivate } from "@/lib/brain/resolvers";
 import BrainWall from "@/components/brain/BrainWall";

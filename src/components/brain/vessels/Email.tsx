@@ -19,7 +19,7 @@ function EmailField({ label, value }: { label: string; value?: string }) {
   );
 }
 
-export default function Email({ o, presentation = "wall" }: { o: BrainObject; presentation?: "wall" | "focus" }) {
+export default function Email({ o, presentation = "wall" }: { o: BrainObject; presentation?: "wall" | "focus" | "home" }) {
   const date = dateLabel(o);
   return (
     <>
@@ -37,7 +37,7 @@ export default function Email({ o, presentation = "wall" }: { o: BrainObject; pr
           <MediaThumb o={o} fit="contain" />
         </div>
       )}
-      <VBody o={o} readMore={presentation === "wall" && resolveExpand(o) === "read-more"} />
+      <VBody o={o} readMore={presentation !== "focus" && resolveExpand(o) === "read-more"} />
     </>
   );
 }

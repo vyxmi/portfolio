@@ -133,6 +133,7 @@ export default function ParticlePoints({
         <bufferAttribute attach="attributes-aSize" args={[geometry.size, 1]} />
         <bufferAttribute attach="attributes-aOpacity" args={[geometry.opacity, 1]} />
         <bufferAttribute attach="attributes-aInteractionMul" args={[geometry.interactionMul, 1]} />
+        <bufferAttribute attach="attributes-aDriftAmp" args={[geometry.driftAmp, 1]} />
       </bufferGeometry>
       <shaderMaterial
         ref={materialRef}

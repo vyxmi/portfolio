@@ -15,35 +15,32 @@ export default function SiteFooter() {
         "--link-accent": "var(--lift)",
       } as CSSProperties}
     >
-      <div className="mx-auto max-w-6xl px-6 py-5 md:px-16">
-        <div className="flex flex-wrap items-center gap-x-8 gap-y-3 font-mono text-[11px] lowercase" style={{ color: "var(--void-mute)" }}>
-          <span>bay area, ca</span>
-          <span className="inline-flex items-center gap-2">
-            <span
-              className="inline-block h-[6px] w-[6px] rounded-full"
-              style={{ background: "var(--lift)", animation: "footerPulse 1.8s var(--e-io) infinite" }}
-            />
-            available for select work
-          </span>
-          <span>
-            now listening to <span style={{ color: "var(--void-soft)" }}>&quot;aerial troubles&quot; by stereolab</span>
-          </span>
-          <span>last updated aug 2026</span>
-          <TextLink href="mailto:vyomi.seth@gmail.com" kind="external" className="text-[11px] lowercase">
-            vyomi.seth@gmail.com
-          </TextLink>
-          <TextLink href="#" kind="download" className="text-[11px] lowercase">
-            resume
-          </TextLink>
-          <TextLink href="#" kind="external" className="text-[11px] lowercase">
-            linkedin
-          </TextLink>
-          <TextLink href="#top" kind="up" className="ml-auto text-[11px] lowercase">
-            back to top
-          </TextLink>
-        </div>
+      {/* justify-end reads as the footer living in the page's bottom-right
+          corner. flex-wrap (not nowrap+overflow-x-auto) is deliberate: this
+          row comfortably fits on one line on a normal desktop viewport, but
+          forcing nowrap+scroll on a narrower one meant the overflowing
+          *start* of the row (justify-end anchors the end flush right)
+          scrolled outside the visible strip with no obvious affordance —
+          it just silently disappeared. Wrapping to a second line when it
+          doesn't fit is still readable; a silently clipped line isn't. */}
+      <div
+        className="mx-auto flex max-w-6xl flex-wrap items-center justify-end gap-x-8 gap-y-2 px-6 py-5 font-mono text-[11px] lowercase md:px-16"
+        style={{ color: "var(--void-mute)" }}
+      >
+        <span className="whitespace-nowrap">bay area, ca</span>
+        <span className="whitespace-nowrap">open to select work</span>
+        <span className="whitespace-nowrap">
+          now listening to{" "}
+          <span style={{ color: "var(--void-soft)" }}>&quot;lily of the valley&quot; by 22&deg; halo</span>
+        </span>
+        <span className="whitespace-nowrap">last updated aug 2026</span>
+        <TextLink href="mailto:vyomi.seth@gmail.com" kind="external" className="whitespace-nowrap text-[11px] lowercase">
+          vyomi.seth@gmail.com
+        </TextLink>
+        <TextLink href="https://www.linkedin.com/in/vyomi-seth/" kind="external" className="whitespace-nowrap text-[11px] lowercase">
+          linkedin
+        </TextLink>
       </div>
-      <style>{`@keyframes footerPulse { 0%,100%{opacity:1} 50%{opacity:.3} }`}</style>
     </footer>
   );
 }

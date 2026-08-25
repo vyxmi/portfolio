@@ -21,14 +21,20 @@ function InspirationMedia({ o }: { o: BrainObject }) {
 export default function MediaCard({ o }: { o: BrainObject }) {
   if (o.subtype === "inspiration") return <InspirationMedia o={o} />;
   return (
-    <div className="media-row">
-      {o.media && o.media.length > 0 && <MediaThumb o={o} className="media-cover" />}
-      <div className="media-info">
-        <VTitle o={o} />
-        <RatingRow rating={o.rating} />
-        {o.content && <div className="media-note-label">my note</div>}
-        <VBody o={o} />
+    <div className="media-card">
+      <div className="media-top">
+        {o.media && o.media.length > 0 && <MediaThumb o={o} className="media-cover" />}
+        <div className="media-heading">
+          <VTitle o={o} />
+          <RatingRow rating={o.rating} />
+        </div>
       </div>
+      {o.content && (
+        <div className="media-text">
+          <div className="media-note-label">my note</div>
+          <VBody o={o} />
+        </div>
+      )}
     </div>
   );
 }

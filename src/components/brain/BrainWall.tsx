@@ -3,7 +3,7 @@
 import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { BrainObject } from "@/lib/brain/types";
 import { resolveWeight, sortDate, isPrivate } from "@/lib/brain/resolvers";
-import { refreshCardRects, notifyResizeActivity } from "@/lib/brain/motionField";
+import { refreshCardRects, notifyResizeActivity, motionField } from "@/lib/brain/motionField";
 import CursorZone from "@/components/CursorZone";
 import BrainCard from "./BrainCard";
 import BrainFocus from "./BrainFocus";
@@ -173,6 +173,36 @@ export default function BrainWall({ objects, intro }: { objects: BrainObject[]; 
 
   const openObject = openId ? (publicObjects.find((o) => o.id === openId) ?? null) : null;
   const { wallRef } = useMasonry(visible);
+
+  // One-time entrance: only cards resting inside the first viewport on the
+  // very first paint get a stagger — everything below the fold, and
+  // anything that only appears later via scrolling/filtering/re-sorting,
+  // just renders in place. Runs once (guarded by introRanRef) after
+  // useMasonry's own layout effect has already set real row spans, so the
+  // rects measured here are the settled positions, not pre-layout guesses.
+  // Written straight to the DOM (data-intro + a --intro-delay custom
+  // property), the same way motionField drives per-frame card transforms —
+  // not React state, since this never needs to trigger a re-render and
+  // doing it through state would mean setState-in-an-effect just to flip
+  // an attribute the CSS animation reads once.
+  const introRanRef = useRef(false);
+  useLayoutEffect(() => {
+    if (introRanRef.current) return;
+    introRanRef.current = true;
+    if (motionField.reducedMotion) return;
+    const wallEl = wallRef.current;
+    if (!wallEl) return;
+    const vh = window.innerHeight;
+    const cards = wallEl.querySelectorAll<HTMLElement>(":scope > .brain-card");
+    let i = 0;
+    cards.forEach((card) => {
+      if (card.getBoundingClientRect().top >= vh) return;
+      card.dataset.intro = "true";
+      card.style.setProperty("--intro-delay", `${Math.min(i * 28, 220)}ms`);
+      i++;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <CursorZone>

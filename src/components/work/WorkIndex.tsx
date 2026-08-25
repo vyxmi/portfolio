@@ -38,7 +38,12 @@ export default function WorkIndex({ projects }: { projects: Project[] }) {
             >
               <div
                 className="relative overflow-hidden"
-                style={{ aspectRatio: aspect[size], background: "var(--paper-dim)", borderBottom: "1px solid var(--line)" }}
+                style={{
+                  aspectRatio: aspect[size],
+                  ...(p.content?.heroImage?.transparentMedia
+                    ? {}
+                    : { background: "var(--paper-dim)", borderBottom: "1px solid var(--line)" }),
+                }}
               >
                 {p.content?.heroImage ? (
                   <Image

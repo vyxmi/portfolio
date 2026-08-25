@@ -52,6 +52,7 @@ export const vertexShader = /* glsl */ `
   attribute float aSize;
   attribute float aOpacity;
   attribute float aInteractionMul;
+  attribute float aDriftAmp;
 
   varying float vAlpha;
   varying float vColorMix;
@@ -128,23 +129,41 @@ export const vertexShader = /* glsl */ `
     // Free/ambient groups are always "at rest" — formedness is just 1, but
     // multiplying by uMorph below zeroes their idle clamp entirely, since
     // they have no silhouette spacing to protect. shapeBound groups only
-    // tighten their clamp once actually settled near target.
-    float formedness = mix(1.0, smoothstep(0.82, 1.0, uBloomProgress), uMorph);
+    // tighten their clamp once actually settled near target — the 0.8
+    // start point (tuned down from this file's original 0.82) is mostly
+    // moot on its own now; what actually controls how early the tightening
+    // reads as visible is the clampRadius interpolation below, which used
+    // to be linear and effectively ignored this value entirely.
+    float formedness = mix(1.0, smoothstep(0.8, 1.0, uBloomProgress), uMorph);
 
-    // 2x overall float strength — a flat multiplier on top of the two
-    // seeded oscillators rather than doubling their baked-in amplitudes
-    // individually, so their relative balance (organicDrift vs
-    // secondaryDrift) is untouched.
+    // 6x overall float strength (2x from an earlier pass, x3 more on top of
+    // that per a later request for 3x current displacement) — a flat
+    // multiplier on top of the two seeded oscillators rather than scaling
+    // their baked-in amplitudes individually, so their relative balance
+    // (organicDrift vs secondaryDrift) and their frequencies (movement
+    // speed) are both untouched. aDriftAmp is a further, per-particle
+    // multiplier on the same combined vector — seeded static variation in
+    // *how far* each particle wanders, independent of aMotion.y (which
+    // varies how *fast*).
     vec3 drift = (organicDrift(aRandom, aMotion, uTime, uDriftStrength)
-                + secondaryDrift(aRandom, aMotion, uTime, uDriftStrength)) * 2.0 * uMotionEnabled;
+                + secondaryDrift(aRandom, aMotion, uTime, uDriftStrength)) * 6.0 * aDriftAmp * uMotionEnabled;
 
     // Formed flower: clamp the combined independentFloat displacement under
     // a fraction of the flower's own point spacing (uIdleClamp, estimated
     // in JS from particle count/radius — see FlowerPoints) so idle wobble
     // can't visibly loosen the silhouette. Ramped from effectively
-    // unclamped (dispersed/mid-formation) up to uIdleClamp as the shape
+    // unclamped (dispersed/mid-formation) down to uIdleClamp as the shape
     // settles; always unclamped for free/ambient groups via the uMorph term.
-    float clampRadius = mix(1000.0, uIdleClamp, formedness * uMorph);
+    // Geometric (log-space), not linear: uIdleClamp is tiny relative to the
+    // ~1.0 "unclamped" ceiling — a LINEAR mix between them barely moves
+    // below actual drift magnitude until formedness is almost exactly 1,
+    // which made the formedness ramp's start point (see above) have no
+    // visible effect no matter where it began. Interpolating the exponent
+    // instead means the clamp radius shrinks by a consistent *fraction*
+    // per unit of formedness, so it actually starts biting as formedness
+    // ramps up rather than only in the final sliver.
+    float clampFloor = max(uIdleClamp, 0.0001);
+    float clampRadius = exp(mix(log(1.0), log(clampFloor), formedness * uMorph));
     float driftLen = length(drift.xy);
     if (driftLen > clampRadius) {
       drift.xy *= clampRadius / driftLen;
@@ -176,10 +195,19 @@ export const vertexShader = /* glsl */ `
     vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mvPosition;
 
-    float sizeAtten = 380.0 / max(-mvPosition.z, 0.6);
+    // Size and the flower's depth-shade color/alpha cue both key off the
+    // particle's STABLE anchor depth, never its live per-frame drifted
+    // position p — anchor.z only ever changes via the slow formed/
+    // dispersed blend, so neither can pulse frame-to-frame the way
+    // mvPosition.z/p.z (which include drift's own z oscillation) would.
+    // That was the source of a subtle twinkle: point size, and for the
+    // flower brightness too, breathing in time with the idle float instead
+    // of staying constant like every other static per-particle attribute.
+    vec4 anchorView = modelViewMatrix * vec4(anchor, 1.0);
+    float sizeAtten = 380.0 / max(-anchorView.z, 0.6);
     gl_PointSize = uBaseSize * aSize * sizeAtten * uPixelRatio * 0.01;
 
-    float depthShift = mix(1.0, smoothstep(-0.14, 0.14, p.z), uDepthShade);
+    float depthShift = mix(1.0, smoothstep(-0.14, 0.14, anchor.z), uDepthShade);
     vAlpha = aOpacity * mix(0.72, 1.0, depthShift);
     vColorMix = clamp(aRandom.y * 0.55 + (1.0 - depthShift) * 0.45 * uDepthShade, 0.0, 1.0);
   }

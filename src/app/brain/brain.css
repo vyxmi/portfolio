@@ -90,17 +90,18 @@
     top: 56px;
     margin-left: -24px;
     margin-right: -24px;
+    margin-bottom: 16px;
   }
   .brain-bar-row {
-    padding-left: 24px;
-    padding-right: 24px;
+    padding: 10px 24px;
+    gap: 10px;
   }
-}
-.brain-bar-title {
-  font-weight: 700;
-  font-size: 13px;
-  flex: none;
-  color: var(--void-ink);
+  /* The mobile nav header already carries the "brain" label and the total
+     object count (see MobileNav) — repeating the count here would just be
+     the same fact twice in a row on a viewport with no width to spare. */
+  .brain-bar-count {
+    display: none;
+  }
 }
 .brain-bar-count {
   font-family: var(--font-mono-sys), ui-monospace, monospace;
@@ -188,6 +189,40 @@
 .wall[data-focus-active="true"] {
   opacity: 0.4;
   filter: blur(1.5px);
+}
+
+/* One-time page-load entrance for cards resting in the first viewport —
+   see the intro-measuring effect in BrainWall. Short and restrained: a
+   small float-up + fade, staggered a couple frames apart per card, never a
+   slow reveal. Nothing added later (scroll, filter, sort) carries this
+   attribute, so it never replays.
+   Fill mode is `backwards`, not `both`: a CSS animation's forwards-fill
+   phase keeps overriding an element's `transform` even after the
+   animation finishes, at higher priority than any inline style — which
+   permanently froze these cards' idle float, since tickCards() (see
+   motionField.ts) drives that float by writing el.style.transform every
+   frame. `backwards` only holds the *pre*-delay "from" state (so cards
+   don't flash visible before their staggered start) and lets go of
+   `transform`/`opacity` entirely once the animation ends, handing control
+   back to the inline style immediately. */
+@keyframes brainCardIntro {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.brain-card[data-intro="true"] {
+  animation: brainCardIntro 360ms var(--e-out) backwards;
+  animation-delay: var(--intro-delay, 0ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .brain-card[data-intro="true"] {
+    animation: none;
+  }
 }
 
 .brain-card {
@@ -475,10 +510,10 @@
   grid-column: span 2;
 }
 .vessel[data-vessel="display-case"][data-size="large"] .case-items .thumb img {
-  height: 340px;
+  max-height: 340px;
 }
 .vessel[data-vessel="display-case"][data-size="small"] .case-items .thumb img {
-  height: 190px;
+  max-height: 190px;
 }
 .vessel[data-vessel="scan"][data-size="small"] .scan-sheet {
   width: 56%;
@@ -809,6 +844,13 @@
   padding: 0;
   overflow: hidden;
 }
+/* Expanded only: the wall thumbnail wants the sprockets flush against the
+   card edge, but in focus the vessel sits right under BrainMetaTop with no
+   breathing room at all — 16px matches the base .vessel padding used
+   everywhere else in the system, rather than inventing a one-off value. */
+.brain-card[data-presentation="focus"] .vessel[data-vessel="film-strip"] {
+  padding-top: 16px;
+}
 .sprockets {
   height: 10px;
   background: repeating-linear-gradient(90deg, rgba(245, 245, 250, 0.12) 0 4px, transparent 4px 12px);
@@ -950,17 +992,29 @@
   flex: 0 0 auto;
   width: auto;
 }
+/* max-height, not a fixed height: a fixed height forces `width: auto` to
+   solve for whatever width preserves the image's real aspect ratio, and
+   when that solved width exceeds the card's available space, max-width:
+   100% clamps it back down — decoupling the rendered box from the image's
+   true proportions. Some images then rendered short of their full height
+   (effectively cropped against the case-stage frame built around the
+   fixed-height box) while others left the case-stage frame sized for the
+   fixed height even when the image itself needed less — never hugging the
+   actual content either way. max-height + height:auto lets the browser
+   solve both dimensions from the image's real aspect ratio directly, so
+   case-stage (fit-content) always wraps exactly what's rendered. */
 .case-items .thumb img {
   width: auto;
-  height: 260px;
+  height: auto;
   max-width: 100%;
+  max-height: 260px;
   filter: drop-shadow(0 18px 28px rgba(4, 4, 8, 0.6)) drop-shadow(0 5px 10px rgba(4, 4, 8, 0.5));
 }
 .brain-card[data-weight="featured"] .case-items .thumb img {
-  height: 400px;
+  max-height: 400px;
 }
 .brain-card[data-presentation="focus"] .case-items .thumb img {
-  height: 420px;
+  max-height: 420px;
 }
 /* Unconstrained, a long caption's own natural (unwrapped) width can exceed
    the object photo's width — and since the whole vessel is fit-content,
@@ -1052,10 +1106,21 @@
   transform: translateX(3px);
 }
 
-/* media-card / review-card: catalog objects, distinct from the user's own voice */
-.media-row,
-.review-row {
+/* media-card / review-card: catalog objects, distinct from the user's own
+   voice. Cover + title/rating form one heading row (image and text
+   vertically centered against each other); the review/note body reads
+   full-width underneath, not squeezed into a narrow column beside the
+   cover. */
+.media-card,
+.review-card {
   display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.media-top,
+.review-top {
+  display: flex;
+  align-items: center;
   gap: 12px;
 }
 .media-cover,
@@ -1064,8 +1129,16 @@
   flex: none;
   aspect-ratio: 2 / 3;
 }
-.media-info,
-.review-info {
+/* These are flat digital movie posters / album art, not a physical print —
+   the shared grain texture (see .thumb::after) reads as a stray noisy
+   patch floating over the cover, especially with review-cover's transparent
+   contain-fit background where it isn't even masked by an opaque photo. */
+.media-cover::after,
+.review-cover::after {
+  content: none;
+}
+.media-heading,
+.review-heading {
   min-width: 0;
 }
 .media-note-label {
@@ -1079,7 +1152,11 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  margin: 2px 0 8px;
+  /* No bottom margin: rating-row is now the last thing in the heading
+     column (see .media-heading/.review-heading) rather than sitting above
+     body text in the same column, so trailing space here would just throw
+     off its vertical centering against the cover. */
+  margin: 2px 0 0;
 }
 .rating-dot {
   width: 6px;
@@ -1173,7 +1250,17 @@
 }
 
 /* spotify-artifact */
-.spotify-row {
+.spotify-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+/* Cover + kind/title form one heading row, vertically centered against
+   each other — a fixed 52px cover sitting at the top of a much taller
+   column (title + scrub bar + body) previously read as a small image
+   stranded above a lot of dead space, not "anchored" to anything. The
+   scrub bar and body text now read full-width underneath instead. */
+.spotify-top {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1183,6 +1270,11 @@
   height: 52px;
   flex: none;
   border-radius: var(--r-sm);
+}
+/* Flat digital cover art, not a physical print — the shared grain texture
+   (see .thumb::after) read as a stray noisy patch floating over it. */
+.spotify-cover::after {
+  content: none;
 }
 /* Playlist covers anchor to their top-left corner rather than centering —
    most of these are collages/screenshots where the meaningful content
@@ -1197,7 +1289,7 @@
 .brain-card[data-id="B-0121"] .spotify-cover img {
   object-fit: contain;
 }
-.spotify-info {
+.spotify-heading {
   flex: 1;
   min-width: 0;
 }
@@ -1214,7 +1306,7 @@
   height: 3px;
   background: var(--void-line);
   border-radius: 2px;
-  margin: 11px 0 10px;
+  margin: 0 0 10px;
 }
 .spotify-fill {
   position: absolute;
@@ -1477,6 +1569,8 @@
   width: min(640px, 100%);
   max-height: 86vh;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  outline: none;
   animation: brainFocusScale var(--t-interface) var(--e-out) both;
 }
 @keyframes brainFocusScale {
@@ -1508,20 +1602,36 @@
   color: #fff;
   border-color: var(--void-mute);
 }
-.focus-gallery-vessel {
-  padding: 0;
+/* Focus gallery: one elevated glass panel — reusing the frosted-material
+   look already established for vessel density (see the material rules
+   further down) — instead of the old three separately-floating pieces
+   (an unstyled meta row, a boxed image+text vessel, another unstyled meta
+   row loose on the scrim). Meta text now lives inside the same surface as
+   the photo and caption, so the whole thing reads as one designed object. */
+.focus-gallery-panel {
+  position: relative;
+  border-radius: var(--r-md);
   overflow: hidden;
+  background: linear-gradient(160deg, rgba(var(--ambient-periwinkle), 0.16), rgba(var(--ambient-ice), 0.07));
+  backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid rgba(var(--ambient-ice), 0.32);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 24px 60px rgba(6, 6, 10, 0.5);
+}
+.focus-gallery-panel .meta-top {
+  padding: 16px 20px 0;
 }
 /* Fixed height, not the image's own intrinsic size — frames in the same
    gallery can have different aspect ratios, and letting the box shrink to
-   fit each one meant everything below it (title, body, prev/next arrows)
-   reflowed and shifted position every time you paged through. A constant
-   box + object-fit: contain keeps that whole stack, arrows included, glued
-   to the same screen position across every frame. */
+   fit each one meant everything below it (title, body, arrows) reflowed
+   and shifted position every time you paged through. A constant box +
+   object-fit: contain keeps that whole stack glued to the same screen
+   position across every frame. */
 .focus-gallery-img {
+  position: relative;
   overflow: hidden;
   background: var(--void-3);
-  height: 60vh;
+  height: 56vh;
+  margin-top: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1532,45 +1642,65 @@
   height: 100%;
   object-fit: contain;
 }
-.focus-gallery-vessel .v-title,
-.focus-gallery-vessel .v-body {
-  padding: 0 26px;
-}
-.focus-gallery-vessel .v-title {
-  margin-top: 18px;
-}
-.focus-gallery-vessel .v-body {
-  margin-bottom: 18px;
-}
-.focus-gallery-controls {
+/* Arrows overlay the photo itself (a standard lightbox pattern) rather
+   than sitting in a separate control row below it — more compact, and
+   reads as "controls for this photo" instead of a detached toolbar. */
+.focus-gallery-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  padding: 4px 0 22px;
-}
-.focus-gallery-controls button {
-  font-family: var(--font-mono-sys), ui-monospace, monospace;
-  font-size: 13px;
-  color: var(--void-soft);
-  border: 1px solid var(--void-line-strong);
+  width: 38px;
+  height: 38px;
   border-radius: 999px;
-  width: 32px;
-  height: 32px;
+  background: rgba(10, 10, 13, 0.55);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(245, 245, 250, 0.16);
+  color: var(--void-soft);
+  font-size: 15px;
+  transition: background var(--t-micro) var(--e-out), color var(--t-micro) var(--e-out),
+    border-color var(--t-micro) var(--e-out);
 }
-.focus-gallery-controls button:hover {
+.focus-gallery-arrow:hover {
+  background: rgba(10, 10, 13, 0.82);
   color: #fff;
   border-color: var(--void-mute);
 }
+.focus-gallery-arrow.left {
+  left: 14px;
+}
+.focus-gallery-arrow.right {
+  right: 14px;
+}
+.focus-gallery-body {
+  padding: 18px 22px 20px;
+}
+.focus-gallery-body .v-title {
+  margin: 0 0 6px;
+  font-size: 19px;
+}
+.focus-gallery-body .v-body {
+  margin-bottom: 14px;
+}
 .focus-dots {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
   display: flex;
-  gap: 5px;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(10, 10, 13, 0.45);
+  backdrop-filter: blur(4px);
 }
 .focus-dots span {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--void-line-strong);
+  background: rgba(245, 245, 250, 0.35);
 }
 .focus-dots span.on {
   background: var(--lift);

@@ -21,6 +21,8 @@ export interface ParticleGroupGeometry {
   opacity: Float32Array;
   /** Multiplier on cursor-proximity hover displacement strength (each particle's own interaction response). */
   interactionMul: Float32Array;
+  /** Per-particle multiplier on idle-drift amplitude (organicDrift + secondaryDrift) — see shaders.ts. Independent of drift *speed* (aMotion.y): this varies how far a particle wanders, not how fast. */
+  driftAmp: Float32Array;
   count: number;
 }
 
@@ -33,6 +35,7 @@ function fillDefaults(count: number, geo: Partial<ParticleGroupGeometry>): Parti
     size: geo.size ?? new Float32Array(count),
     opacity: geo.opacity ?? new Float32Array(count),
     interactionMul: geo.interactionMul ?? new Float32Array(count),
+    driftAmp: geo.driftAmp ?? new Float32Array(count),
     count,
   };
 }
@@ -166,6 +169,7 @@ export function buildFlowerGeometry(opts: {
     geo.size[i] = (0.55 + rng() * 0.9) * (0.75 + 0.35 * (cell.weight / 8));
     geo.opacity[i] = 0.55 + rng() * 0.45;
     geo.interactionMul[i] = 0.85 + rng() * 0.3;
+    geo.driftAmp[i] = 0.7 + rng() * 0.6;
   }
 
   return { ...geo, outerRadius: headRadius };
@@ -187,14 +191,16 @@ function randRange(rng: () => number, [lo, hi]: [number, number]) {
   return lo + rng() * (hi - lo);
 }
 
-// A handful of seeded soft cluster centers particles can be pulled toward,
-// so the field reads as loose clumps of atmosphere rather than
-// independently-scattered dust. Clusters only ever bias where a particle's
-// anchor is placed at build time — every particle still moves entirely
-// independently at runtime (see shaders.ts), so members of the same
-// cluster share a neighborhood, never a movement transform.
-const CLUSTER_COUNT = 5;
+// Seeded soft cluster centers particles can be pulled toward, so the field
+// reads as small, irregular clumps of atmosphere mixed among independently
+// scattered particles rather than either a uniform dust or a few oversized
+// blobs. Clusters only ever bias where a particle's anchor is placed at
+// build time — every particle still moves entirely independently at
+// runtime (see shaders.ts), so members of the same cluster share a
+// neighborhood, never a movement transform.
 const CLUSTER_FRACTION = 0.35;
+const CLUSTER_MIN_SIZE = 4;
+const CLUSTER_MAX_SIZE = 12;
 const CLUSTER_SPREAD = 0.22;
 // Radius exponent for non-clustered draws. Sampling a disc via polar angle
 // + pow(rng(), 0.5)*R gives uniform density per unit area (the "unbiased"
@@ -226,11 +232,28 @@ export function buildDepthPlaneGeometry(opts: {
     return { plane: p, end: cursor };
   });
 
-  const clusterCenters = Array.from({ length: CLUSTER_COUNT }, () => {
+  // A running queue of small cluster slots, opened on demand as clustered
+  // particles consume capacity — each cluster gets its own random 4-12
+  // member count and its own center (sampled with the same center-biased
+  // distribution as the independent scatter below, so clusters lean broadly
+  // toward the flower too, never forming a separate halo/ring of their own).
+  let activeCluster: { x: number; y: number; capacity: number; filled: number } | null = null;
+  function nextClusterAnchor() {
+    if (!activeCluster || activeCluster.filled >= activeCluster.capacity) {
+      const angle = rng() * Math.PI * 2;
+      const radius = Math.pow(rng(), CENTER_BIAS_EXPONENT) * SCATTER_RADIUS;
+      activeCluster = {
+        x: Math.cos(angle) * radius,
+        y: Math.sin(angle) * radius,
+        capacity: CLUSTER_MIN_SIZE + Math.floor(rng() * (CLUSTER_MAX_SIZE - CLUSTER_MIN_SIZE + 1)),
+        filled: 0,
+      };
+    }
+    activeCluster.filled++;
     const angle = rng() * Math.PI * 2;
-    const radius = 0.3 + rng() * 0.6;
-    return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
-  });
+    const spread = rng() * CLUSTER_SPREAD;
+    return { x: activeCluster.x + Math.cos(angle) * spread, y: activeCluster.y + Math.sin(angle) * spread };
+  }
 
   for (let i = 0; i < particleCount; i++) {
     const plane = (planeBounds.find((b) => i < b.end) ?? planeBounds[planeBounds.length - 1]).plane;
@@ -239,11 +262,9 @@ export function buildDepthPlaneGeometry(opts: {
     let y = 0;
 
     if (rng() < CLUSTER_FRACTION) {
-      const c = clusterCenters[Math.floor(rng() * clusterCenters.length)];
-      const angle = rng() * Math.PI * 2;
-      const spread = rng() * CLUSTER_SPREAD;
-      x = c.x + Math.cos(angle) * spread;
-      y = c.y + Math.sin(angle) * spread;
+      const anchor = nextClusterAnchor();
+      x = anchor.x;
+      y = anchor.y;
     } else {
       for (let attempt = 0; attempt < 6; attempt++) {
         const angle = rng() * Math.PI * 2;
@@ -274,6 +295,7 @@ export function buildDepthPlaneGeometry(opts: {
     geo.size[i] = randRange(rng, plane.size);
     geo.opacity[i] = randRange(rng, plane.opacity);
     geo.interactionMul[i] = randRange(rng, plane.interaction);
+    geo.driftAmp[i] = 0.65 + rng() * 0.7;
   }
 
   return geo;

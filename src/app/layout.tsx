@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
+// Shared here, not just imported by /brain, because the homepage
+// constellation (see HomeBrainCanvas) reuses BrainCard/BrainFocus and the
+// vessel components directly — same objects, same rendering, so they need
+// the same stylesheet. Vessel/focus/wall selectors are all scoped by class
+// name and don't leak into unrelated markup elsewhere in the site.
+import "./brain/brain.css";
 import { grotesk, mono } from "@/lib/fonts";
 import { brainObjects } from "@/lib/brain/objects";
 import { isPrivate } from "@/lib/brain/resolvers";
