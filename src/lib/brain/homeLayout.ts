@@ -28,27 +28,27 @@ export const HOME_DEFAULT_SCALE = 0.45;
 // further the same way: /?edit=1 → drag/resize → copy layout → paste here.
 export const HOME_LAYOUT: HomeNode[] = [
   { id: "B-0085", x: 0.412, y: 0.196, scale: 0.98 },
-  { id: "B-0068", x: 0.693, y: 0.075, scale: 0.62 },
+  { id: "B-0068", x: 0.693, y: 0.075, scale: 0.93 },
   { id: "B-0059", x: 0.904, y: 0.285, scale: 0.7 },
   { id: "B-0092", x: 0.595, y: 0.212, scale: 0.2 },
   { id: "B-0136", x: 0.908, y: 0.112, scale: 0.85 },
   { id: "B-0008", x: 0.559, y: 0.669, scale: 0.19 },
   { id: "B-0172", x: 0.832, y: 0.178 },
-  { id: "B-0026", x: 0.588, y: 0.514, scale: 0.28 },
+  { id: "B-0026", x: 0.588, y: 0.43, scale: 0.28 },
   // Dogseesgod EP film strip — dragged in at 1.30 (the resize handle's max)
-  // during the edit pass, then flagged as too big on review. Capped back
-  // down here; a smaller footprint means a smaller container, since the
-  // container is exactly this scale applied to the vessel's own size —
-  // see HomeBrainCanvas/home-brain.css, there's no separate "container
-  // size" to tune apart from this number.
-  { id: "B-0011", x: 0.899, y: 0.525, scale: 0.55 },
+  // during the edit pass, then flagged as too big on review, capped down to
+  // 0.55. Bumped back up to that same 1.30 max on request; a smaller
+  // footprint means a smaller container, since the container is exactly
+  // this scale applied to the vessel's own size — see
+  // HomeBrainCanvas/home-brain.css, there's no separate "container size" to
+  // tune apart from this number.
+  { id: "B-0011", x: 0.899, y: 0.44, scale: 1.3 },
   { id: "B-0123", x: 0.744, y: 0.337, scale: 0.7 },
   { id: "B-0014", x: 0.622, y: 0.859 },
-  { id: "B-0119", x: 0.818, y: 0.573 },
+  { id: "B-0119", x: 0.818, y: 0.573, scale: 1.35 },
   { id: "B-0169", x: 0.705, y: 0.719, scale: 0.87 },
   { id: "B-0171", x: 0.879, y: 0.709, scale: 0.75 },
   { id: "B-0170", x: 0.81, y: 0.847, scale: 0.37 },
-  { id: "B-0001", x: 0.575, y: 0.381, scale: 0.29 },
 ];
 
 // [from, to] pairs. Directionless visually (a line, not an arrow) — order
@@ -59,7 +59,6 @@ export const HOME_CONNECTIONS: [string, string][] = [
   ["B-0123", "B-0026"],
   ["B-0123", "B-0011"],
   ["B-0123", "B-0008"],
-  ["B-0123", "B-0001"],
   ["B-0123", "B-0169"],
   ["B-0123", "B-0119"],
   ["B-0123", "B-0059"],
@@ -70,6 +69,7 @@ export const HOME_CONNECTIONS: [string, string][] = [
   ["B-0068", "B-0092"],
   ["B-0172", "B-0136"],
   ["B-0172", "B-0011"],
+  ["B-0172", "B-0123"],
 ];
 
 // Mobile reading order — left-to-right scroll order, not a z-index/DOM
@@ -84,7 +84,6 @@ export const HOME_MOBILE_ORDER: string[] = [
   "B-0008",
   "B-0026",
   "B-0123",
-  "B-0001",
   "B-0172",
   "B-0136",
   "B-0011",

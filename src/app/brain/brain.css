@@ -401,7 +401,7 @@
   padding: 12px;
   font-size: 12.5px;
 }
-.brain-card[data-weight="featured"] .vessel {
+.brain-card[data-weight="featured"] .vessel:not([data-vessel="film-strip"]) {
   padding: 26px;
 }
 .brain-card[data-presentation="focus"] .vessel {
