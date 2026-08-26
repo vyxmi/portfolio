@@ -89,6 +89,14 @@
 .home-node-float[data-hover-state="dim"] {
   --home-opacity: 0.55;
 }
+/* Not one of the 3 default-visible objects, and nothing revealed it yet —
+   fully hidden (not unmounted: see HomeBrainCanvas's `nodes.map`, every
+   object still renders, this is opacity/pointer-events only) until a
+   hover-traversal from a visible object adds it to `revealed`. */
+.home-node-float[data-hover-state="hidden"] {
+  --home-opacity: 0;
+  pointer-events: none;
+}
 @media (prefers-reduced-motion: reduce) {
   .home-node-float {
     transition: none;
@@ -182,20 +190,41 @@
   pointer-events: none;
   overflow: visible;
 }
-.home-connections path {
+/* Each connection is a <g> holding an invisible wide hit path (the actual
+   hover/pointer target — thin dots alone are too sparse to reliably catch
+   the cursor) plus a row of real <circle> dots walking the same curve,
+   each with its own baked-in randomized radius (see HomeBrainCanvas's
+   DOT_MIN_R/MAX_R) — a uniform stroke-dasharray can't vary per-dash, so
+   this is actual geometry instead of a dashed stroke. */
+.home-connection-hit {
   fill: none;
-  stroke: var(--void-line-strong);
-  stroke-width: 1;
-  stroke-dasharray: 0.1 5;
-  stroke-linecap: round;
-  /* Slightly visible at rest (not hidden entirely) — brightens further,
-     and shifts to the accent color, when either end is hovered. */
-  opacity: 0.16;
-  transition: opacity 320ms var(--e-out), stroke 320ms var(--e-out);
+  stroke: transparent;
+  stroke-width: 22;
+  pointer-events: none;
 }
-.home-connections path[data-active="true"] {
-  opacity: 0.8;
-  stroke: var(--lift);
+.home-connection[data-line-state="rest"] .home-connection-hit,
+.home-connection[data-line-state="active"] .home-connection-hit {
+  pointer-events: stroke;
+}
+.home-connection-dots circle {
+  transition: opacity 320ms var(--e-out), fill 320ms var(--e-out);
+}
+/* Hidden entirely (neither endpoint revealed yet) — not just dim, since a
+   line between two invisible objects has nothing to visually connect. */
+.home-connection[data-line-state="hidden"] .home-connection-dots circle {
+  opacity: 0;
+  fill: var(--void-line-strong);
+}
+/* Resting: both ends visible, line not currently hovered/traversed — more
+   visible than the old dashed line, so it reads as an actual connection
+   worth hovering, not a barely-there hint. */
+.home-connection[data-line-state="rest"] .home-connection-dots circle {
+  opacity: 0.45;
+  fill: var(--void-line-strong);
+}
+.home-connection[data-line-state="active"] .home-connection-dots circle {
+  opacity: 0.9;
+  fill: var(--lift);
 }
 
 /* Mobile: the same canvas/positions, just wider than the viewport and

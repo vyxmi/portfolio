@@ -23,18 +23,29 @@ const DISPLAY: CSSProperties = {
   letterSpacing: "-.02em",
   color: "var(--void-ink)",
 };
-// The role/tagline — closing line now, under "my brain" rather than
-// between the name and the brain heading. White mono instead of the muted
-// sans used elsewhere for secondary text: it reads as a byline/credit line
-// (same register as the mono greeting lines) rather than another headline.
-const TAGLINE: CSSProperties = {
+// The one-line positioning statement — sans (not mono), sized between the
+// name and the byline so it reads as the headline's second beat rather
+// than a caption.
+const STATEMENT: CSSProperties = {
+  fontWeight: 500,
+  fontSize: "clamp(16px, 2vw, 20px)",
+  lineHeight: 1.45,
+  letterSpacing: "-.005em",
+  color: "var(--void-ink)",
+  maxWidth: 420,
+};
+// The byline — white mono instead of the muted sans used elsewhere for
+// secondary text: it reads as a byline/credit line (same register as the
+// mono greeting lines) rather than another headline. No forced lowercase
+// here (unlike MONO/the old tagline) since it carries real proper nouns —
+// Chance.live, Palo Alto Networks, QuinStreet — that must stay cased.
+const BYLINE: CSSProperties = {
   fontFamily: "var(--font-mono-sys), ui-monospace, monospace",
   fontWeight: 400,
   fontSize: "clamp(12.5px, 1.6vw, 14px)",
   letterSpacing: ".03em",
   lineHeight: 1.4,
   color: "var(--void-ink)",
-  textTransform: "lowercase",
 };
 
 interface IntroLine {
@@ -47,10 +58,9 @@ interface IntroLine {
 
 const LINES: IntroLine[] = [
   { text: "nice to meet you, i'm", style: MONO, dotSize: 6, marginBottom: 6 },
-  { text: "vyomi seth", style: DISPLAY, dotSize: 10, marginBottom: 22 },
-  { text: "here's the inside of", style: MONO, dotSize: 6, marginBottom: 6 },
-  { text: "my brain", style: DISPLAY, dotSize: 10, marginBottom: 22 },
-  { text: "bay area • product designer • product engineer", style: TAGLINE, dotSize: 6, marginBottom: 0 },
+  { text: "vyomi seth", style: DISPLAY, dotSize: 10, marginBottom: 20 },
+  { text: "i figure out what should exist, then design and build it.", style: STATEMENT, dotSize: 8, marginBottom: 18 },
+  { text: "founding product designer at Chance.live · previously Palo Alto Networks + QuinStreet · bay area", style: BYLINE, dotSize: 6, marginBottom: 0 },
 ];
 
 // Starts while the flower is still mid-converge (its bloomDuration settles
@@ -126,7 +136,7 @@ function DissolveLine({
 }
 
 /**
- * The homepage hero intro: five lines, one shared left edge, each
+ * The homepage hero intro: four lines, one shared left edge, each
  * materializing via a halftone-dot dissolve (a growing grid of circles
  * that merges into full coverage) rather than any directional wipe or
  * slide. The dot radius is driven by Motion directly onto a CSS custom

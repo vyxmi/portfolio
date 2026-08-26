@@ -13,7 +13,13 @@ import {
 import { brainObjects } from "@/lib/brain/objects";
 import { isPrivate } from "@/lib/brain/resolvers";
 import type { BrainObject } from "@/lib/brain/types";
-import { HOME_LAYOUT, HOME_CONNECTIONS, HOME_MOBILE_ORDER, HOME_DEFAULT_SCALE } from "@/lib/brain/homeLayout";
+import {
+  HOME_LAYOUT,
+  HOME_CONNECTIONS,
+  HOME_MOBILE_ORDER,
+  HOME_DEFAULT_SCALE,
+  HOME_DEFAULT_VISIBLE,
+} from "@/lib/brain/homeLayout";
 import { createRng } from "@/lib/brain/hash";
 import { motionField, tickCards, registerLenisController } from "@/lib/brain/motionField";
 import BrainCard from "@/components/brain/BrainCard";
@@ -26,11 +32,33 @@ interface Rect {
   h: number;
 }
 
+interface ConnectionDot {
+  x: number;
+  y: number;
+  r: number;
+}
+
 interface LinePath {
   key: string;
   a: string;
   b: string;
   d: string;
+  dots: ConnectionDot[];
+}
+
+// Roughly one dot per this many px of the line's straight-line length —
+// walked along the actual quadratic curve below via `quadPoint`, not the
+// straight distance, so a heavily bowed line still gets even coverage.
+const DOT_SPACING = 7;
+const DOT_MIN_R = 0.5;
+const DOT_MAX_R = 3;
+
+function quadPoint(t: number, x0: number, y0: number, cx: number, cy: number, x1: number, y1: number) {
+  const mt = 1 - t;
+  return {
+    x: mt * mt * x0 + 2 * mt * t * cx + t * t * x1,
+    y: mt * mt * y0 + 2 * mt * t * cy + t * t * y1,
+  };
 }
 
 interface NodeOverride {
@@ -101,23 +129,137 @@ export default function HomeBrainCanvas() {
     return map;
   }, []);
 
-  const adjacency = useMemo(() => {
-    const map = new Map<string, Set<string>>();
+  // adjacency: node -> directly-connected node ids (both directions).
+  // nodeEdgeKeys: node -> keys of every HOME_CONNECTIONS pair it's part of,
+  // using each pair's declared "a-b" order as its key regardless of which
+  // side the node is on — that's the same key `lines` below builds, so a
+  // reveal can look an edge up either way.
+  // defaultEdgeKeys: edges wired entirely between the always-visible nodes
+  // — these draw immediately, never waiting on a hover to reveal them.
+  const { adjacency, nodeEdgeKeys, defaultEdgeKeys } = useMemo(() => {
+    const adjacency = new Map<string, Set<string>>();
+    const nodeEdgeKeys = new Map<string, Set<string>>();
+    const defaultEdgeKeys = new Set<string>();
+    const defaultSet = new Set(HOME_DEFAULT_VISIBLE);
     for (const [a, b] of HOME_CONNECTIONS) {
-      if (!map.has(a)) map.set(a, new Set());
-      if (!map.has(b)) map.set(b, new Set());
-      map.get(a)!.add(b);
-      map.get(b)!.add(a);
+      const key = `${a}-${b}`;
+      if (!adjacency.has(a)) adjacency.set(a, new Set());
+      if (!adjacency.has(b)) adjacency.set(b, new Set());
+      adjacency.get(a)!.add(b);
+      adjacency.get(b)!.add(a);
+      if (!nodeEdgeKeys.has(a)) nodeEdgeKeys.set(a, new Set());
+      if (!nodeEdgeKeys.has(b)) nodeEdgeKeys.set(b, new Set());
+      nodeEdgeKeys.get(a)!.add(key);
+      nodeEdgeKeys.get(b)!.add(key);
+      if (defaultSet.has(a) && defaultSet.has(b)) defaultEdgeKeys.add(key);
     }
-    return map;
+    return { adjacency, nodeEdgeKeys, defaultEdgeKeys };
   }, []);
 
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef(new Map<string, HTMLDivElement>());
   const [rects, setRects] = useState<Map<string, Rect>>(new Map());
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
+
+  // Progressive connection reveal. `revealed`/`revealedEdges` accumulate as
+  // the pointer travels from an always-visible node onto whatever it's
+  // connected to, and onward from there — nothing is ever removed from
+  // them except by the hide-delay timer below, so hovering back over
+  // already-revealed ground never causes a flicker. `activeId` /
+  // `hoveredEdgeKey` are purely cosmetic (which node/line is glowing right
+  // now) and don't affect what's visible.
+  const [revealed, setRevealed] = useState<Set<string>>(() => new Set());
+  const [revealedEdges, setRevealedEdges] = useState<Set<string>>(() => new Set());
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [hoveredEdgeKey, setHoveredEdgeKey] = useState<string | null>(null);
+  const hideTimerRef = useRef<number | null>(null);
+
+  const cancelHide = useCallback(() => {
+    if (hideTimerRef.current !== null) {
+      window.clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+  }, []);
+
+  // Short delay, not immediate collapse — the pointer briefly isn't "over"
+  // anything while crossing the gap between a card and its connection line
+  // (or between a card and the next card along a line), and an instant
+  // hide there would read as flicker. Any enter elsewhere in the group
+  // cancels this before it fires.
+  const scheduleHide = useCallback(() => {
+    cancelHide();
+    hideTimerRef.current = window.setTimeout(() => {
+      setRevealed(new Set());
+      setRevealedEdges(new Set());
+      setActiveId(null);
+      setHoveredEdgeKey(null);
+    }, 220);
+  }, [cancelHide]);
+
+  useEffect(() => cancelHide, [cancelHide]);
+
+  const revealFrom = useCallback(
+    (id: string) => {
+      const neighbors = adjacency.get(id);
+      if (!neighbors || neighbors.size === 0) return;
+      setRevealed((prev) => {
+        let changed = false;
+        const next = new Set(prev);
+        neighbors.forEach((nid) => {
+          if (!next.has(nid)) {
+            next.add(nid);
+            changed = true;
+          }
+        });
+        return changed ? next : prev;
+      });
+      const edgeKeys = nodeEdgeKeys.get(id);
+      if (edgeKeys) {
+        setRevealedEdges((prev) => {
+          let changed = false;
+          const next = new Set(prev);
+          edgeKeys.forEach((k) => {
+            if (!next.has(k)) {
+              next.add(k);
+              changed = true;
+            }
+          });
+          return changed ? next : prev;
+        });
+      }
+    },
+    [adjacency, nodeEdgeKeys]
+  );
+
+  const visibleIds = useMemo(() => {
+    const set = new Set(HOME_DEFAULT_VISIBLE);
+    revealed.forEach((id) => set.add(id));
+    return set;
+  }, [revealed]);
+
+  function onNodeEnter(id: string) {
+    if (editMode) return;
+    cancelHide();
+    setActiveId(id);
+    setHoveredEdgeKey(null);
+    revealFrom(id);
+  }
+  function onNodeLeave(id: string) {
+    if (editMode) return;
+    setActiveId((cur) => (cur === id ? null : cur));
+    scheduleHide();
+  }
+  function onEdgeEnter(key: string) {
+    if (editMode) return;
+    cancelHide();
+    setHoveredEdgeKey(key);
+  }
+  function onEdgeLeave() {
+    if (editMode) return;
+    setHoveredEdgeKey(null);
+    scheduleHide();
+  }
 
   // Edit mode: visit /?edit=1 to drag/resize objects directly, then use
   // the panel's "copy layout" button to get the resulting HOME_LAYOUT
@@ -355,11 +497,29 @@ export default function HomeBrainCanvas() {
       const jitter = (rng() - 0.5) * len * 0.18;
       const cx = midX + px * jitter;
       const cy = midY + py * jitter;
+
+      // Dots walk the same quadratic curve the visible/hit paths use, each
+      // with its own seeded (so stable across re-renders) randomized
+      // radius — a uniform stroke-dasharray can't vary per-dash, so these
+      // are real circles rather than a dashed stroke.
+      const dotRng = createRng(`${a}:${b}:home-dot`);
+      const count = Math.max(2, Math.round(len / DOT_SPACING));
+      const dots: ConnectionDot[] = [];
+      for (let i = 0; i < count; i++) {
+        const t = i / (count - 1);
+        const p = quadPoint(t, start.x, start.y, cx, cy, end.x, end.y);
+        // Squared, not linear — biases most dots toward the small end with
+        // only occasional larger ones, rather than an even spread.
+        const r = DOT_MIN_R + dotRng() ** 2 * (DOT_MAX_R - DOT_MIN_R);
+        dots.push({ x: p.x, y: p.y, r });
+      }
+
       out.push({
         key: `${a}-${b}`,
         a,
         b,
         d: `M ${start.x.toFixed(1)} ${start.y.toFixed(1)} Q ${cx.toFixed(1)} ${cy.toFixed(1)}, ${end.x.toFixed(1)} ${end.y.toFixed(1)}`,
+        dots,
       });
     }
     return out;
@@ -372,16 +532,46 @@ export default function HomeBrainCanvas() {
       <div ref={wrapRef} className="home-canvas-wrap">
         <div ref={canvasRef} className="home-canvas">
           <svg className="home-connections" aria-hidden="true">
-            {lines.map((l) => (
-              <path key={l.key} d={l.d} data-active={hoveredId === l.a || hoveredId === l.b ? "true" : undefined} />
-            ))}
+            {lines.map((l) => {
+              const visible = editMode || defaultEdgeKeys.has(l.key) || revealedEdges.has(l.key);
+              const isActiveLine = hoveredEdgeKey === l.key || activeId === l.a || activeId === l.b;
+              const lineState = !visible ? "hidden" : isActiveLine ? "active" : "rest";
+              return (
+                <g key={l.key} className="home-connection" data-line-state={lineState}>
+                  {/* Invisible, much wider stroke — the actual hover/hit
+                      target, since the dots alone are too thin/sparse to
+                      reliably catch the pointer as it travels the line. */}
+                  <path
+                    className="home-connection-hit"
+                    d={l.d}
+                    onPointerEnter={() => onEdgeEnter(l.key)}
+                    onPointerLeave={onEdgeLeave}
+                  />
+                  <g className="home-connection-dots">
+                    {l.dots.map((dot, i) => (
+                      <circle key={i} cx={dot.x} cy={dot.y} r={dot.r} />
+                    ))}
+                  </g>
+                </g>
+              );
+            })}
           </svg>
           {nodes.map((n) => {
             const o = objectsById.get(n.id);
             if (!o) return null;
-            const isActive = hoveredId === n.id;
-            const isConnected = !isActive && !!hoveredId && adjacency.get(hoveredId)?.has(n.id);
-            const state: "active" | "connected" | "dim" = isActive ? "active" : isConnected ? "connected" : "dim";
+            const isVisible = editMode || visibleIds.has(n.id);
+            const isActive = activeId === n.id;
+            const isEdgeEnd = hoveredEdgeKey
+              ? lines.find((l) => l.key === hoveredEdgeKey && (l.a === n.id || l.b === n.id))
+              : false;
+            const isConnected = !isActive && ((!!activeId && adjacency.get(activeId)?.has(n.id)) || !!isEdgeEnd);
+            const state: "hidden" | "active" | "connected" | "dim" = !isVisible
+              ? "hidden"
+              : isActive
+                ? "active"
+                : isConnected
+                  ? "connected"
+                  : "dim";
             return (
               <div key={n.id} className="home-node-anchor" style={{ left: `${n.x * 100}%`, top: `${n.y * 100}%` }}>
                 <div
@@ -393,10 +583,10 @@ export default function HomeBrainCanvas() {
                     if (el) nodeRefs.current.set(n.id, el);
                     else nodeRefs.current.delete(n.id);
                   }}
-                  onPointerEnter={() => setHoveredId(n.id)}
-                  onPointerLeave={() => setHoveredId((cur) => (cur === n.id ? null : cur))}
-                  onFocusCapture={() => setHoveredId(n.id)}
-                  onBlurCapture={() => setHoveredId((cur) => (cur === n.id ? null : cur))}
+                  onPointerEnter={() => onNodeEnter(n.id)}
+                  onPointerLeave={() => onNodeLeave(n.id)}
+                  onFocusCapture={() => onNodeEnter(n.id)}
+                  onBlurCapture={() => onNodeLeave(n.id)}
                   onPointerDown={(e) => onNodeDragStart(e, n.id, n)}
                 >
                   <BrainCard

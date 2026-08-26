@@ -9,7 +9,15 @@ export default function HomeField() {
       {/* No bounding box — the canvas is the full field, so ambient
           particles and the dispersed flower scatter can genuinely span the
           whole viewport instead of a fixed square patch of it. */}
-      <DigitalBloom className="absolute inset-0" position={{ x: -0.5, y: -0.7 }} />
+      {/* Colors darkened 30% off DigitalBloom's own defaults (#f3f3f6 /
+          #8496ea) — this is the only place DigitalBloom is used, so the
+          override lives here rather than changing its defaults. */}
+      <DigitalBloom
+        className="absolute inset-0"
+        position={{ x: 0.73, y: 0 }}
+        colorPrimary="#aaaaac"
+        colorAccent="#5c69a4"
+      />
       {/* Same flower, same spot, on mobile — just dimmed so the hero text
           (which has nowhere else to sit on a narrow screen) stays readable
           over it, instead of shrinking or moving the flower out of the way. */}

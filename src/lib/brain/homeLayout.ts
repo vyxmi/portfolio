@@ -72,6 +72,13 @@ export const HOME_CONNECTIONS: [string, string][] = [
   ["B-0172", "B-0123"],
 ];
 
+// The only nodes visible before any hover: the shelf (hub of the graph),
+// the original-thought note, and the "real artists ship" rule. Everything
+// else starts hidden (not deleted — see HomeBrainCanvas) and is revealed by
+// hovering along a connection from one of these, or from whatever that
+// reveals in turn.
+export const HOME_DEFAULT_VISIBLE: string[] = ["B-0123", "B-0085", "B-0068"];
+
 // Mobile reading order — left-to-right scroll order, not a z-index/DOM
 // stacking concern. B-0085 first per spec; the rest follow roughly the
 // same connection-cluster grouping as desktop so a left-to-right scroll

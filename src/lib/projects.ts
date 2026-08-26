@@ -1549,8 +1549,8 @@ export const projects: Project[] = [
   {
     slug: "chance-live",
     number: "01",
-    title: "Summary Revamp",
-    tagline: "Preventing $5,000 accidental swipes in my first 15 hours at a Pokemon card startup",
+    title: "Designing a second chance for a $5,000 swipe",
+    tagline: "Fixing a critical retention problem in my first 15 hours at a Pokemon card startup",
     company: "Chance.live",
     role: "Systems Designer, Product Growth Strategist",
     year: "2026",
@@ -1566,8 +1566,8 @@ export const projects: Project[] = [
   {
     slug: "carinsurance-com",
     number: "05",
-    title: "CarInsurance.com",
-    tagline: "Rebuilding a 20-year-old site and soloing its first design system",
+    title: "Turning 200 pages into one system",
+    tagline: "Rebuilding CarInsurance.com without sacrificing growth, SEO, or accessibility",
     company: "Quinstreet",
     role: "Product Designer",
     year: "2024",
@@ -1589,8 +1589,8 @@ export const projects: Project[] = [
     // read for a visitor skimming case studies, so it's back as the title
     // — case study copy still refers to ADEM throughout, unchanged.
     number: "02",
-    title: "Network Security",
-    tagline: "Bringing clarity to complex workflows for IT admins",
+    title: "Finding one user across seven security workflows",
+    tagline: "Consolidating a fragmented enterprise experience in network security",
     company: "Palo Alto Networks",
     role: "Lead Designer + UXR",
     year: "2024",
@@ -1643,8 +1643,8 @@ export const projects: Project[] = [
   {
     slug: "chance-deposit-flow",
     number: "08",
-    title: "Deposit Flow",
-    tagline: "Cutting our deposit flow from 7 clicks to 2",
+    title: "Making crypto disappear",
+    tagline: "Cutting purchase-to-payout flow from seven clicks to two",
     company: "Chance.live",
     role: "Systems Designer, Product Growth Strategist",
     year: "2026",

@@ -55,6 +55,7 @@ export default function BrainFocus({ o, onClose }: { o: BrainObject | null; onCl
       <div
         ref={stageRef}
         className="focus-stage"
+        data-id={o.id}
         data-lenis-prevent
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
