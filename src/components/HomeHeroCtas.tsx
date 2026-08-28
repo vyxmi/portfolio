@@ -11,7 +11,7 @@ export default function HomeHeroCtas() {
     <div className="pointer-events-auto flex flex-wrap items-center gap-9">
       <a
         href="#selected-work"
-        className="group inline-flex items-center gap-2 font-mono text-[13.5px] lowercase no-underline"
+        className="group inline-flex items-center gap-2 font-mono text-[14.5px] lowercase no-underline"
         style={{ color: "var(--void-mute)" }}
       >
         <span className="border-b border-transparent transition-colors duration-200 group-hover:border-current">view work</span>

@@ -15,17 +15,31 @@
   --paper: #fbfcff;
   --paper-dim: #f1f2f6;
   --shadow-paper: 0 1px 1px rgba(15, 12, 8, 0.14), 0 6px 16px rgba(15, 12, 8, 0.16);
+  /* a lighter lift than --shadow-paper (which is tuned for a vessel
+     floating on the dark void) — for boxed elements embedded directly in
+     a paper page, where a heavy shadow would look out of place stacked
+     several to a page. */
+  --shadow-card: 0 1px 2px rgba(15, 12, 8, 0.05), 0 4px 12px rgba(15, 12, 8, 0.07);
   --ink: #101114;
   --ink-soft: #54555c;
-  --ink-mute: #8b8c93;
+  /* was #8b8c93 — 3.3:1 on --paper, below WCAG AA's 4.5:1 for text this
+     small (11–11.5px cap/eyebrow labels). This value clears ~5:1 on both
+     --paper and --paper-dim while staying visibly lighter than --ink-soft. */
+  --ink-mute: #65666f;
   --line: #dedfe6;
   --line-strong: #c6c8d2;
 
-  /* accent, one hue, two intensities */
+  /* accent, one hue, three intensities */
   --accent: #3b57b9;
   --accent-rgb: 59, 87, 185;
   --lift: #8496ea;
   --lift-rgb: 132, 150, 234;
+  /* periwinkle (--lift's own name in the brain palette), deepened for use
+     directly on --paper — the midpoint blend of --accent and --lift, not
+     a hand-picked color, so it reads as a third intensity of the same
+     hue rather than an unrelated blue. --lift itself is calibrated for
+     the void's dark ground and washes out on white. */
+  --periwinkle-deep: #6077d2;
   /* the one link color: lift on the default void ground, accent on
      paper (see .light below). TextLink reads this instead of --accent
      directly so it stays correct on either surface automatically. */
@@ -100,8 +114,9 @@ a {
 /* reused primitives across every page */
 .eyebrow {
   font-family: var(--font-mono-sys), ui-monospace, monospace;
-  font-size: 11px;
-  letter-spacing: 0.04em;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.015em;
   color: var(--void-mute);
   text-transform: lowercase;
 }
@@ -111,7 +126,9 @@ a {
 
 .cap {
   font-family: var(--font-mono-sys), ui-monospace, monospace;
-  font-size: 11.5px;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   color: var(--void-mute);
   text-transform: lowercase;
 }
@@ -121,6 +138,22 @@ a {
 
 .measure {
   max-width: 640px;
+}
+
+/* Shared chrome for every boxed, interactive case-study element (ratio
+   stats, click-throughs, funnel/prototype/text compares, expandables…).
+   A flat 1px hairline with sharp corners read as one interchangeable grey
+   rectangle repeated down the page — radius + a light lift give each one
+   enough presence to read as its own object, restrained from the brain
+   wall's full vessel treatment (no tilt, no paper grain, no accent color
+   swap on hover). overflow:hidden so nested tab-bar borders/dividers stay
+   flush with the rounded corner instead of poking past it. */
+.case-box {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--paper);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
 }
 
 .grain {

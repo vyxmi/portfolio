@@ -610,7 +610,7 @@ export default function HomeBrainCanvas() {
       </div>
       {editMode && (
         <div className="home-edit-panel">
-          <div>edit mode — drag an object to move it, drag its dot to resize</div>
+          <div>edit mode: drag an object to move it, drag its dot to resize</div>
           <div className="home-edit-panel-row">
             <button type="button" onClick={copyLayout}>
               copy layout

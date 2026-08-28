@@ -19,7 +19,7 @@ export default function CardStateInspector() {
   const s = states[count];
 
   return (
-    <div className="not-prose" style={{ border: "1px solid var(--line)" }}>
+    <div className="case-box not-prose">
       <div className="flex items-center gap-1 p-4" style={{ borderBottom: "1px solid var(--line)" }}>
         {[1, 2, 3, 4, 5].map((n) => (
           <button

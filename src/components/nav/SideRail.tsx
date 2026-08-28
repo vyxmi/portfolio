@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 const items = [
   { href: "/brain", label: "brain" },
@@ -14,11 +14,6 @@ export default function SideRail() {
   const pathname = usePathname();
   const railRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Array<HTMLAnchorElement | null>>([]);
-  const [progress, setProgress] = useState(0);
-
-  // Long-form reading pages (a case study, or the about page) get the
-  // right-edge scroll progress bar; index/listing routes don't.
-  const showScrollProgress = /^\/work\/[^/]+$/.test(pathname) || pathname === "/about";
 
   const isHome = pathname === "/";
   // No fallback to items[0]: home has no entry of its own here (see the
@@ -50,17 +45,6 @@ export default function SideRail() {
     };
   }, []);
 
-  // scroll progress, only meaningful on a long-form reading route
-  useEffect(() => {
-    if (!showScrollProgress) return;
-    function onScroll() {
-      const h = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(h > 0 ? Math.min(1, Math.max(0, window.scrollY / h)) : 0);
-    }
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [showScrollProgress]);
 
   return (
     <div
@@ -90,7 +74,7 @@ export default function SideRail() {
           style={{ top: 18, left: 10, right: 26, bottom: 18, mixBlendMode: "screen" }}
         />
         <span
-          className="relative flex h-full w-full items-center justify-center font-mono text-[19px] tracking-wide lowercase"
+          className="relative flex h-full w-full items-center justify-center font-mono text-[20px] tracking-wide lowercase"
           style={{ color: "var(--void-ink)" }}
         >
           vs
@@ -125,19 +109,6 @@ export default function SideRail() {
           );
         })}
       </nav>
-
-      {showScrollProgress && (
-        <div
-          aria-hidden
-          className="absolute top-0 bottom-0 w-[4px]"
-          style={{ right: -2, background: "var(--void-line)" }}
-        >
-          <div
-            className="w-full"
-            style={{ height: `${progress * 100}%`, background: "var(--lift)", transition: "height 80ms linear" }}
-          />
-        </div>
-      )}
     </div>
   );
 }

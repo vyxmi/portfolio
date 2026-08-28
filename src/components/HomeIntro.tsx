@@ -4,13 +4,13 @@ import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useState, type CSSProperties } from "react";
 
 // Same tokens as the rest of the site's dark surface — font-mono-sys for
-// the mono tier (.eyebrow's own 11px/.04em/void-mute, sized up 1.5x here
+// the mono tier (.eyebrow's own 13px/.04em/void-mute, sized up 1.5x here
 // for the two greeting lines), the default sans for the role line, and the
 // headline's own weight/tracking for both display lines. No new fonts, no
 // new colors.
 const MONO: CSSProperties = {
   fontFamily: "var(--font-mono-sys), ui-monospace, monospace",
-  fontSize: 16.5,
+  fontSize: 19.5,
   letterSpacing: ".04em",
   color: "var(--void-mute)",
   textTransform: "lowercase",
@@ -42,7 +42,7 @@ const STATEMENT: CSSProperties = {
 const BYLINE: CSSProperties = {
   fontFamily: "var(--font-mono-sys), ui-monospace, monospace",
   fontWeight: 400,
-  fontSize: "clamp(12.5px, 1.6vw, 14px)",
+  fontSize: "clamp(13.5px, 1.6vw, 15px)",
   letterSpacing: ".03em",
   lineHeight: 1.4,
   color: "var(--void-ink)",

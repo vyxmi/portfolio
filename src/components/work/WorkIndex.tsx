@@ -61,7 +61,7 @@ export default function WorkIndex({ projects }: { projects: Project[] }) {
                 )}
                 {size === "mini" && (
                   <span
-                    className="absolute right-2 top-2 font-mono text-[10px] lowercase"
+                    className="absolute right-2 top-2 font-mono text-[11px] lowercase"
                     style={{ background: "rgba(251,252,255,.9)", border: "1px solid var(--line)", padding: "2px 7px", color: "var(--ink-mute)" }}
                   >
                     mini
@@ -95,7 +95,7 @@ export default function WorkIndex({ projects }: { projects: Project[] }) {
                     {p.metrics.map((m) => (
                       <span
                         key={m.label}
-                        className="inline-flex items-baseline gap-1.5 whitespace-nowrap rounded-full font-mono text-[11px] lowercase"
+                        className="inline-flex items-baseline gap-1.5 whitespace-nowrap rounded-full font-mono text-[12px] lowercase"
                         style={{ border: "1px solid var(--line)", padding: "3px 10px 3px 9px", color: "var(--ink-mute)" }}
                       >
                         <span style={{ color: "var(--ink)", fontWeight: 600 }}>{m.value}</span>

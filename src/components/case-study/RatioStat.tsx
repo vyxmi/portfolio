@@ -4,7 +4,9 @@ import ScrollReveal from "@/components/ScrollReveal";
 
 // Before/after comparison as a real graphic instead of a sentence. Built
 // from whatever number is actually in the case study text, nothing
-// invented, this is a presentation of real data, not a decoration.
+// invented, this is a presentation of real data, not a decoration. The
+// "after" value sits in its own accent-tinted chip so the eye lands on
+// the improved number first, not just a bigger font.
 export default function RatioStat({
   before,
   beforeLabel,
@@ -20,21 +22,21 @@ export default function RatioStat({
 }) {
   return (
     <ScrollReveal className="not-prose">
-      <div className="flex items-center gap-4 sm:gap-8" style={{ border: "1px solid var(--line)", padding: "28px 24px" }}>
-        <div className="flex-1 text-center">
-          <div className="metric text-[30px] font-bold sm:text-[38px]" style={{ color: "var(--ink-mute)", letterSpacing: "-.02em" }}>
+      <div className="case-box flex items-center gap-3 p-5 sm:gap-6 sm:p-8">
+        <div className="min-w-0 flex-1 rounded-[var(--r-md)] py-4 text-center" style={{ background: "var(--paper-dim)" }}>
+          <div className="font-mono text-[34px] font-bold leading-none sm:text-[44px]" style={{ color: "var(--ink-mute)", letterSpacing: "-.02em" }}>
             {before}
           </div>
-          <div className="cap mt-1">{beforeLabel}</div>
+          <div className="cap mt-2 px-2">{beforeLabel}</div>
         </div>
-        <svg width="28" height="14" viewBox="0 0 28 14" fill="none" className="flex-none" aria-hidden>
+        <svg width="30" height="16" viewBox="0 0 28 14" fill="none" className="flex-none" aria-hidden>
           <path d="M1 7H26M26 7L20 1.5M26 7L20 12.5" stroke="var(--accent)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <div className="flex-1 text-center">
-          <div className="metric text-[30px] font-bold sm:text-[38px]" style={{ color: "var(--accent)", letterSpacing: "-.02em" }}>
+        <div className="min-w-0 flex-1 rounded-[var(--r-md)] py-4 text-center" style={{ background: "rgba(var(--accent-rgb),.08)" }}>
+          <div className="font-mono text-[34px] font-bold leading-none sm:text-[44px]" style={{ color: "var(--accent)", letterSpacing: "-.02em" }}>
             {after}
           </div>
-          <div className="cap mt-1">{afterLabel}</div>
+          <div className="cap mt-2 px-2">{afterLabel}</div>
         </div>
       </div>
       {caption && <div className="cap mt-3">{caption}</div>}

@@ -14,7 +14,23 @@ import { createPortal } from "react-dom";
 // overlay's `position: fixed`, so without the portal the "full-screen"
 // zoom was only ever as big as the small image container it lived in.
 // Portaling to body sidesteps that regardless of what future ancestors do.
-export default function Zoomable({ src, alt, children }: { src: string; alt: string; children: ReactNode }) {
+export default function Zoomable({
+  src,
+  alt,
+  children,
+  transparentMedia,
+}: {
+  src: string;
+  alt: string;
+  children: ReactNode;
+  // A transparently-backed image (a diagram, a line-art screenshot) reads
+  // fine sitting directly on the page's own paper background, but loses
+  // its contents against this overlay's near-black backdrop — the same
+  // --paper-dim mat its non-transparent siblings already sit on restores
+  // it here too, without giving every zoomed image a background it
+  // doesn't need.
+  transparentMedia?: boolean;
+}) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -44,13 +60,37 @@ export default function Zoomable({ src, alt, children }: { src: string; alt: str
         animation: "zoomableIn 200ms var(--e-out)",
       }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        alt={alt}
-        className="max-h-full max-w-full object-contain"
-        style={{ boxShadow: "0 30px 80px rgba(0,0,0,.5)" }}
-      />
+      {transparentMedia ? (
+        // A wrapping div breaks the img's own max-h-full/max-w-full (that
+        // percentage math needs a parent with a *definite* height, which
+        // an auto-sized wrapper doesn't have) — sized in viewport units
+        // instead so containment holds regardless of what wraps it.
+        <div
+          style={{
+            background: "var(--paper-dim)",
+            padding: 24,
+            boxShadow: "0 30px 80px rgba(0,0,0,.5)",
+            maxWidth: "calc(100vw - 96px)",
+            maxHeight: "calc(100vh - 96px)",
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
+            alt={alt}
+            className="block object-contain"
+            style={{ maxWidth: "calc(100vw - 144px)", maxHeight: "calc(100vh - 144px)" }}
+          />
+        </div>
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={alt}
+          className="max-h-full max-w-full object-contain"
+          style={{ boxShadow: "0 30px 80px rgba(0,0,0,.5)" }}
+        />
+      )}
       <button
         type="button"
         onClick={(e) => {
@@ -58,7 +98,7 @@ export default function Zoomable({ src, alt, children }: { src: string; alt: str
           setOpen(false);
         }}
         aria-label="close"
-        className="absolute right-5 top-5 font-mono text-[12px] lowercase transition-opacity duration-150 hover:opacity-70"
+        className="absolute right-5 top-5 font-mono text-[13px] lowercase transition-opacity duration-150 hover:opacity-70"
         style={{ color: "rgba(243,243,246,.75)" }}
       >
         close &#10005;
@@ -71,6 +111,7 @@ export default function Zoomable({ src, alt, children }: { src: string; alt: str
       <button
         type="button"
         onClick={() => setOpen(true)}
+        data-cursor="focus"
         className="block w-full cursor-zoom-in border-0 bg-transparent p-0 text-left"
         aria-label={`expand image: ${alt}`}
       >

@@ -20,7 +20,7 @@ export default function MobileNav({ objectCount }: { objectCount: number }) {
     <div className="md:hidden fixed top-0 left-0 right-0 z-50" style={{ background: "var(--void)" }}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between px-5 py-4 font-mono text-[12px] lowercase"
+        className="flex w-full items-center justify-between px-5 py-4 font-mono text-[13px] lowercase"
         style={{ color: "var(--void-ink)", borderBottom: "1px solid var(--void-line)" }}
         aria-expanded={open}
       >

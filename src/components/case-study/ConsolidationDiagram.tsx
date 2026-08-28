@@ -19,7 +19,7 @@ export default function ConsolidationDiagram({
   const n = from.length;
   return (
     <ScrollReveal className="not-prose">
-      <div style={{ border: "1px solid var(--line)", padding: "28px 24px" }}>
+      <div className="case-box" style={{ padding: "28px 24px" }}>
         {fromLabel && <div className="cap mb-4">{fromLabel}</div>}
         <div className="relative flex" style={{ height: n * 34 }}>
           <svg

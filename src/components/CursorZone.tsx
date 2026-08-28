@@ -27,7 +27,7 @@ export default function CursorZone({ children }: { children: ReactNode }) {
       {children}
       <div
         aria-hidden
-        className="pointer-events-none fixed top-0 left-0 z-[70] hidden md:block rounded-full font-mono text-[10px] lowercase tracking-wide"
+        className="pointer-events-none fixed top-0 left-0 z-[70] hidden md:block rounded-full font-mono text-[11px] lowercase tracking-wide"
         style={{
           background: "var(--lift)",
           color: "var(--void)",

@@ -24,7 +24,7 @@ export default function SiteFooter() {
           it just silently disappeared. Wrapping to a second line when it
           doesn't fit is still readable; a silently clipped line isn't. */}
       <div
-        className="mx-auto flex max-w-6xl flex-wrap items-center justify-end gap-x-8 gap-y-2 px-6 py-5 font-mono text-[11px] lowercase md:px-16"
+        className="mx-auto flex max-w-6xl flex-wrap items-center justify-end gap-x-8 gap-y-2 px-6 py-5 font-mono text-[12px] lowercase md:px-16"
         style={{ color: "var(--void-mute)" }}
       >
         <span className="whitespace-nowrap">bay area, ca</span>

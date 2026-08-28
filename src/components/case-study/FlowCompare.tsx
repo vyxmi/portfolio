@@ -10,17 +10,17 @@ export default function FlowCompare() {
   const [mode, setMode] = useState<"original" | "new">("original");
 
   return (
-    <div className="not-prose" style={{ border: "1px solid var(--line)" }}>
-      <div className="flex" style={{ borderBottom: "1px solid var(--line)" }}>
+    <div className="case-box not-prose">
+      <div className="flex flex-wrap">
         {(["original", "new"] as const).map((m) => (
           <button
             key={m}
             onClick={() => setMode(m)}
-            className="cap flex-1 px-4 py-3 text-center transition-colors duration-150"
+            className="cap min-w-[140px] flex-1 border-b px-4 py-3 text-center transition-colors duration-150"
             style={{
               color: mode === m ? "var(--accent)" : "var(--ink-mute)",
-              background: mode === m ? "rgba(59,87,185,.06)" : "transparent",
-              borderRight: m === "original" ? "1px solid var(--line)" : "none",
+              background: mode === m ? "rgba(var(--accent-rgb),.06)" : "transparent",
+              borderColor: "var(--line)",
             }}
             aria-pressed={mode === m}
           >
