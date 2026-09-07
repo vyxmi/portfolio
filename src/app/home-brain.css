@@ -5,6 +5,75 @@
    natural /brain size — see brain.css, imported once globally in the root
    layout so both routes share it. */
 
+.home-light-page {
+  min-height: 100vh;
+  background: transparent;
+  color: var(--ink);
+}
+
+/* Same pastel stock, grain, and settled tilt as .vessel[data-vessel=
+   "sticky-note"] on the wall (see brain.css) — written fresh instead of
+   reused directly, since that class's own base (.vessel) defaults to the
+   void-dark surface and carries [role="button"] hover rules this doesn't
+   need. The two should still look like the same object. */
+.brain-note {
+  max-width: 190px;
+  padding: 9px 11px;
+  background: #f5efc6;
+  color: var(--ink);
+  font-family: var(--font-mono-sys), ui-monospace, monospace;
+  font-size: 11.5px;
+  line-height: 1.4;
+  text-transform: lowercase;
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-paper);
+  isolation: isolate;
+}
+.brain-note::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  background-image: var(--noise-bg);
+}
+.brain-note-placed {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.brain-note-placed:active {
+  cursor: grabbing;
+}
+
+/* WorkIndex is shared with the light /work page and reads semantic paper/
+   ink tokens. Override those tokens only inside the homepage section so the
+   same cards become dark without changing the standalone Work route. */
+.home-selected-work {
+  background: transparent;
+  color: var(--ink);
+}
+
+.home-brain-section {
+  position: relative;
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--ink);
+  border-top: 1px solid var(--line);
+}
+.home-brain-section-title {
+  position: relative;
+  z-index: 10;
+  pointer-events: none;
+  padding: 40px 24px;
+}
+@media (min-width: 768px) {
+  .home-brain-section-title { padding: 48px 64px; }
+}
+
 .home-canvas-wrap {
   position: absolute;
   inset: 0;

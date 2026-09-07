@@ -57,8 +57,16 @@
   --t-page: 650ms;
 
   /* shell */
-  --rail-w: 84px;
-  --rail-w-mobile: 56px;
+  --rail-w: 280px;
+
+  /* Persistent shell theme. Brain changes only these semantic values;
+     body and navigation interpolate them instead of remounting colors. */
+  --site-bg: var(--paper);
+  --site-ink: var(--ink);
+  --site-soft: var(--ink-soft);
+  --site-mute: var(--ink-mute);
+  --site-line: var(--line);
+  --site-nav-bg: rgba(251, 252, 255, 0.94);
 
   /* shared fractal-noise texture, page grain and per-image grain both read this */
   --noise-bg: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -83,16 +91,161 @@
   box-sizing: border-box;
 }
 
+html[data-site-theme="brain"] {
+  --site-bg: var(--void);
+  --site-ink: var(--void-ink);
+  --site-soft: var(--void-soft);
+  --site-mute: var(--void-mute);
+  --site-line: var(--void-line);
+  --site-nav-bg: rgba(10, 10, 13, 0.94);
+  color-scheme: dark;
+}
+
 html {
-  background: var(--void);
+  background: var(--site-bg);
+  color-scheme: light;
+  transition: background-color 600ms var(--e-io), color 600ms var(--e-io);
 }
 
 body {
-  background: var(--void);
-  color: var(--void-ink);
+  background: var(--site-bg);
+  color: var(--site-ink);
   font-family: var(--font-grotesk), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 600ms var(--e-io), color 600ms var(--e-io);
 }
+.site-nav {
+  transition: background-color 600ms var(--e-io), border-color 600ms var(--e-io), color 600ms var(--e-io);
+  backdrop-filter: blur(12px);
+}
+.site-nav a,
+.site-nav button,
+.site-nav span { transition-property: color, opacity, transform, border-color; transition-duration: 600ms; transition-timing-function: var(--e-io); }
+html:not([data-site-theme="brain"]) .site-logo-bloom { opacity: 0 !important; }
+
+/* ---------- sidebar: primary nav (brand + top-level sections) on top,
+   contextual "live context window" underneath — one rail, no separate
+   header bar. ---------- */
+.site-sidebar {
+  width: var(--rail-w);
+  top: 0;
+  bottom: 0;
+  padding: 28px 24px;
+  border-right: 1px solid var(--site-line);
+  background: var(--site-bg);
+  color: var(--site-ink);
+  overflow-y: auto;
+}
+.site-sidebar-brand { display: block; font-family: var(--font-mono-sys), monospace; font-size: 13px; letter-spacing: .01em; color: var(--site-mute); text-transform: lowercase; }
+.site-sidebar-primary { display: flex; flex-direction: column; margin-top: 20px; }
+.site-sidebar-primary a {
+  padding: 9px 0;
+  font-size: 19.5px;
+  font-weight: 500;
+  letter-spacing: -.015em;
+  color: var(--site-soft);
+  text-decoration: none;
+  text-transform: lowercase;
+  transition: color 200ms var(--e-out);
+}
+.site-sidebar-primary a:hover { color: var(--site-ink); }
+.site-sidebar-primary a[data-active="true"] { color: var(--periwinkle-deep); }
+.site-sidebar-context { margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--site-line); }
+.site-sidebar-eyebrow {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono-sys), monospace;
+  font-size: 12.5px;
+  color: var(--site-mute);
+  text-decoration: none;
+  text-transform: lowercase;
+}
+a.site-sidebar-eyebrow:hover { color: var(--periwinkle-deep); }
+.site-sidebar-title { display: block; margin-top: 10px; font-size: 19px; font-weight: 600; line-height: 1.2; letter-spacing: -.015em; }
+.site-sidebar-meta { display: block; margin-top: 4px; font-family: var(--font-mono-sys), monospace; font-size: 12px; color: var(--site-mute); text-transform: lowercase; }
+.site-sidebar-items { display: flex; flex-direction: column; gap: 1px; margin-top: 22px; }
+.site-sidebar-items a { display: block; text-decoration: none; }
+.site-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6.5px 0;
+  font-family: var(--font-mono-sys), monospace;
+  font-size: 12.5px;
+  color: var(--site-mute);
+  text-transform: lowercase;
+  transition: color 200ms var(--e-out);
+}
+.site-sidebar-items a:hover .site-sidebar-item { color: var(--site-ink); }
+.site-sidebar-item[data-active="true"] { color: var(--periwinkle-deep); }
+.site-sidebar-item-dot { width: 5px; height: 5px; flex: none; border-radius: 50%; background: var(--line-strong); }
+.site-sidebar-item[data-active="true"] .site-sidebar-item-dot { background: var(--periwinkle-deep); }
+.site-sidebar-siblings { display: flex; flex-direction: column; gap: 7px; margin-top: auto; padding-top: 18px; border-top: 1px solid var(--site-line); }
+.site-sidebar-siblings a { font-family: var(--font-mono-sys), monospace; font-size: 12px; color: var(--site-soft); text-decoration: none; }
+.site-sidebar-siblings a:hover { color: var(--periwinkle-deep); }
+
+.site-bottom-dock {
+  position: fixed;
+  z-index: 70;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 4px;
+  border: 1px solid var(--site-line);
+  border-radius: 8px;
+  background: var(--site-nav-bg);
+  box-shadow: 0 12px 36px rgba(0,0,0,.16);
+}
+.site-bottom-dock a { display: flex; align-items: center; justify-content: center; gap: 5px; min-height: 44px; color: var(--site-mute); font: 11px var(--font-mono-sys), monospace; text-decoration: none; text-transform: lowercase; border-radius: 5px; }
+.site-bottom-dock a[data-active="true"] { color: var(--site-ink); background: rgba(var(--accent-rgb), .1); }
+.site-bottom-dock small { font-size: 8px; opacity: .7; }
+@media (min-width: 768px) {
+  .site-bottom-dock { display: none; }
+}
+@media (max-width: 767px) {
+  body { padding-bottom: 68px; }
+}
+
+/* ---------- footer: contact, back to top, easter egg ---------- */
+.site-footer-inner { max-width: 1400px; margin: 0 auto; padding: 40px 24px 32px; }
+@media (min-width: 768px) {
+  .site-footer-inner { padding: 52px 64px 40px; }
+}
+.site-footer-top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 24px 40px; }
+/* Not `.eyebrow` — that class flips to the void-theme color under /brain
+   (the one page NOT wrapped in `.light`), which would override the
+   footer's own always-light styling and leave this one label in the
+   wrong mode even though every other footer element stays light. */
+.site-footer-eyebrow { font-family: var(--font-mono-sys), ui-monospace, monospace; font-size: 13px; font-weight: 500; letter-spacing: .015em; color: var(--ink-mute); text-transform: lowercase; }
+.site-footer-heading { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -.015em; color: var(--ink); }
+@media (min-width: 768px) {
+  .site-footer-heading { font-size: 32px; }
+}
+.site-footer-links { display: flex; flex-wrap: wrap; gap: 10px 28px; margin-top: 16px; }
+.site-footer-top-btn { display: inline-flex; flex: none; align-items: center; gap: 8px; padding: 8px 4px; font-family: var(--font-mono-sys), monospace; font-size: 12px; color: var(--ink-mute); text-transform: lowercase; }
+.site-footer-top-btn:hover { color: var(--ink); }
+.site-footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono-sys), monospace;
+  font-size: 12px;
+  color: var(--ink-mute);
+  text-transform: lowercase;
+}
+.site-footer-bottom > span { white-space: nowrap; }
+.site-footer-egg-toggle { display: inline-flex; align-items: center; gap: 8px; color: inherit; font: inherit; text-transform: lowercase; }
+.site-footer-egg-toggle:hover { color: var(--ink); }
+.site-footer-thought { display: flex; flex-direction: column; gap: 8px; overflow: hidden; padding-left: 2px; font-size: 14px; line-height: 1.4; color: var(--ink-soft); }
+.site-footer-thought a { color: var(--accent); font-family: var(--font-mono-sys), monospace; font-size: 12px; text-decoration: none; }
 
 a {
   color: inherit;
@@ -166,7 +319,7 @@ a {
 }
 
 .light {
-  background: var(--paper);
+  background: transparent;
   color: var(--ink);
   --link-accent: var(--accent);
 }

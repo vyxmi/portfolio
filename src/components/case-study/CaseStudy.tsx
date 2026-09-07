@@ -1,4 +1,3 @@
-import { Fragment } from "react";
 import Image from "next/image";
 import type { Project } from "@/lib/projects";
 import type { Block, CaseStudyContent } from "@/lib/case-study-types";
@@ -14,12 +13,11 @@ import FunnelCompare from "./FunnelCompare";
 import PrototypeCompare from "./PrototypeCompare";
 import TextCompare from "./TextCompare";
 import Expand from "./Expand";
-import ImagePlaceholder from "./ImagePlaceholder";
 import NumberedInsights from "./NumberedInsights";
 import ResearchRatings from "./ResearchRatings";
 import SiteMetrics from "./SiteMetrics";
 import ScrollReveal from "@/components/ScrollReveal";
-import Flag from "@/components/ui/Flag";
+import { articleSections } from "@/lib/presentation";
 import TextLink from "@/components/ui/TextLink";
 import Zoomable from "@/components/ui/Zoomable";
 
@@ -32,6 +30,8 @@ export function CaseImage({
   height,
   transparentMedia,
   hideCaption,
+  reveal = true,
+  eager = false,
 }: {
   padded?: boolean;
   src: string;
@@ -44,26 +44,35 @@ export function CaseImage({
   // has a title + summary doing that job) — every other use of this
   // component keeps its caption.
   hideCaption?: boolean;
+  // The hero thumbnail already gets a one-time entrance animation plus
+  // its own scroll-linked parallax (see CaseStudyHero) — layering
+  // ScrollReveal's independent scroll-triggered fade on top of that
+  // fought with the parallax transform and flickered the image in and
+  // out near the top of the page. Body images still want the reveal.
+  reveal?: boolean;
+  eager?: boolean;
 }) {
   const img = (
-    <Image src={src} alt={alt} width={width} height={height} className="h-auto w-full" style={{ display: "block" }} />
+    <Image loading={eager ? "eager" : "lazy"} sizes="(max-width: 900px) 92vw, 70vw" unoptimized={src.startsWith("/protected-media/") || src.startsWith("/brain/media/")} src={src} alt={alt} width={width} height={height} className="h-auto w-full" style={{ display: "block" }} />
   );
-  return (
-    <ScrollReveal className="not-prose">
+  const content = (
+    <>
       {/* padded images already show a paper-dim mat on the page (that's
           what padding reveals) — zoomed, they deserve the same
           background, not just true alpha-transparent ones. */}
       <Zoomable src={src} alt={alt} transparentMedia={transparentMedia || padded}>
         <div
-          className={transparentMedia ? "relative w-full overflow-hidden" : "case-box relative w-full"}
+          className={transparentMedia ? "case-transparent relative w-full overflow-hidden" : "case-box relative w-full"}
           style={transparentMedia ? undefined : { background: "var(--paper-dim)" }}
         >
           {padded && !transparentMedia ? <div style={{ padding: 14 }}>{img}</div> : img}
         </div>
       </Zoomable>
       {!hideCaption && <div className="cap mt-2">{caption}</div>}
-    </ScrollReveal>
+    </>
   );
+  if (!reveal) return <div className="not-prose">{content}</div>;
+  return <ScrollReveal className="not-prose">{content}</ScrollReveal>;
 }
 
 function CaseVideo({
@@ -126,15 +135,6 @@ function CaseYouTube({ id, caption }: { id: string; caption?: string }) {
 // undifferentiated scroll. A dashed rule reads as a break without the
 // weight of a full-width solid divider, and stopping at 80% keeps it
 // from looking like it's spanning the whole page edge to edge.
-function SectionDivider() {
-  return (
-    <hr
-      aria-hidden
-      className="mx-auto w-[80%] border-0"
-      style={{ borderTop: "1px dashed var(--line-strong)" }}
-    />
-  );
-}
 
 function Block({ block }: { block: Block }) {
   switch (block.kind) {
@@ -184,16 +184,16 @@ function Block({ block }: { block: Block }) {
       );
 
     case "imagePlaceholder":
-      return <ImagePlaceholder label={block.label} note={block.note} aspect={block.aspect} />;
+      return null;
 
     case "insight":
       return (
         <ScrollReveal>
           {block.eyebrow && <div className="eyebrow mb-3">{block.eyebrow}</div>}
           {block.heading && (
-            <p className="mb-4 text-[22px] font-semibold leading-snug md:text-[25px]" style={{ letterSpacing: "-.008em" }}>
+            <h2 className="mb-4 text-[22px] font-semibold leading-snug md:text-[25px]" style={{ letterSpacing: "-.008em" }}>
               {block.heading}
-            </p>
+            </h2>
           )}
           <div className="measure flex flex-col gap-4">
             {block.body.map((p, i) => (
@@ -220,7 +220,7 @@ function Block({ block }: { block: Block }) {
       );
 
     case "flag":
-      return <Flag>{block.text}</Flag>;
+      return null;
 
     case "image":
       return (
@@ -338,10 +338,10 @@ function Block({ block }: { block: Block }) {
       return <NumberedInsights eyebrow={block.eyebrow} heading={block.heading} items={block.items} />;
 
     case "researchRatings":
-      return <ResearchRatings items={block.items} />;
+      return <ResearchRatings label={block.label} items={block.items} />;
 
     case "siteMetrics":
-      return <SiteMetrics items={block.items} />;
+      return <SiteMetrics label={block.label} items={block.items} />;
 
     case "story":
     case "constraint":
@@ -350,11 +350,11 @@ function Block({ block }: { block: Block }) {
       const b = block as Extract<Block, { kind: "story" | "constraint" | "validation" }>;
       return (
         <ScrollReveal>
-          {b.eyebrow && <div className="eyebrow mb-3">{b.eyebrow}</div>}
+          {b.eyebrow && b.eyebrow.toLowerCase().trim() !== b.heading?.toLowerCase().trim() && <div className="eyebrow mb-3">{b.eyebrow}</div>}
           {b.heading && (
-            <p className="mb-4 text-[22px] font-semibold leading-snug md:text-[25px]" style={{ letterSpacing: "-.008em" }}>
+            <h2 className="mb-4 text-[22px] font-semibold leading-snug md:text-[25px]" style={{ letterSpacing: "-.008em" }}>
               {b.heading}
-            </p>
+            </h2>
           )}
           {b.body?.map((p, i) => (
             <p key={i} className="measure mb-4 text-[16px] leading-relaxed last:mb-0" style={{ color: "var(--ink-soft)" }}>
@@ -378,23 +378,18 @@ function Block({ block }: { block: Block }) {
 }
 
 export function CaseStudyBody({ content }: { content: CaseStudyContent }) {
-  const sections = content.blocks.reduce<Block[][]>((groups, block) => {
-    if (block.kind === "sectionHeading" || groups.length === 0) groups.push([]);
-    groups.at(-1)?.push(block);
-    return groups;
-  }, []);
+  const sections = articleSections(content);
 
   return (
-    <div className="flex flex-col gap-10 md:gap-12">
-      {sections.map((blocks, sectionIndex) => (
-        <Fragment key={sectionIndex}>
-          {sectionIndex > 0 && <SectionDivider />}
-          <section className="flex flex-col gap-10 md:gap-12">
+    <div className="article-body">
+      {sections.map(({ blocks, id, label }) => (
+          <section className="article-chapter" id={id} key={id} aria-label={label}>
+            <div className="chapter-content">
             {blocks.map((block, blockIndex) => (
               <Block key={blockIndex} block={block} />
             ))}
+            </div>
           </section>
-        </Fragment>
       ))}
     </div>
   );
@@ -402,9 +397,9 @@ export function CaseStudyBody({ content }: { content: CaseStudyContent }) {
 
 export function NextProject({ project }: { project: Project }) {
   return (
-    <div className="flex items-center justify-between py-10" style={{ borderTop: "1px solid var(--line)" }}>
-      <span className="cap">next</span>
-      <TextLink href={`/work/${project.slug}`} kind="next" className="text-[17px]">
+    <div className="case-next">
+      <span>next case</span>
+      <TextLink href={`/work/${project.slug}`} kind="next">
         {project.title}
       </TextLink>
     </div>

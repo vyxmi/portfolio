@@ -44,3 +44,6 @@ next-env.d.ts
 # extracted copy lives in src/lib, extracted images live in public/
 /source-material/
 /portfolio-file-exchange/
+
+# Local content-editor undo snapshots contain private material.
+/content/.history/

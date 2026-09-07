@@ -1,0 +1,594 @@
+{
+  "chance-deposit-flow": {
+    "slug": "chance-deposit-flow",
+    "number": "08",
+    "title": "Making crypto disappear",
+    "tagline": "Cutting the deposit flow from seven clicks to three, shipped in two days",
+    "company": "Chance.live",
+    "role": "Systems Designer, Product Growth Strategist",
+    "year": "2026",
+    "result": "Deposit flow cut from 7 clicks to 3, signup-to-deposit conversion up 81%, shipped in 2 days",
+    "metrics": [
+      {
+        "value": "7 → 3",
+        "label": "clicks, saved-card flow"
+      },
+      {
+        "value": "+81%",
+        "label": "signup-to-deposit conversion"
+      },
+      {
+        "value": "1.8×",
+        "label": "order volume, first week"
+      },
+      {
+        "value": "2 days",
+        "label": "brief to shipped"
+      }
+    ],
+    "discipline": "product, growth",
+    "content": {
+      "heroLine": "I redesigned one of the biggest drop-off points in our purchase funnel, built the frontend directly on our existing product, and worked with engineering to ship it in 2 days.",
+      "blocks": [
+        {
+          "kind": "imagePlaceholder",
+          "label": "hero: old flow ↔ new flow",
+          "note": "The old-flow ↔ new-flow animation for the very top of this page, send it and I'll place it above everything else."
+        },
+        {
+          "kind": "sectionHeading",
+          "eyebrow": "context",
+          "heading": "7 clicks and 7 seconds. H O R R E N D O U S"
+        },
+        {
+          "kind": "image",
+          "src": "/case-studies/chance-deposit-flow/slack-brief.png",
+          "alt": "Slack message asking to prioritize the deposit flow: 'I want to optimize our Deposit flow. Right now it takes 7 clicks and 7 seconds. That's H O R R E N D O U S.'",
+          "caption": "the Slack message that kicked this off",
+          "width": 1640,
+          "height": 238
+        },
+        {
+          "kind": "story",
+          "body": [
+            "That was basically the brief.",
+            "People come to Chance to open Pokémon packs. If they didn't have enough money in their balance, we made them leave what they were doing, deposit USDC, wait for it, redeem it, then come back and buy the pack."
+          ]
+        },
+        {
+          "kind": "story",
+          "eyebrow": "research",
+          "body": [
+            "I started by running the whole thing myself with test funds and taking notes."
+          ]
+        },
+        {
+          "kind": "sectionHeading",
+          "eyebrow": "ux audit",
+          "heading": "7 clicks was kind of generous"
+        },
+        {
+          "kind": "clickThrough",
+          "flows": [
+            {
+              "label": "the old flow",
+              "hasImages": true,
+              "steps": [
+                {
+                  "label": "Hover over balance",
+                  "note": [
+                    "why is this hidden on hover?"
+                  ]
+                },
+                {
+                  "label": "Manage Funds",
+                  "note": [
+                    "why isn't this just Balance?"
+                  ]
+                },
+                {
+                  "label": "Deposit"
+                },
+                {
+                  "label": "Buy USDC with card",
+                  "note": [
+                    "98% of users deposit this way. start here."
+                  ]
+                },
+                {
+                  "label": "Enter amount"
+                },
+                {
+                  "label": "Purchase",
+                  "note": [
+                    "the next screen is Select Payment. we have not purchased anything."
+                  ]
+                },
+                {
+                  "label": "CoinFlow",
+                  "note": [
+                    "Changing the amount here takes three more clicks.",
+                    "Why are there both Back and Change Amount buttons?"
+                  ]
+                },
+                {
+                  "label": "Confirm payment",
+                  "note": [
+                    "Green checkmark.",
+                    "oh wait. we're not done."
+                  ]
+                },
+                {
+                  "label": "Wait for the USDC deposit to appear"
+                },
+                {
+                  "label": "Redeem",
+                  "note": [
+                    "what the hell is a coupon?"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "story",
+          "body": [
+            "A lot of users saw the green success state, assumed they were finished, and closed the modal without redeeming.",
+            "The fix at the time was a toast reminding them to come back and redeem their funds."
+          ]
+        },
+        {
+          "kind": "imagePlaceholder",
+          "label": "redeem-reminder toast",
+          "note": "A screenshot of that redeem-reminder toast goes here."
+        },
+        {
+          "kind": "story",
+          "body": [
+            "That was one of those moments where the product was telling us what was wrong."
+          ]
+        },
+        {
+          "kind": "expand",
+          "label": "everything else I found",
+          "body": [
+            "The same modal also contained USDC deposit history.",
+            "I didn't think transaction history belonged inside the thing you use to add money, so I started redesigning the History page to hold it instead.",
+            "Different rabbit hole."
+          ]
+        },
+        {
+          "kind": "story",
+          "eyebrow": "technical considerations",
+          "heading": "Follow the money",
+          "body": [
+            "Before changing the interface, I needed to know why it worked this way.",
+            "I talked to the developers and mapped the transaction from clicking Buy to actually seeing spendable USDC in someone's Chance balance."
+          ]
+        },
+        {
+          "kind": "flowSteps",
+          "steps": [
+            "Card",
+            "CoinFlow",
+            "payment completes",
+            "USDC becomes redeemable",
+            "redeem",
+            "Chance balance updates"
+          ]
+        },
+        {
+          "kind": "story",
+          "body": [
+            "I learned how CoinFlow, our balance, the crypto transaction, and redemption actually worked together.",
+            "The redeem step existed for a technical reason. Users still didn't need to understand any of that.",
+            "The old experience exposed the mechanics almost literally. Pay. Wait for a deposit. Find it. Understand that it exists separately from your balance. Redeem a coupon. Wait for your balance to update.",
+            "Most of the people I talked to weren't crypto-native. They were trying to buy Pokémon cards.",
+            "So I kept the transaction and redesigned what the user sees."
+          ]
+        },
+        {
+          "kind": "statement",
+          "heading": "How might we make crypto disappear without touching the backend?"
+        },
+        {
+          "kind": "textCompare",
+          "tabs": [
+            {
+              "label": "old redemption",
+              "body": [
+                "Confirm payment: green checkmark. But you're not done yet.",
+                "Wait for the USDC deposit to appear.",
+                "Redeem a coupon most users didn't understand.",
+                "Many saw the checkmark, assumed they were finished, and closed the modal without redeeming."
+              ]
+            },
+            {
+              "label": "new redemption",
+              "body": [
+                "Payment received, getting your funds ready...",
+                "Loading.",
+                "Your funds are ready to use. Add $50 to balance.",
+                "Click.",
+                "Balance updates. Modal closes. Done."
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "story",
+          "body": [
+            "The transaction details are still there in a small accordion if someone wants them."
+          ]
+        },
+        {
+          "kind": "sectionHeading",
+          "eyebrow": "constraint",
+          "heading": "Keep the backend. Fix everything around it"
+        },
+        {
+          "kind": "story",
+          "body": [
+            "I wanted this live as fast as possible. CoinFlow worked, our transaction infrastructure worked. I wasn't going to turn a funnel problem into a backend rebuild.",
+            "So I gave myself one big constraint: keep the backend the same. That shaped a lot of the design.",
+            "CoinFlow was finicky. The widget updates when the amount changes, so some interactions that looked fine in Figma felt terrible once I actually ran them.",
+            "I explored a few structures."
+          ]
+        },
+        {
+          "kind": "prototypeCompare",
+          "tabs": [
+            {
+              "label": "two-column",
+              "body": [
+                "More information visible at once."
+              ],
+              "verdict": "lost"
+            },
+            {
+              "label": "expanding modal",
+              "body": [
+                "Could adapt as the user moved through the flow."
+              ],
+              "verdict": "lost"
+            },
+            {
+              "label": "adaptive single-column",
+              "body": [
+                "Worked cleanly with the way CoinFlow already behaved."
+              ],
+              "verdict": "shipped",
+              "why": [
+                "It was the easiest version to implement reliably.",
+                "Dev wins again."
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "story",
+          "eyebrow": "information architecture",
+          "heading": "One modal, a lot of ways in",
+          "body": [
+            "The balance modal does a lot.",
+            "And the experience changes depending on how you got there."
+          ],
+          "items": [
+            "Balance",
+            "Add funds",
+            "Buy USDC with card",
+            "Deposit USDC directly",
+            "Withdraw"
+          ]
+        },
+        {
+          "kind": "clickThrough",
+          "flows": [
+            {
+              "label": "buying a pack, short on funds",
+              "steps": [
+                {
+                  "label": "Top Off"
+                }
+              ]
+            },
+            {
+              "label": "balance, card saved",
+              "steps": [
+                {
+                  "label": "Choose amount"
+                },
+                {
+                  "label": "Purchase"
+                }
+              ]
+            },
+            {
+              "label": "balance, no card saved",
+              "steps": [
+                {
+                  "label": "Choose amount"
+                },
+                {
+                  "label": "Enter card"
+                },
+                {
+                  "label": "Purchase"
+                }
+              ]
+            },
+            {
+              "label": "depositing USDC directly",
+              "steps": [
+                {
+                  "label": "Crypto-native flow"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "story",
+          "body": [
+            "I mapped these separately before settling on the interaction.",
+            "I was optimizing the card flow first because 98% of our users deposit with a card, but I still needed the other paths to work."
+          ]
+        },
+        {
+          "kind": "story",
+          "eyebrow": "the redesign",
+          "heading": "The new card flow"
+        },
+        {
+          "kind": "clickThrough",
+          "flows": [
+            {
+              "label": "the new flow",
+              "hasImages": true,
+              "steps": [
+                {
+                  "label": "Click your balance",
+                  "note": [
+                    "No hover.",
+                    "No Manage Funds screen.",
+                    "Add Funds is already open.",
+                    "Buy with Card is already selected."
+                  ]
+                },
+                {
+                  "label": "Pick an amount",
+                  "note": [
+                    "The quick-add buttons map to pack prices.",
+                    "Buying two? Click twice.",
+                    "Want another amount? Edit it directly.",
+                    "No jumping backward through the flow just to change a number.",
+                    "CoinFlow opens with the amount already set."
+                  ]
+                },
+                {
+                  "label": "Purchase",
+                  "note": [
+                    "CoinFlow handles payment.",
+                    "Then: payment received, getting your funds ready...",
+                    "→ Add $XX to balance",
+                    "→ balance updates",
+                    "→ modal closes",
+                    "Go buy your pack."
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "ratio",
+          "before": "7",
+          "beforeLabel": "clicks, old flow",
+          "after": "3",
+          "afterLabel": "clicks, new flow"
+        },
+        {
+          "kind": "story",
+          "eyebrow": "design debate",
+          "heading": "One click I wanted to keep",
+          "body": [
+            "There was another debate around what should happen when someone tried to buy a pack without enough money."
+          ]
+        },
+        {
+          "kind": "imagePlaceholder",
+          "label": "the pack card",
+          "note": "A screenshot of the pack card goes here."
+        },
+        {
+          "kind": "story",
+          "body": [
+            "One proposal was to open the full deposit modal immediately.",
+            "I thought that felt rude. Looking at a pack doesn't mean you're ready for a giant payment modal in your face. So we tested it with members of the team."
+          ]
+        },
+        {
+          "kind": "imagePlaceholder",
+          "label": "deposit modal slams open",
+          "note": "The deposit-modal-slams-open recording goes here."
+        },
+        {
+          "kind": "story",
+          "body": [
+            "They hated having the payment modal open in their face.",
+            "We kept the lightweight Top Off screen."
+          ]
+        },
+        {
+          "kind": "imagePlaceholder",
+          "label": "the Top Off screen",
+          "note": "A screenshot of the Top Off screen goes here."
+        },
+        {
+          "kind": "story",
+          "body": [
+            "It tells you how much you're short and lets you change the amount before the payment flow starts. That extra click earned its place. The flow shipped at 3 clicks, counted from opening the modal to having balance added, assuming a saved card and excluding clicks inside the card-payment provider."
+          ]
+        },
+        {
+          "kind": "story",
+          "eyebrow": "process",
+          "heading": "I built it while I designed it",
+          "body": [
+            "A lot of the questions I cared about were behavioral.",
+            "Static screens weren't very useful for that."
+          ],
+          "items": [
+            "What happens when the amount changes?",
+            "When does CoinFlow open?",
+            "What does the handoff after payment feel like?",
+            "How long are you waiting for the USDC?",
+            "What does the balance do while it updates?"
+          ]
+        },
+        {
+          "kind": "story",
+          "body": [
+            "So I vibe coded the frontend directly on our existing product using Claude."
+          ]
+        },
+        {
+          "kind": "flowSteps",
+          "steps": [
+            "Code",
+            "Local product",
+            "Transaction"
+          ]
+        },
+        {
+          "kind": "story",
+          "body": [
+            "I connected it to test funds and ran transactions through the flow while I was designing it.",
+            "That is where I caught a lot of the annoying stuff."
+          ],
+          "items": [
+            "Loading states.",
+            "CoinFlow remounting.",
+            "Amount changes.",
+            "Payment finishing before redemption.",
+            "Balance updates that technically worked but felt broken because there was no feedback."
+          ]
+        },
+        {
+          "kind": "story",
+          "body": [
+            "Once the frontend felt right, I worked with our developer to connect it to the existing backend."
+          ]
+        },
+        {
+          "kind": "flowSteps",
+          "label": "2 days, brief to shipped",
+          "steps": [
+            "Brief",
+            "Designed",
+            "Built",
+            "Connected",
+            "Shipped"
+          ]
+        },
+        {
+          "kind": "expand",
+          "label": "questions I needed answered",
+          "items": [
+            "When exactly does CoinFlow tell us payment succeeded?",
+            "When does the USDC become redeemable?",
+            "Which parts of redemption have to stay?",
+            "Can the amount change without restarting CoinFlow?",
+            "What state do we get back after redemption?",
+            "What can I handle entirely on the frontend?",
+            "What would require backend work?",
+            "What happens if the user already has part of the pack price?",
+            "What changes when a card is already saved?"
+          ]
+        },
+        {
+          "kind": "story",
+          "eyebrow": "impact",
+          "heading": "Then we watched the funnel"
+        },
+        {
+          "kind": "funnelCompare",
+          "groups": [
+            {
+              "label": "before",
+              "dateRange": "Jul 15 – Aug 19",
+              "n": "3,293 signups",
+              "stages": [
+                {
+                  "label": "signups",
+                  "pct": 100
+                },
+                {
+                  "label": "attempted deposit",
+                  "pct": 7.44
+                },
+                {
+                  "label": "deposited",
+                  "pct": 5.13
+                }
+              ]
+            },
+            {
+              "label": "after",
+              "dateRange": "Aug 20 – Aug 22",
+              "n": "420 signups",
+              "stages": [
+                {
+                  "label": "signups",
+                  "pct": 100
+                },
+                {
+                  "label": "attempted deposit",
+                  "pct": 13.81
+                },
+                {
+                  "label": "deposited",
+                  "pct": 9.29
+                }
+              ]
+            }
+          ],
+          "caption": "+81% signup-to-deposit conversion; three-day post-launch window"
+        },
+        {
+          "kind": "story",
+          "body": [
+            "People were also entering the funnel more often. Attempted deposits went from 7.44% to 13.81%.",
+            "And in the week after launch, order volume was 1.8x higher.",
+            "It's early. The post-launch conversion window is only three days, and order volume can move for plenty of reasons. I'm continuing to watch it.",
+            "So far, more people are trying to deposit, more of them are finishing, and more orders are going through."
+          ]
+        },
+        {
+          "kind": "insight",
+          "eyebrow": "takeaways",
+          "heading": "Follow the money to make money",
+          "body": [
+            "I learned to get close to the system before trying to simplify the interface. Once I understood how the money actually moved, it became pretty obvious what users never needed to know."
+          ]
+        },
+        {
+          "kind": "insight",
+          "heading": "More clicks can be good?",
+          "body": [
+            "I also got more comfortable keeping a click when it earned its place. The 3-click flow gave people context before asking them to pay."
+          ]
+        },
+        {
+          "kind": "insight",
+          "heading": "Wow, vibe-coding is fun",
+          "body": [
+            "Building it myself changed the pace. I could test the real behavior, design around CoinFlow instead of guessing how it would behave, and get the whole thing out in two days."
+          ]
+        }
+      ]
+    },
+    "size": "md"
+  }
+}

@@ -1,121 +1,50 @@
 "use client";
-
 import { useEffect, useRef, useState } from "react";
 import type { BrainObject } from "@/lib/brain/types";
-import { resolveExpand } from "@/lib/brain/resolvers";
+import { dateLabel, entryDateLabel } from "@/lib/brain/resolvers";
 import { resolveMediaSrc } from "@/lib/brain/media";
-import { stopBackgroundScroll, startBackgroundScroll } from "@/lib/brain/motionField";
-import BrainCard from "./BrainCard";
-import { BrainMetaTop, BrainMetaBottom } from "./BrainMeta";
+import { domainsFor, DOMAIN_LABELS } from "@/lib/brain/domains";
+import { objectTitle } from "./BrainGridCard";
+import AsciiFlower from "@/components/AsciiFlower";
 
-// Expansion reads as attention: the scrim dims/blurs the wall behind it,
-// the object comes forward centered and larger. Multi-image galleries get
-// a dedicated single-image viewer instead of trying to enlarge a strip;
-// everything else reuses BrainCard itself so the vessel logic never forks.
-export default function BrainFocus({ o, onClose }: { o: BrainObject | null; onClose: () => void }) {
-  const stageRef = useRef<HTMLDivElement>(null);
-
+export default function BrainFocus({o,onClose,related=[],onRelated}: {o:BrainObject|null;onClose:()=>void;related?:BrainObject[];onRelated?:(id:string)=>void}) {
+  const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     if (!o) return;
-    const prevOverflow = document.body.style.overflow;
+    dialog.current?.showModal();
+    const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    // body overflow:hidden alone doesn't stop the wall scrolling behind the
-    // scrim — Lenis (see BrainScrollProvider) drives scroll itself, so it
-    // needs to be told to stop too, or a wheel/touch gesture over the modal
-    // keeps moving the page underneath it.
-    stopBackgroundScroll();
-    // Focusing the stage (it's the scrollable element — see the
-    // data-lenis-prevent + overflow-y:auto below) means arrow/space/page
-    // keys scroll it immediately, the same way clicking into any native
-    // scroll container would, without adding a visible extra tab stop in
-    // normal page flow.
-    stageRef.current?.focus();
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      startBackgroundScroll();
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [o, onClose]);
-
+    return () => { document.body.style.overflow = previous; };
+  },[o]);
   if (!o) return null;
-  const expand = resolveExpand(o);
-  const isGallery = expand === "gallery" && (o.media?.length ?? 0) > 1;
-
-  return (
-    <div className="scrim show" onClick={onClose}>
-      {/* data-lenis-prevent excludes this element's own wheel/touch
-          gestures from Lenis's global interception (see BrainScrollProvider)
-          — Lenis.stop() otherwise calls preventDefault() on every wheel
-          event page-wide, which would silently swallow scrolling here too,
-          not just on the dimmed wall behind it. */}
-      <div
-        ref={stageRef}
-        className="focus-stage"
-        data-id={o.id}
-        data-lenis-prevent
-        tabIndex={-1}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {isGallery ? <FocusGallery o={o} /> : <BrainCard o={o} presentation="focus" />}
-      </div>
-      <button type="button" className="focus-close show" onClick={onClose}>
-        close, esc
-      </button>
+  return <dialog ref={dialog} className="object-dialog" aria-label={objectTitle(o)} onCancel={onClose} onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+    <div className="object-dialog-inner">
+      <div className="object-dialog-bar"><span>{domainsFor(o).map(d=>DOMAIN_LABELS[d]).join(" / ")}</span><button onClick={onClose} data-cursor="×" aria-label="Close object">close ×</button></div>
+      <ObjectBody key={o.id} o={o}/>
+      {related.length>0 && <nav className="object-related" aria-label="Related objects"><span>connected to</span>{related.map(item=><button key={item.id} onClick={()=>onRelated?.(item.id)}>{objectTitle(item)} ↗</button>)}</nav>}
     </div>
-  );
+  </dialog>;
 }
-
-function FocusGallery({ o }: { o: BrainObject }) {
-  const [index, setIndex] = useState(0);
-  const media = o.media ?? [];
-  const src = resolveMediaSrc(o.id, o.media, index);
-  const hasMultiple = media.length > 1;
-
-  return (
-    <div className="focus-gallery-panel">
-      <BrainMetaTop o={o} />
-      <div className="focus-gallery-img">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} alt={media[index]?.alt || o.title || ""} />
-        {hasMultiple && (
-          <>
-            <button
-              type="button"
-              className="focus-gallery-arrow left"
-              aria-label="previous"
-              onClick={() => setIndex((i) => (i - 1 + media.length) % media.length)}
-            >
-              &#8592;
-            </button>
-            <button
-              type="button"
-              className="focus-gallery-arrow right"
-              aria-label="next"
-              onClick={() => setIndex((i) => (i + 1) % media.length)}
-            >
-              &#8594;
-            </button>
-            <span className="focus-dots show">
-              {media.map((m, i) => (
-                <span key={m.id} className={i === index ? "on" : ""} />
-              ))}
-            </span>
-          </>
-        )}
-      </div>
-      <div className="focus-gallery-body">
-        {o.title && <div className="v-title">{o.title}</div>}
-        {o.content && (
-          <div className="v-body">
-            <p>{o.content}</p>
-          </div>
-        )}
-        <BrainMetaBottom o={o} />
-      </div>
+function ObjectBody({o}: {o:BrainObject}) {
+  const [index,setIndex]=useState(0);
+  const media=o.media??[];
+  const title=o.title;
+  return <>
+    {media.length>0 && <figure className="object-gallery">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={resolveMediaSrc(o.id,media,index)} alt={media[index].alt || objectTitle(o)}/>
+      <figcaption><a href={`/brain/media/${encodeURIComponent(media[index].filename)}`} target="_blank" rel="noreferrer">full image ↗</a>{media.length>1 && <div><button onClick={()=>setIndex(i=>(i-1+media.length)%media.length)} aria-label="Previous image">←</button><span aria-live="polite">{index+1} / {media.length}</span><button onClick={()=>setIndex(i=>(i+1)%media.length)} aria-label="Next image">→</button></div>}</figcaption>
+    </figure>}
+    {o.vessel==="floating" && <div className="object-flower"><AsciiFlower/></div>}
+    <div className="object-text">
+      {title && <h2>{title}</h2>}
+      {o.content && o.content.trim().toLowerCase()!==title?.trim().toLowerCase() && <p>{o.content}</p>}
+      {o.contentEntries?.map((entry,i)=><div className="object-entry" key={i}><time dateTime={entry.date}>{entryDateLabel(entry.date)}</time><p>{entry.text}</p></div>)}
+      {o.rating!=null && <p className="object-rating">{o.rating} / 5</p>}
+      <div className="object-metadata"><span>{dateLabel(o)}</span><span>{[o.relationship,o.subtype||o.type].filter(Boolean).join(" · ")}</span></div>
+      {o.tags?.length ? <p className="object-tags">{o.tags.map(t=>"#"+t).join(" ")}</p> : null}
+      {o.credit && <p className="object-credit">{o.credit}</p>}
+      {o.relatedUrl && /^(https?:\/\/|mailto:|\/)/.test(o.relatedUrl) && <a className="object-source" href={o.relatedUrl} target="_blank" rel="noreferrer">{o.vessel==="spotify-artifact"?"listen":"visit source"} ↗</a>}
     </div>
-  );
+  </>;
 }

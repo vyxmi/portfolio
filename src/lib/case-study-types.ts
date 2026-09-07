@@ -19,10 +19,12 @@ export type Block =
   | { kind: "numberedInsights"; eyebrow?: string; heading?: string; items: (string | { heading: string; body: string })[] }
   | {
       kind: "researchRatings";
+      label?: string;
       items: { label: string; question: string; rating: string }[];
     }
   | {
       kind: "siteMetrics";
+      label?: string;
       items: { label: string; value: string; change?: string }[];
     }
   | { kind: "constraint"; eyebrow?: string; heading?: string; body: string[]; items?: string[] }
@@ -122,7 +124,6 @@ export type Block =
 
 export type CaseStudyContent = {
   heroLine: string;
-  facts: { label: string; value: string }[];
   // focus: CSS object-position for the cropped work-index thumbnail only —
   // the case study's own hero render is never cropped, so this has no
   // effect there. Defaults to "top" (right for most UI screenshots);

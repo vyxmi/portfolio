@@ -1,0 +1,104 @@
+{
+  "B-0147": {
+    "id": "B-0147",
+    "type": "thought",
+    "subtype": "note",
+    "category": "personal",
+    "secondaryCategory": "other",
+    "content": "being a teenager is so confusing",
+    "originalDate": "2017-12-01",
+    "datePrecision": "date",
+    "addedToCms": "2026-08-20",
+    "source": "notes app",
+    "rating": 3,
+    "weight": "tiny",
+    "vessel": "sticky-note",
+    "mediaLegibility": "auto",
+    "titleDisplay": "hide",
+    "expandBehavior": "none",
+    "temporalTreatment": "archival",
+    "renderOverride": "apple-note-tiny",
+    "domains": [
+      "writing",
+      "life"
+    ],
+    "status": "private",
+    "private": true
+  },
+  "B-0133": {
+    "id": "B-0133",
+    "type": "thing",
+    "subtype": "art",
+    "category": "design",
+    "secondaryCategory": "art",
+    "title": "",
+    "content": "playing around with typography",
+    "originalDate": "2019-05",
+    "datePrecision": "month",
+    "addedToCms": "2026-08-20",
+    "source": "conversation",
+    "rating": 4,
+    "state": "completed",
+    "weight": "normal",
+    "vessel": "scan",
+    "mediaLegibility": "auto",
+    "titleDisplay": "hide",
+    "expandBehavior": "none",
+    "temporalTreatment": "archival",
+    "media": [
+      {
+        "id": "M-0093",
+        "filename": "B-0133_typography-experiment_01.png",
+        "alt": "playing around with typography"
+      }
+    ],
+    "domains": [
+      "design",
+      "crafts"
+    ],
+    "status": "published",
+    "private": false
+  },
+  "B-0001": {
+    "id": "B-0001",
+    "type": "memory",
+    "subtype": "experiment",
+    "category": "photography",
+    "secondaryCategory": "personal",
+    "content": "those two weeks when i carried a camera and my stole with me everywhere to try and crowd source my grad pics in all my natural habitats. goal was to edit them in a wes-anderson style montage",
+    "datePrecision": "month",
+    "displayDateOverride": "June 2026",
+    "addedToCms": "2026-08-20",
+    "source": "photo library",
+    "weight": "normal",
+    "vessel": "contact-sheet",
+    "mediaLegibility": "readable",
+    "titleDisplay": "hide",
+    "expandBehavior": "gallery",
+    "temporalTreatment": "recent",
+    "media": [
+      {
+        "id": "M-0001",
+        "filename": "B-0001_grad-natural-habitats_01.jpg",
+        "alt": ""
+      },
+      {
+        "id": "M-0003",
+        "filename": "B-0001_grad-natural-habitats_03.jpeg",
+        "alt": ""
+      },
+      {
+        "id": "M-0004",
+        "filename": "B-0001_grad-natural-habitats_04.jpeg",
+        "alt": ""
+      }
+    ],
+    "homeFeature": true,
+    "domains": [
+      "crafts",
+      "life"
+    ],
+    "status": "published",
+    "private": false
+  }
+}

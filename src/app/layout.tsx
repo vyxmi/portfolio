@@ -6,12 +6,15 @@ import "./globals.css";
 // the same stylesheet. Vessel/focus/wall selectors are all scoped by class
 // name and don't leak into unrelated markup elsewhere in the site.
 import "./brain/brain.css";
+import "./design.css";
+import "./home.css";
+import "./cursor.css";
+import "./immersive.css";
 import { grotesk, mono } from "@/lib/fonts";
-import { brainObjects } from "@/lib/brain/objects";
-import { isPrivate } from "@/lib/brain/resolvers";
-import SideRail from "@/components/nav/SideRail";
-import MobileNav from "@/components/nav/MobileNav";
+import SiteNavigation from "@/components/nav/SiteNavigation";
 import PageTransition from "@/components/PageTransition";
+import InteractionCursor from "@/components/InteractionCursor";
+import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Vyomi Seth",
@@ -22,15 +25,12 @@ export const metadata: Metadata = {
 // is a client component, so importing the raw brainObjects array into it
 // directly would ship every object's full content (private ones included)
 // in the browser JS bundle on every single page, not just /brain.
-const publicObjectCount = brainObjects.filter((o) => !isPrivate(o)).length;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${grotesk.variable} ${mono.variable} h-full antialiased`}>
       <body className="min-h-full" id="top">
-        <SideRail />
-        <MobileNav objectCount={publicObjectCount} />
-        <PageTransition>{children}</PageTransition>
+        <SiteNavigation email={site.email}><PageTransition>{children}</PageTransition></SiteNavigation><InteractionCursor/>
       </body>
     </html>
   );

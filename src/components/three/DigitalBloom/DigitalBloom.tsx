@@ -8,8 +8,6 @@ import AmbientPoints from "./AmbientPoints";
 import ParticleRuntime, { createParticleRuntime } from "./ParticleRuntime";
 import type { DigitalBloomProps } from "./types";
 
-const VOID_BG = "#0a0a0d";
-
 function useInView(ref: React.RefObject<HTMLElement | null>) {
   const [inView, setInView] = useState(true);
   useEffect(() => {
@@ -99,6 +97,7 @@ export default function DigitalBloom({
   colorPrimary = "#f3f3f6",
   colorAccent = "#8496ea",
   ambientColor = "#aab4e8",
+  backgroundColor = "#0a0a0d",
   className,
   style,
 }: DigitalBloomProps) {
@@ -143,7 +142,7 @@ export default function DigitalBloom({
         dpr={dpr}
         camera={camera}
         gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
-        onCreated={({ gl }) => gl.setClearColor(VOID_BG, 1)}
+        onCreated={({ gl }) => gl.setClearColor(backgroundColor, 1)}
       >
         <ParticleRuntime runtimeRef={runtime} pointerEngagedRef={pointerEngaged} interactive={!reducedMotion} />
         <AmbientPoints

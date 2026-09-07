@@ -67,6 +67,11 @@ export interface BrainContentEntry {
 }
 
 export interface BrainObject {
+  status?: "published" | "draft" | "private" | "archive" | "graveyard";
+  featured?: boolean;
+  domains?: string[];
+  relationship?: string;
+  tags?: string[];
   id: string; // stable CMS UID, e.g. "B-0001"
   type: BrainObjectType;
   subtype?: string;

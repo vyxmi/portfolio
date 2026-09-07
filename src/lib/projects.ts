@@ -1,4 +1,7 @@
+import "server-only";
 import type { CaseStudyContent } from "./case-study-types";
+import overrides from "../../content/projects.json";
+import { SELECTED_SLUGS } from "./presentation";
 
 // Source of truth for Work index + case study routes. Content is built
 // from the real case study pages Vyomi provided (mhtml captures of the
@@ -14,6 +17,10 @@ import type { CaseStudyContent } from "./case-study-types";
 export type Metric = { value: string; label: string };
 
 export type Project = {
+  featured?: boolean;
+  order?: number;
+  previewOutcome?: string;
+  previewImage?: { src: string; alt: string };
   slug: string;
   number: string;
   title: string;
@@ -35,14 +42,8 @@ export type Project = {
 };
 
 const chanceLive: CaseStudyContent = {
-  heroLine: "Preventing $5,000 accidental swipes, fixing a critical retention issue in my first 15 hours.",
+  heroLine: "Making accidental sales recoverable by letting people review their decisions before a transaction becomes final. Designed and shipped in my first 15 hours.",
   heroImage: { src: "/case-studies/chance-live/swipe-flow.webp", alt: "Chance.live card swipe screen, Collect or Sell, with an Undo control", width: 2048, height: 1367 },
-  facts: [
-    { label: "company", value: "Chance.live" },
-    { label: "role", value: "Systems Designer, Product Growth Strategist" },
-    { label: "team", value: "Front-end developer, 8 person company at the time" },
-    { label: "duration", value: "15 hours, part time, May 2026" },
-  ],
   blocks: [
     {
       kind: "story",
@@ -57,7 +58,7 @@ const chanceLive: CaseStudyContent = {
       eyebrow: "the problem",
       heading: "One wrong swipe, and it's gone",
       body: [
-        "A single accidental swipe could cost users $5,000+, and selling is irreversible.",
+        "A single accidental swipe could sell a card the user wanted to keep, and selling is irreversible.",
         "This issue also generated support tickets, which created additional operational costs for an already lean team of eight people.",
       ],
       items: [
@@ -258,7 +259,7 @@ const chanceLive: CaseStudyContent = {
       items: [
         "Product: preserved Chance's premium and collectible identity, avoided default e-commerce patterns that would have cheapened the experience, created a scalable interaction system rather than a one time feature.",
         "User: can now review decisions before transactions are finalized, accidental sales become preventable instead of permanent, clearer feedback while maintaining the excitement of opening a pack.",
-        "Business: addressed a major retention issue identified through analytics, reduced support burden for an 8 person startup, reduced unnecessary backend processing by finalizing transactions later in the workflow, created reusable foundations for future development.",
+        "Business: addressed a major retention issue identified through analytics, made accidental sales preventable for an 8 person startup, reduced unnecessary backend processing by finalizing transactions later in the workflow, created reusable foundations for future development.",
       ],
     },
     {
@@ -295,11 +296,6 @@ const chanceLive: CaseStudyContent = {
 const chanceDepositFlow: CaseStudyContent = {
   heroLine:
     "I redesigned one of the biggest drop-off points in our purchase funnel, built the frontend directly on our existing product, and worked with engineering to ship it in 2 days.",
-  facts: [
-    { label: "company", value: "Chance.live" },
-    { label: "role", value: "Systems Designer, Product Growth Strategist" },
-    { label: "duration", value: "2 days, brief to shipped" },
-  ],
   blocks: [
     {
       kind: "imagePlaceholder",
@@ -504,19 +500,19 @@ const chanceDepositFlow: CaseStudyContent = {
       kind: "story",
       body: [
         "One proposal was to open the full deposit modal immediately.",
-        "I thought that felt rude. Looking at a pack doesn't mean you're ready for a giant payment modal in your face. So we tested it on a small percentage of users.",
+        "I thought that felt rude. Looking at a pack doesn't mean you're ready for a giant payment modal in your face. So we tested it with members of the team.",
       ],
     },
     { kind: "imagePlaceholder", label: "deposit modal slams open", note: "The deposit-modal-slams-open recording goes here." },
     {
       kind: "story",
       body: [
-        "98% immediately closed it.",
-        "That answered the question pretty quickly. We kept the lightweight Top Off screen.",
+        "They hated having the payment modal open in their face.",
+        "We kept the lightweight Top Off screen.",
       ],
     },
     { kind: "imagePlaceholder", label: "the Top Off screen", note: "A screenshot of the Top Off screen goes here." },
-    { kind: "story", body: ["It tells you how much you're short and lets you change the amount before the payment flow starts. That extra click earned its place. The flow shipped at 3 clicks."] },
+    { kind: "story", body: ["It tells you how much you're short and lets you change the amount before the payment flow starts. That extra click earned its place. The flow shipped at 3 clicks, counted from opening the modal to having balance added, assuming a saved card and excluding clicks inside the card-payment provider."] },
     {
       kind: "story",
       eyebrow: "process",
@@ -592,7 +588,7 @@ const chanceDepositFlow: CaseStudyContent = {
           ],
         },
       ],
-      caption: "+81% signup-to-deposit conversion",
+      caption: "+81% signup-to-deposit conversion; three-day post-launch window",
     },
     {
       kind: "story",
@@ -626,13 +622,7 @@ const chanceDepositFlow: CaseStudyContent = {
 const ademUserList: CaseStudyContent = {
   heroLine:
     "I led the design of a new User Device List that gave seven existing entry points one place to converge, while carrying the context of each investigation with them. For one of the most common tasks I found, locating a user at a specific point in time, the prototype cut the flow from 8 clicks to 2 and 23 seconds to 5.",
-  heroImage: { src: "/case-studies/adem-user-list/unified-list.webp", alt: "The new unified ADEM User Device List page", width: 1763, height: 980 },
-  facts: [
-    { label: "company", value: "Palo Alto Networks" },
-    { label: "role", value: "Product Design Intern · Lead Designer, ADEM" },
-    { label: "team", value: "1 Product Manager, 12+ engineers, product designers across adjacent SCM surfaces, IT admin SMEs" },
-    { label: "duration", value: "6 weeks, July–September 2025" },
-  ],
+  heroImage: { src: "/protected-media/adem-user-list/unified-list.webp", alt: "The new unified ADEM User Device List page", width: 1763, height: 980 },
   blocks: [
     {
       kind: "story",
@@ -644,7 +634,7 @@ const ademUserList: CaseStudyContent = {
     { kind: "story", eyebrow: "the problem", body: ["Finding a single user could send an admin all over the product."] },
     {
       kind: "image",
-      src: "/case-studies/adem-user-list/timeline-detail.webp",
+      src: "/protected-media/adem-user-list/timeline-detail.webp",
       transparentMedia: true,
       alt: "Six week sprint broken into Research & Audit, Requirements & Alignment, Wireframes/IA/User Flows, High-Fidelity Design, Testing & Iteration, and Finalization & Handoff, with specific notes per phase",
       caption:
@@ -675,7 +665,7 @@ const ademUserList: CaseStudyContent = {
     },
     {
       kind: "image",
-      src: "/case-studies/adem-user-list/adem-ia-map.png",
+      src: "/protected-media/adem-user-list/adem-ia-map.png",
       alt: "Diagram of ADEM for all users and remote networks: a user's home, on-the-go, or branch devices connecting through WiFi, router, ISP, and Prisma Access to Internet, SaaS, and Enterprise apps, with visibility checkpoints at each hop",
       caption: "IA map: how ADEM works across various applications and networks (source: Palo Alto Networks tech docs)",
       width: 639,
@@ -698,7 +688,7 @@ const ademUserList: CaseStudyContent = {
     { kind: "story", body: ["That last one seemed worth investigating."] },
     {
       kind: "image",
-      src: "/case-studies/adem-user-list/fragmented-dashboards.webp",
+      src: "/protected-media/adem-user-list/fragmented-dashboards.webp",
       transparentMedia: true,
       alt: "Three fragmented ADEM dashboards showing application experience, connectivity and user data",
       caption: "the same user data, scattered across different parts of the platform",
@@ -727,7 +717,7 @@ const ademUserList: CaseStudyContent = {
     { kind: "flowSteps", steps: ["Ticket", "Investigation", "Resolution"] },
     {
       kind: "image",
-      src: "/case-studies/adem-user-list/workflow-map.webp",
+      src: "/protected-media/adem-user-list/workflow-map.webp",
       transparentMedia: true,
       alt: "Flowchart mapping an IT admin's troubleshooting workflow from ticket to resolution",
       caption: "mapping the real workflow, ticket to resolution",
@@ -755,7 +745,7 @@ const ademUserList: CaseStudyContent = {
     },
     {
       kind: "image",
-      src: "/case-studies/adem-user-list/ux-critique.webp",
+      src: "/protected-media/adem-user-list/ux-critique.webp",
       transparentMedia: true,
       alt: "Annotated critique of the existing Application Experience page, with sticky notes flagging buried information and unclear charts",
       caption: "auditing an existing surface against what admins actually used while troubleshooting",
@@ -790,7 +780,7 @@ const ademUserList: CaseStudyContent = {
     },
     {
       kind: "image",
-      src: "/case-studies/adem-user-list/redesign-direction.webp",
+      src: "/protected-media/adem-user-list/redesign-direction.webp",
       alt: "An early redesign direction for the Application Experience page, restructured for role-based clarity",
       caption: "an early direction that cleaned up an existing page around role and relevance",
       width: 1100,
@@ -850,7 +840,7 @@ const ademUserList: CaseStudyContent = {
     },
     {
       kind: "image",
-      src: "/case-studies/adem-user-list/design-evolution.gif",
+      src: "/protected-media/adem-user-list/design-evolution.gif",
       alt: "Looping GIF of the User Device List's UI evolving through different table densities, filter states, and column layouts",
       caption: "in progress: how the User Device List changed as I worked through different hierarchies, filters, and features.",
       width: 1440,
@@ -859,7 +849,7 @@ const ademUserList: CaseStudyContent = {
     { kind: "sectionHeading", eyebrow: "the direction", heading: "One place to pick up the investigation" },
     {
       kind: "image",
-      src: "/case-studies/adem-user-list/saved-views.webp",
+      src: "/protected-media/adem-user-list/saved-views.webp",
       alt: "The User Device List page with a Saved Views panel open, showing pre-filtered views like \"Europe Slack Users\" and \"Poor Asia Users\"",
       caption: "the final direction, presented to the PM and engineering team for implementation planning",
       width: 1800,
@@ -902,12 +892,6 @@ const ademUserList: CaseStudyContent = {
 const accessAnalyzer: CaseStudyContent = {
   heroLine: "I redesigned a key diagnostic tool used by IT administrators to troubleshoot user access issues and shipped 22 UX fixes.",
   heroImage: { src: "/case-studies/access-analyzer/query-results.webp", alt: "Access Analyzer query results, showing User & Endpoint, Network, Application, and Security Policy health checks", width: 1089, height: 632, transparentMedia: true },
-  facts: [
-    { label: "company", value: "Palo Alto Networks" },
-    { label: "role", value: "Lead Designer" },
-    { label: "team", value: "1 Product Manager, 8 Developers" },
-    { label: "duration", value: "6 weeks" },
-  ],
   blocks: [
     {
       kind: "story",
@@ -1030,10 +1014,6 @@ const aiWorkflowToolkit: CaseStudyContent = {
   heroLine:
     "I designed and built an AI workflow toolkit to help designers test, iterate, and prototype faster. I combined research from my Cognitive Science background with prompt engineering to optimize internal design tools for creativity and speed.",
   heroImage: { src: "/case-studies/ai-workflow-toolkit/personashift.webp", alt: "PersonaShift, an AI tool analyzing a design against a named user persona", width: 550, height: 396, transparentMedia: true },
-  facts: [
-    { label: "company", value: "Palo Alto Networks" },
-    { label: "team", value: "1 UX Director, 1 UX Researcher" },
-  ],
   blocks: [
     {
       kind: "story",
@@ -1081,12 +1061,6 @@ const carInsurance: CaseStudyContent = {
   heroLine:
     "Over 12 weeks, I designed CarInsurance.com's first design system, used it to redesign its highest-impact experiences, and worked with engineering as the system was implemented component-by-component in React Storybook.",
   heroImage: { src: "/case-studies/carinsurance-com/atomic-design-ladder.webp", alt: "Atomic Design ladder: Sub Atomic, Atoms, Molecules, Organisms, Templates, and Pages, each shown with real UI", width: 1600, height: 778, transparentMedia: true },
-  facts: [
-    { label: "company", value: "QuinStreet" },
-    { label: "role", value: "Product Designer" },
-    { label: "team", value: "1 director, 1 product manager, 8 engineers" },
-    { label: "duration", value: "12 weeks, June to September 2024" },
-  ],
   blocks: [
     { kind: "sectionHeading", eyebrow: "context", heading: "Twenty years of growth left twenty years of design decisions" },
     { kind: "quote", text: "Just make it look more modern", attribution: "my design brief. fair enough" },
@@ -1106,33 +1080,43 @@ const carInsurance: CaseStudyContent = {
       width: 2000,
       height: 1793,
     },
-    { kind: "sectionHeading", eyebrow: "first try", heading: "Redesigning the pages to \"look more modern\"" },
+    { kind: "sectionHeading", eyebrow: "initial design explorations", heading: "Redesigning the pages to \"look more modern\"" },
     {
       kind: "story",
       body: [
-        "My first instinct was the obvious one: start with the highest-priority pages and make them better. So I did. But every time I moved onto another page, I was rebuilding things I had already made. There wasn't a type scale to inherit, so I made one. There wasn't a reliable color system, so I made one. There weren't reusable grids, inputs, buttons, tables, or content modules, so I started making those too. I wanted the prototypes to actually work when I put them in front of users, not just look good in screenshots. That meant building components, variants, states, and interactions as I went. If I kept redesigning 200 pages individually, I could make the website prettier. I'd also create another generation of one-off pages.",
+        "My first direction was to start with the highest-priority pages and make them better. So I did. This helped align with management on a visual direction and build faith in my design decisions. I wanted the prototypes to actually work when I put them in front of users, not just look good in screenshots. If I kept redesigning 200 pages individually, I could make the website prettier. I'd also create another generation of one-off pages.",
       ],
     },
     {
       kind: "imagePair",
-      label: "early exploration",
-      padded: true,
       images: [
         {
-          src: "/case-studies/carinsurance-com/desktop-prototype-annotated.png",
-          transparentMedia: true,
-          alt: "Annotated desktop prototype of a California car insurance article page, with callouts for a CTA that expands after scrolling, simplified navigation, a phone number visible on hover, and a link aligned with text",
-          caption: "desktop prototype, annotated",
-          width: 1816,
-          height: 663,
+          src: "/case-studies/carinsurance-com/mobile-before-after.png",
+          alt: "Annotated mobile before-and-after comparison: the old page has small hitboxes and an un-intuitive layout, while the redesign keeps the call to action visible throughout the page, makes answers easier to find, and collapses the table of contents",
+          caption: "mobile before + after",
+          width: 739,
+          height: 447,
         },
         {
           src: "/case-studies/carinsurance-com/mobile-ui-variations.png",
-          transparentMedia: true,
           alt: "Four mobile UI variations of the same California car insurance page, exploring where the Compare Car Insurance Rates module and author credit sit relative to the article content",
           caption: "mobile UI variations",
-          width: 1988,
-          height: 997,
+          width: 605,
+          height: 317,
+        },
+        {
+          src: "/case-studies/carinsurance-com/desktop-before-after.png",
+          alt: "Side-by-side comparison of the old CarInsurance.com California page's dense navigation and dated styling against the redesigned page's blue hero panel, simplified navigation, and prominent Compare Car Insurance Rates module",
+          caption: "desktop before + after",
+          width: 1005,
+          height: 330,
+        },
+        {
+          src: "/case-studies/carinsurance-com/desktop-annotated-prototype.png",
+          alt: "Annotated desktop prototype of a California car insurance article page, with callouts for a CTA that expands after scrolling, simplified navigation, a phone number visible on hover, and a link aligned with text",
+          caption: "desktop annotated prototype",
+          width: 612,
+          height: 269,
         },
       ],
     },
@@ -1186,24 +1170,21 @@ const carInsurance: CaseStudyContent = {
       ],
     },
     {
-      kind: "story",
-      eyebrow: "asking 5 people to rate the site across 3 aspects",
-    },
-    {
       kind: "researchRatings",
+      label: "asking 5 people to rate the site across 3 aspects",
       items: [
         { label: "Trust", question: "Does this feel credible enough to make an insurance decision with?", rating: "1.7" },
         { label: "Clarity", question: "Can you quickly understand what matters?", rating: "2.1" },
         { label: "Usability", question: "Can you easily find and do what you came here to do?", rating: "2.4" },
       ],
     },
-    { kind: "quote", text: "I’d probably Google this somewhere else just to make sure it's right" },
-    { kind: "story", eyebrow: "site metrics i gathered (over the last year)" },
+    { kind: "quote", text: "I’d probably Google this somewhere else just to make sure it's right", attribution: "first-time visitor of carinsurance.com" },
     {
       kind: "siteMetrics",
+      label: "site metrics i gathered (over the last year)",
       items: [
         { label: "unique visitors", value: "↓ 33%" },
-        { label: "average visit duration", value: "01:32 ↓ 53%" },
+        { label: "average visit duration", value: "↓ 53%" },
         { label: "bounce rate", value: "89%" },
       ],
     },
@@ -1222,8 +1203,7 @@ const carInsurance: CaseStudyContent = {
       kind: "story",
       body: [
         "At first, the styles and components were just infrastructure I was making for myself. They made it much easier to build interactive prototypes, keep pages consistent, and test ideas without recreating the same UI every time.",
-        "Then I started thinking: wait. Why am I only using this to redesign the pages?",
-        "What if I redesign while building a design system?",
+        "Then I started thinking: wait. What if I redesign while building a design system?",
         "I proposed spending more time upfront turning the pieces I had already started into a real system. The Director of Finance overseeing the site's analytics was impressed by the approach, and I got the space to keep going.",
       ],
     },
@@ -1574,12 +1554,6 @@ const internshipWrapped: CaseStudyContent = {
     // crop at thumbnail size chopped the "By the Numbers" line clean off.
     focus: "center",
   },
-  facts: [
-    { label: "company", value: "Palo Alto Networks" },
-    { label: "role", value: "Product Design Intern" },
-    { label: "expertise", value: "Visual design, storytelling" },
-    { label: "duration", value: "2 days" },
-  ],
   blocks: [
     {
       kind: "story",
@@ -1632,12 +1606,6 @@ const beyond: CaseStudyContent = {
     width: 2048,
     height: 800,
   },
-  facts: [
-    { label: "designathon", value: "Catalyst, Boston University" },
-    { label: "role", value: "UX Designer" },
-    { label: "team", value: "3 UX designers" },
-    { label: "duration", value: "2 days, March 2024" },
-  ],
   blocks: [
     {
       kind: "story",
@@ -1789,12 +1757,6 @@ const beyond: CaseStudyContent = {
 const chanceCreators: CaseStudyContent = {
   heroLine:
     "Building a creator operating system from scratch. Turning a vague creator growth initiative into a connected ecosystem for discovery, commerce, fulfillment, and community.",
-  facts: [
-    { label: "company", value: "Chance.live" },
-    { label: "role", value: "Systems Designer, Product Growth Strategist" },
-    { label: "team", value: "Front-end Developer, 12 person company" },
-    { label: "duration", value: "1 week, July 2026" },
-  ],
   blocks: [
     {
       kind: "story",
@@ -2092,18 +2054,18 @@ const chanceCreators: CaseStudyContent = {
 // Curated for the Work index, not chronological — biggest-scope systems
 // work leads, then the mid-weight case studies, closing on the two
 // lightest/quickest pieces.
-export const projects: Project[] = [
+export const baseProjects: Project[] = [
   {
     slug: "chance-live",
     number: "01",
-    title: "Designing a second chance for a $5,000 swipe",
+    title: "Designing a second chance for an accidental swipe",
     tagline: "Fixing a critical retention problem in my first 15 hours at a Pokemon card startup",
     company: "Chance.live",
     role: "Systems Designer, Product Growth Strategist",
     year: "2026",
-    result: "$5,000 in prevented accidental swipes",
+    result: "Review decisions before an irreversible sale",
     metrics: [
-      { value: "$5,000", label: "prevented per accidental swipe" },
+      { value: "1–5 cards", label: "review states designed" },
       { value: "15 hrs", label: "problem identified to shipped fix" },
     ],
     discipline: "product, systems",
@@ -2192,7 +2154,7 @@ export const projects: Project[] = [
     year: "2026",
     result: "Deposit flow cut from 7 clicks to 3, signup-to-deposit conversion up 81%, shipped in 2 days",
     metrics: [
-      { value: "7 → 3", label: "clicks, minimum flow" },
+      { value: "7 → 3", label: "clicks, saved-card flow" },
       { value: "+81%", label: "signup-to-deposit conversion" },
       { value: "1.8×", label: "order volume, first week" },
       { value: "2 days", label: "brief to shipped" },
@@ -2250,6 +2212,14 @@ export const projects: Project[] = [
     unlisted: true,
   },
 ];
+
+const projectEdits = overrides as Record<string, Partial<Project>>;
+export const projects: Project[] = baseProjects.map(p => ({ ...p, ...projectEdits[p.slug] }));
+
+export function getSelectedProjects() {
+  const rank = (p: Project) => p.order ?? (SELECTED_SLUGS.includes(p.slug) ? SELECTED_SLUGS.indexOf(p.slug) : 99);
+  return projects.filter(p => !p.unlisted && (p.featured ?? SELECTED_SLUGS.includes(p.slug))).sort((a,b) => rank(a)-rank(b));
+}
 
 export function getProject(slug: string) {
   return projects.find((p) => p.slug === slug);

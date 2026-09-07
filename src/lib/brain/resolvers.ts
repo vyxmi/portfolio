@@ -70,7 +70,7 @@ export function resolveSizeVariant(o: BrainObject): VesselSize {
 // before filtering/sorting/search ever sees them — this is the one place
 // that decision is made, so nothing downstream has to remember to check it.
 export function isPrivate(o: BrainObject): boolean {
-  return o.private === true;
+  return o.private === true || (o.status !== undefined && o.status !== "published");
 }
 
 const NUMBER_WORDS = [
@@ -222,7 +222,7 @@ export function dateLabel(o: BrainObject): string {
     if (!isNaN(d.getTime())) {
       const now = new Date();
       const sameYear = d.getFullYear() === now.getFullYear();
-      return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: sameYear ? undefined : "numeric" });
+      return d.toLocaleDateString("en-US", { timeZone: "UTC", month: "short", day: "numeric", year: sameYear ? undefined : "numeric" });
     }
   }
   // month precision without an override still carries a real "YYYY-MM"

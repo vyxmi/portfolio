@@ -34,7 +34,7 @@ export default function FlowCompare() {
           style={{ transform: mode === "original" ? "translateX(0%)" : "translateX(-100%)" }}
         >
           <p className="max-w-sm text-[14px]" style={{ color: "var(--ink-soft)" }}>
-            A single accidental swipe could cost users $5000+. This irreversible action was causing them to leave.
+            An accidental swipe could sell a card the user wanted to keep. Once sold, the decision was irreversible.
           </p>
         </div>
         <div

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="768" height="576" viewBox="0 0 768 576">
+  <defs>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#c4c6cb"/>
+    </pattern>
+    <mask id="replace" maskUnits="userSpaceOnUse" x="0" y="0" width="768" height="576">
+      <path fill="white" d="M0 0h768v576H0z"/>
+      <path fill="black" d="M144 216h2v2h-2zM552 72h2v2h-2zM408 456h2v2h-2z"/>
+    </mask>
+  </defs>
+  <g opacity=".6">
+    <path fill="url(#dots)" mask="url(#replace)" d="M0 0h768v576H0z"/>
+    <g fill="none" stroke="#c4c6cb" stroke-width=".4" stroke-linecap="round">
+      <path d="M145 216.2v1.6m-.7-1.2 1.4.8m-1.4 0 1.4-.8"/>
+      <path d="M553 72.2v1.6m-.7-1.2 1.4.8m-1.4 0 1.4-.8"/>
+      <path d="M409 456.2v1.6m-.7-1.2 1.4.8m-1.4 0 1.4-.8"/>
+    </g>
+  </g>
+</svg>

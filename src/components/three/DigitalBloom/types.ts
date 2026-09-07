@@ -31,6 +31,8 @@ export interface DigitalBloomProps {
   colorAccent?: string;
   /** ambientParticles color. */
   ambientColor?: string;
+  /** Opaque canvas clear color. */
+  backgroundColor?: string;
   className?: string;
   style?: CSSProperties;
 }

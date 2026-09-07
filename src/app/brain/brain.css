@@ -31,6 +31,11 @@
   overflow: hidden;
   pointer-events: none;
   background: var(--void);
+  animation: brainAmbientBrighten 600ms var(--e-io) both;
+}
+@keyframes brainAmbientBrighten {
+  from { opacity: 0; filter: brightness(0.55); }
+  to { opacity: 1; filter: brightness(1); }
 }
 
 /* fluid flow field: one huge, ultra-low-contrast gradient standing in for
@@ -117,6 +122,14 @@
   gap: 6px;
   flex-wrap: wrap;
 }
+.brain-bar-label {
+  align-self: center;
+  margin-right: 3px;
+  color: var(--void-mute);
+  font-family: var(--font-mono-sys), ui-monospace, monospace;
+  font-size: 10px;
+  text-transform: lowercase;
+}
 .brain-bar-sort {
   margin-left: auto;
   padding-left: 14px;
@@ -169,6 +182,134 @@
   align-items: start;
   transition: opacity var(--t-interface) var(--e-io), filter var(--t-interface) var(--e-io);
 }
+
+/* Grid uses the same fine-grained measured row spans as the original wall,
+   but without its floating/drag motion. That keeps chronological DOM order
+   reading left-to-right while natural-height images pack without row gaps. */
+.wall[data-view="grid"] {
+  display: block;
+}
+.brain-grid-columns {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+.brain-grid-column {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 12px;
+}
+@media (max-width: 1500px) {
+  .brain-grid-columns { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+@media (max-width: 1250px) {
+  .brain-grid-columns { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 980px) {
+  .brain-grid-columns { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+  .brain-grid-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .brain-grid-column { gap: 8px; }
+}
+@media (max-width: 430px) {
+  .brain-grid-columns { grid-template-columns: minmax(0, 1fr); }
+}
+
+.brain-grid-card {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(245, 245, 250, 0.12);
+  border-radius: 1px;
+  background: var(--void-2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+.wall[data-view="float"] > .brain-view-item { min-width: 0; }
+.wall[data-view="float"] > .brain-view-item .brain-card { width: 100%; }
+.brain-view-content { width: 100%; }
+.wall[data-view-transitioning="true"] .brain-view-content { pointer-events: none; }
+.brain-grid-card-button {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+.brain-grid-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+.brain-grid-media img[hidden] { display: none; }
+.brain-grid-media[data-multiple="true"] {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: var(--void-3);
+  overflow: hidden;
+}
+.brain-grid-media[data-multiple="true"] img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+.brain-grid-card[data-id="B-0171"] .brain-grid-media img[data-media-index="0"] {
+  background: #f3f0e8;
+}
+.brain-grid-card[data-id="B-0171"] .brain-grid-media img[data-media-index="2"] {
+  object-fit: cover;
+}
+.focus-stage[data-id="B-0171"] .focus-gallery-img {
+  aspect-ratio: 1204 / 1999;
+  height: auto;
+}
+.focus-stage[data-id="B-0171"] .focus-gallery-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+.focus-stage[data-id="B-0171"] .focus-gallery-img[data-media-index="0"] img {
+  background: #f3f0e8;
+}
+.focus-stage[data-id="B-0171"] .focus-gallery-img[data-media-index="2"] img {
+  object-fit: cover;
+}
+.brain-grid-date {
+  position: absolute;
+  right: 9px;
+  bottom: 9px;
+  opacity: 0;
+  transform: translateY(3px);
+  padding: 5px 7px;
+  background: rgba(7, 7, 9, 0.84);
+  color: var(--void-ink);
+  font-family: var(--font-mono-sys), ui-monospace, monospace;
+  font-size: 9.5px;
+  text-transform: lowercase;
+  transition: opacity var(--t-micro) var(--e-out), transform var(--t-micro) var(--e-out);
+}
+.brain-grid-card-button:hover .brain-grid-date,
+.brain-grid-card-button:focus-visible .brain-grid-date { opacity: 1; transform: none; }
+.brain-grid-review,
+.brain-grid-playlist,
+.brain-grid-text { padding: 12px; }
+.brain-grid-review { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; }
+.brain-grid-review strong,
+.brain-grid-playlist strong,
+.brain-grid-text strong { font-size: 13px; font-weight: 600; }
+.brain-grid-review span,
+.brain-grid-playlist span { color: var(--void-mute); font-family: var(--font-mono-sys), monospace; font-size: 9.5px; text-transform: lowercase; }
+.brain-grid-review p { grid-column: 1 / -1; }
+.brain-grid-review p,
+.brain-grid-text p { margin: 3px 0 0; color: var(--void-soft); font-size: 12px; line-height: 1.45; white-space: pre-wrap; }
+.brain-grid-playlist { display: flex; flex-direction: column; gap: 4px; }
+.brain-grid-text strong + p { margin-top: 7px; }
+.brain-grid-flower { min-height: 210px; display: grid; place-items: center; overflow: hidden; }
+.brain-grid-flower .ascii-flower { transform: scale(.72); }
 @media (max-width: 1080px) {
   .wall {
     grid-template-columns: repeat(3, 1fr);
@@ -1596,25 +1737,18 @@
     opacity: 1;
   }
 }
+/* Every focus state — gallery or plain card, whichever object it is —
+   opens at this one size with this one corner radius. No per-object
+   exceptions: a bigger stage or a rounder corner on just one object read
+   as a bug the next time you hit it, not a deliberate showpiece. */
 .focus-stage {
   width: min(640px, 100%);
   max-height: 86vh;
   overflow-y: auto;
   overscroll-behavior: contain;
   outline: none;
+  border-radius: 1px;
   animation: brainFocusScale var(--t-interface) var(--e-out) both;
-}
-/* The shelf (built-in shelf + record player, B-0123) opens larger than
-   every other object's focus view — it's the graph's hub and reads as a
-   showpiece, not a note. Both the stage and the display-case image's own
-   max-height cap (see .case-items .thumb img — normally 260px regardless
-   of container width) need raising, or the wider stage is just empty
-   space around an unchanged image. */
-.focus-stage[data-id="B-0123"] {
-  width: min(860px, 100%);
-}
-.focus-stage[data-id="B-0123"] .case-items .thumb img {
-  max-height: min(440px, 60vh);
 }
 @keyframes brainFocusScale {
   from {
@@ -1653,7 +1787,7 @@
    the photo and caption, so the whole thing reads as one designed object. */
 .focus-gallery-panel {
   position: relative;
-  border-radius: var(--r-md);
+  border-radius: 1px;
   overflow: hidden;
   background: linear-gradient(160deg, rgba(var(--ambient-periwinkle), 0.16), rgba(var(--ambient-ice), 0.07));
   backdrop-filter: blur(22px) saturate(160%);

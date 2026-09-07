@@ -23,6 +23,6 @@ function placeholderSrc(label: string, seed: number, paper: boolean): string {
 
 export function resolveMediaSrc(objectId: string, media: BrainMedia[] | undefined, index: number, paper = false): string {
   const m = media?.[index];
-  if (m) return `/brain/${m.filename}`;
+  if (m) return `/brain/media/${encodeURIComponent(m.filename)}?preview=1`;
   return placeholderSrc(`${objectId}-${index + 1}`, hashSeed(objectId + index), paper);
 }

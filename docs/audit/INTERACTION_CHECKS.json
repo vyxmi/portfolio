@@ -1,0 +1,67 @@
+{
+  "privacy": [
+    {
+      "id": "B-0088",
+      "recordInClientJS": true
+    },
+    {
+      "id": "B-0098",
+      "recordInClientJS": true
+    },
+    {
+      "id": "B-0127",
+      "recordInClientJS": true
+    },
+    {
+      "id": "B-0144",
+      "recordInClientJS": true
+    }
+  ],
+  "filters": [
+    {
+      "domain": "all",
+      "count": 134,
+      "pressed": null
+    },
+    {
+      "domain": "design",
+      "count": 15,
+      "pressed": null
+    },
+    {
+      "domain": "music",
+      "count": 6,
+      "pressed": null
+    },
+    {
+      "domain": "writing",
+      "count": 52,
+      "pressed": null
+    },
+    {
+      "domain": "crafts",
+      "count": 34,
+      "pressed": null
+    },
+    {
+      "domain": "community",
+      "count": 18,
+      "pressed": null
+    },
+    {
+      "domain": "media",
+      "count": 9,
+      "pressed": null
+    }
+  ],
+  "modalFirstTab": {
+    "text": "",
+    "inside": true
+  },
+  "modalSecondTab": {
+    "text": "close, esc",
+    "inside": true
+  },
+  "focusRestored": "min-h-full",
+  "reducedMotionImagesChange": true
+}

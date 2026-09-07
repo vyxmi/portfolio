@@ -1,28 +1,23 @@
 "use client";
 
-const TYPES = ["all", "thought", "memory", "thing"] as const;
-const SORTS = [
-  { value: "newest", label: "newest" },
-  { value: "oldest", label: "oldest" },
-  { value: "featured", label: "featured" },
-] as const;
+import { BRAIN_DOMAINS, type BrainDomain } from "@/lib/brain/domains";
 
-export type SortMode = (typeof SORTS)[number]["value"];
+export type BrainView = "grid" | "float";
 
 export default function BrainBar({
   total,
   count,
-  filterType,
-  onFilterType,
-  sortMode,
-  onSortMode,
+  domain,
+  onDomain,
+  view,
+  onView,
 }: {
   total: number;
   count: number;
-  filterType: string;
-  onFilterType: (v: string) => void;
-  sortMode: SortMode;
-  onSortMode: (v: SortMode) => void;
+  domain: BrainDomain;
+  onDomain: (v: BrainDomain) => void;
+  view: BrainView;
+  onView: (v: BrainView) => void;
 }) {
   return (
     <div className="brain-bar">
@@ -31,27 +26,28 @@ export default function BrainBar({
           {count} {count === 1 ? "object" : "objects"}
           {count !== total ? ` of ${total}` : ""}
         </span>
-        <div className="brain-bar-pills" role="group" aria-label="filter by type">
-          {TYPES.map((t) => (
+        <div className="brain-bar-pills" role="group" aria-label="filter by domain">
+          {BRAIN_DOMAINS.map((t) => (
             <button
               key={t}
               type="button"
-              className={`brain-pill${filterType === t ? " active" : ""}`}
-              onClick={() => onFilterType(t)}
+              className={`brain-pill${domain === t ? " active" : ""}`}
+              onClick={() => onDomain(t)}
             >
               {t}
             </button>
           ))}
         </div>
-        <div className="brain-bar-sort" role="group" aria-label="sort by">
-          {SORTS.map((s) => (
+        <div className="brain-bar-sort" role="group" aria-label="views">
+          <span className="brain-bar-label">views</span>
+          {(["grid", "float"] as const).map((item) => (
             <button
-              key={s.value}
+              key={item}
               type="button"
-              className={`brain-pill${sortMode === s.value ? " active" : ""}`}
-              onClick={() => onSortMode(s.value)}
+              className={`brain-pill${view === item ? " active" : ""}`}
+              onClick={() => onView(item)}
             >
-              {s.label}
+              {item}
             </button>
           ))}
         </div>

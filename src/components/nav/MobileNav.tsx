@@ -2,58 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+
+// Work is deliberately left off — temporarily out of the nav everywhere
+// (see SideRail), including here. The route and its case studies still
+// work if linked to directly; they're just not advertised in either nav.
 const items = [
-  { href: "/", label: "home" },
-  { href: "/brain", label: "brain" },
-  { href: "/work", label: "work" },
-  { href: "/about", label: "about" },
+  { href: "/", label: "Vyomi" },
+  { href: "/brain", label: "Brain" },
+  { href: "/about", label: "About" },
 ];
 
 export default function MobileNav({ objectCount }: { objectCount: number }) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
-  const active = items.find((it) => (it.href === "/" ? pathname === "/" : pathname.startsWith(it.href))) ?? items[0];
-  const isBrain = active.href === "/brain";
-
   return (
-    <div className="md:hidden fixed top-0 left-0 right-0 z-50" style={{ background: "var(--void)" }}>
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between px-5 py-4 font-mono text-[13px] lowercase"
-        style={{ color: "var(--void-ink)", borderBottom: "1px solid var(--void-line)" }}
-        aria-expanded={open}
-      >
-        <span className="flex items-center gap-2">
-          <span style={{ color: "var(--lift)" }}>{active.label}</span>
-          {isBrain && (
-            <span style={{ color: "var(--void-mute)" }}>
-              {objectCount} {objectCount === 1 ? "object" : "objects"}
-            </span>
-          )}
-        </span>
-        <span style={{ color: "var(--void-mute)" }}>{open ? "close" : "menu"}</span>
-      </button>
-      <div
-        className="overflow-hidden transition-[max-height] duration-400"
-        style={{ maxHeight: open ? "260px" : "0px" }}
-      >
-        {items.map((it) => (
-          <Link
-            key={it.href}
-            href={it.href}
-            onClick={() => setOpen(false)}
-            className="block px-5 py-4 text-[15px] no-underline"
-            style={{
-              borderTop: "1px solid var(--void-line)",
-              color: it.href === active.href ? "var(--void-ink)" : "var(--void-soft)",
-              fontWeight: it.href === active.href ? 600 : 400,
-            }}
-          >
-            {it.label}
-          </Link>
-        ))}
-      </div>
-    </div>
+    <nav className="site-bottom-dock site-nav md:hidden" aria-label="Primary navigation">
+      {items.map((item) => {
+        const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+        return <Link key={item.href} href={item.href} data-active={active || undefined}><span>{item.label}</span>{item.href === "/brain" && <small>{objectCount}</small>}</Link>;
+      })}
+    </nav>
   );
 }

@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "content": "node scripts/content-editor.mjs",
+    "content:media": "node scripts/prepare-brain-media.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

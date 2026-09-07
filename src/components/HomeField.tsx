@@ -17,11 +17,13 @@ export default function HomeField() {
         position={{ x: 0.73, y: 0 }}
         colorPrimary="#aaaaac"
         colorAccent="#5c69a4"
+        ambientColor="#8b91ad"
+        backgroundColor="#fbfcff"
       />
       {/* Same flower, same spot, on mobile — just dimmed so the hero text
           (which has nowhere else to sit on a narrow screen) stays readable
           over it, instead of shrinking or moving the flower out of the way. */}
-      <div className="absolute inset-0 pointer-events-none sm:hidden" style={{ background: "rgba(10, 10, 13, 0.72)" }} />
+      <div className="absolute inset-0 pointer-events-none sm:hidden" style={{ background: "rgba(251, 252, 255, 0.66)" }} />
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { Schibsted_Grotesk, DM_Mono } from "next/font/google";
 // without touching layouts. See --font-grotesk in globals.css.
 export const grotesk = Schibsted_Grotesk({
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-grotesk",
   display: "swap",
 });

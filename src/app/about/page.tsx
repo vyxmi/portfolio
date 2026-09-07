@@ -2,15 +2,19 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import SiteFooter from "@/components/SiteFooter";
+import SideRail from "@/components/nav/SideRail";
 import Zoomable from "@/components/ui/Zoomable";
 import TextLink from "@/components/ui/TextLink";
+import { site } from "@/lib/site";
+
+const SECTIONS = [
+  { id: "experience", label: "experience" },
+  { id: "origin", label: "before design" },
+  { id: "side-quests", label: "side quests" },
+  { id: "contact", label: "say hello" },
+];
 
 export const metadata: Metadata = { title: "About, Vyomi Seth" };
-
-// Kept intentionally smaller than the prose column (was full-width) so
-// photos read as accents alongside the text rather than full-bleed
-// breaks in it — centered so they don't lean toward either margin.
-const IMAGE_MAX_WIDTH = 380;
 
 function AboutImage({
   src,
@@ -26,9 +30,9 @@ function AboutImage({
   height: number;
 }) {
   return (
-    <div className="not-prose mx-auto w-full" style={{ maxWidth: IMAGE_MAX_WIDTH }}>
+    <div className="not-prose mx-auto w-full">
       <Zoomable src={src} alt={alt}>
-        <div className="relative w-full overflow-hidden" style={{ background: "var(--paper-dim)", border: "1px solid var(--line)" }}>
+        <div className="case-box relative w-full overflow-hidden" style={{ background: "var(--paper-dim)" }}>
           <Image src={src} alt={alt} width={width} height={height} className="h-auto w-full" style={{ display: "block" }} />
         </div>
       </Zoomable>
@@ -88,40 +92,17 @@ function ExperienceRow({ role, company, href, external }: ExperienceEntry) {
 }
 
 export default function AboutPage() {
-  return (
-    <div className="light flex min-h-screen flex-col md:pl-[var(--rail-w)]">
-      <main className="flex-1 px-6 pb-16 pt-24 md:px-16 md:pt-28">
-        <div className="mx-auto max-w-2xl">
-          <div className="eyebrow mb-3">about</div>
-          <h1 className="mb-1 text-[36px] font-semibold md:text-[44px]" style={{ letterSpacing: "-.015em" }}>
-            Hey, I&apos;m Vyomi
-          </h1>
-          <p className="cap mb-8">vee oh me</p>
-
-          <AboutImage src="/about/portrait.webp" alt="Vyomi Seth, outdoors" width={900} height={600} />
-
-          <section className="mb-16 mt-14">
-            <h2 className="mb-5 text-[13px] font-semibold uppercase tracking-wide" style={{ color: "var(--ink-mute)" }}>
-              Where I&rsquo;ve been
-            </h2>
-            <div className="flex flex-col gap-8">
-              {EXPERIENCE.map((group) => (
-                <div key={group.group}>
-                  <div className="cap mb-3">{group.group}</div>
-                  <ul className="flex flex-col gap-3">
-                    {group.entries.map((entry) => (
-                      <ExperienceRow key={`${entry.role}-${entry.company}`} {...entry} />
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="mb-16" style={{ borderTop: "1px solid var(--line)", paddingTop: 48 }}>
-            <h2 className="mb-5 text-[13px] font-semibold uppercase tracking-wide" style={{ color: "var(--ink-mute)" }}>
-              Before design
-            </h2>
+  return <div className="light site-page about-page">
+    <SideRail eyebrow="the person behind the work" items={SECTIONS}/>
+    <main id="main-content" className="about-main">
+      <header className="about-opening">
+        <div className="about-hello"><span className="eyebrow">bay area, california</span><h1>Hey,<br/>I’m Vyomi<span>(vee oh me)</span></h1><p>I take apart ambiguous problems, follow unlikely connections, and turn what I learn into systems, objects, experiences, and occasionally very elaborate side quests.</p><a href="#contact">{site.availability} ↗</a></div>
+        <figure className="about-portrait"><Image src="/about/portrait.webp" alt="Vyomi Seth, outdoors" width={900} height={600} priority/><figcaption>usually making something. occasionally outside.</figcaption></figure>
+      </header>
+      <div className="about-narrative">
+        <section id="origin" className="mb-16" style={{ borderTop: "1px solid var(--line)", paddingTop: 48, scrollMarginTop: 100 }}>
+            <div className="eyebrow mb-3">origin</div>
+            <h2 className="mb-6 text-[28px] font-semibold leading-[1.1] md:text-[36px]" style={{ letterSpacing: "-.015em" }}>Before design</h2>
             <div className="flex flex-col gap-5 text-[17px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
               <p>
                 I liked knowing how things work. As a kid, I took apart anything I could get my hands on (much to my
@@ -152,11 +133,25 @@ export default function AboutPage() {
               />
             </div>
           </section>
-
-          <section className="mb-16" style={{ borderTop: "1px solid var(--line)", paddingTop: 48 }}>
-            <h2 className="mb-5 text-[13px] font-semibold uppercase tracking-wide" style={{ color: "var(--ink-mute)" }}>
-              Outside of design (still design)
-            </h2>
+        <section id="experience" className="mb-16 mt-14" style={{ scrollMarginTop: 100 }}>
+            <div className="eyebrow mb-3">experience</div>
+            <h2 className="mb-8 text-[28px] font-semibold leading-[1.1] md:text-[36px]" style={{ letterSpacing: "-.015em" }}>Where I&rsquo;ve been</h2>
+            <div className="flex flex-col gap-8">
+              {EXPERIENCE.map((group) => (
+                <div key={group.group}>
+                  <div className="cap mb-3">{group.group}</div>
+                  <ul className="flex flex-col gap-3">
+                    {group.entries.map((entry) => (
+                      <ExperienceRow key={`${entry.role}-${entry.company}`} {...entry} />
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+        <section id="side-quests" className="mb-16" style={{ borderTop: "1px solid var(--line)", paddingTop: 48, scrollMarginTop: 100 }}>
+            <div className="eyebrow mb-3">side quests</div>
+            <h2 className="mb-6 text-[28px] font-semibold leading-[1.1] md:text-[36px]" style={{ letterSpacing: "-.015em" }}>Outside of design (still design)</h2>
             <div className="flex flex-col gap-5 text-[17px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
               <p>
                 I can&rsquo;t sit still. I make posters for local shows, jewelry, clothes, recipes, travel
@@ -197,9 +192,9 @@ export default function AboutPage() {
               </p>
             </div>
           </section>
-
-          <section className="mb-16" style={{ borderTop: "1px solid var(--line)", paddingTop: 48 }}>
-            <h2 className="mb-5 text-[22px] font-semibold" style={{ letterSpacing: "-.01em" }}>
+        <details className="about-aside"><summary>A little more on how I see things ↗</summary><section id="philosophy" className="mb-16" style={{ borderTop: "1px solid var(--line)", paddingTop: 48, scrollMarginTop: 100 }}>
+            <div className="eyebrow mb-3">working philosophy</div>
+            <h2 className="mb-6 text-[28px] font-semibold leading-[1.1] md:text-[36px]" style={{ letterSpacing: "-.015em" }}>
               Is everything design? I think so.
             </h2>
             <div className="flex flex-col gap-5 text-[17px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
@@ -239,15 +234,14 @@ export default function AboutPage() {
               </p>
               <p className="cap">*French for &quot;joy of living&quot;, but more pretentious.</p>
             </div>
-          </section>
-
-          <section style={{ borderTop: "1px solid var(--line)", paddingTop: 48 }}>
+          </section></details>
+        <section id="contact" style={{ borderTop: "1px solid var(--line)", paddingTop: 48, scrollMarginTop: 100 }}>
             <div className="eyebrow mb-3">say hello</div>
             <h2 className="mb-5 text-[28px] font-semibold md:text-[34px]" style={{ letterSpacing: "-.01em" }}>
-              Let&rsquo;s make something beautiful.
+              Have something in mind?
             </h2>
             <p className="measure mb-8 text-[17px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
-              Open to select design work and collaborations. If you&rsquo;ve got an idea, a problem worth untangling,
+              Open to roles, select design work, and collaborations. If you&rsquo;ve got an idea, a problem worth untangling,
               or just connected with something inside{" "}
               <Link href="/brain" className="underline" style={{ color: "var(--link-accent, var(--accent))" }}>
                 my brain
@@ -255,8 +249,9 @@ export default function AboutPage() {
               , my inbox is open.
             </p>
             <div className="flex flex-wrap items-center gap-x-10 gap-y-4">
-              <TextLink href="mailto:vyomi.seth@gmail.com" kind="external" className="text-[16px]">
-                vyomi.seth@gmail.com
+              <TextLink href={site.professionalCalendar} kind="external" className="text-[16px]">let’s talk</TextLink>
+              <TextLink href={`mailto:${site.email}`} kind="external" className="text-[16px]">
+                {site.email}
               </TextLink>
               <TextLink
                 href="https://drive.google.com/file/d/17mbrWJjjch7fsVCZxFVA194IxyuPhgIu/view?usp=sharing"
@@ -265,14 +260,12 @@ export default function AboutPage() {
               >
                 resume
               </TextLink>
-              <TextLink href="https://www.linkedin.com/in/vyomi-seth/" kind="external" className="text-[16px]">
+              <TextLink href={site.linkedin} kind="external" className="text-[16px]">
                 linkedin
               </TextLink>
             </div>
           </section>
-        </div>
-      </main>
-      <SiteFooter />
-    </div>
-  );
+      </div>
+    </main><SiteFooter compact/>
+  </div>;
 }

@@ -10,7 +10,6 @@ import {
   useSyncExternalStore,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { brainObjects } from "@/lib/brain/objects";
 import { isPrivate } from "@/lib/brain/resolvers";
 import type { BrainObject } from "@/lib/brain/types";
 import {
@@ -119,7 +118,7 @@ function edgePoint(cx: number, cy: number, rx: number, ry: number, tx: number, t
   return { x: cx + dx * t, y: cy + dy * t };
 }
 
-export default function HomeBrainCanvas() {
+export default function HomeBrainCanvas({ brainObjects }: { brainObjects: BrainObject[] }) {
   const objectsById = useMemo(() => {
     const homeIds = new Set(HOME_LAYOUT.map((n) => n.id));
     const map = new Map<string, BrainObject>();

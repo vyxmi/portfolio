@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import ImagePlaceholder from "./ImagePlaceholder";
 
 type Step = { label: string; note?: string[] };
 type Flow = { label: string; hasImages?: boolean; steps: Step[] };
@@ -53,11 +52,7 @@ export default function ClickThroughFlow({ flows }: { flows: Flow[] }) {
       <div className="p-5 sm:p-6">
         {flows.length === 1 && flow.label && <div className="cap mb-3">{flow.label}</div>}
 
-        {flow.hasImages && (
-          <div className="mb-4">
-            <ImagePlaceholder key={`${flowIdx}-${step}`} label={current.label} note="screenshot/gif for this step goes here" />
-          </div>
-        )}
+        <div className="flow-current-step" aria-live="polite"><span>{String(step + 1).padStart(2, "0")}</span><strong>{current.label}</strong></div>
 
         {/* Step chips double as jump targets: click any of them (reached
             or not) to set the current step directly, no need to walk

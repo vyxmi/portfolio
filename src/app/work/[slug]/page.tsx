@@ -1,13 +1,18 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { projects, getProject } from "@/lib/projects";
+import SharedElement from "@/components/SharedElement";
+import { projects, getProject, getSelectedProjects } from "@/lib/projects";
 import { CaseStudyBody, NextProject } from "@/components/case-study/CaseStudy";
 import { CaseStudyHero } from "@/components/case-study/CaseStudyHero";
 import ReadingProgress from "@/components/case-study/ReadingProgress";
-import SectionNav from "@/components/case-study/SectionNav";
+import SideRail from "@/components/nav/SideRail";
 import CursorZone from "@/components/CursorZone";
 import SiteFooter from "@/components/SiteFooter";
-import { sectionId } from "@/lib/sectionId";
+import { hasCaseStudyAccess } from "@/lib/case-study-access";
+import ReviewerAccess from "@/components/case-study/ReviewerAccess";
+import { articleSections } from "@/lib/presentation";
+import HeroScene from "@/components/case-study/HeroScene";
+import ProjectVisual from "@/components/work/ProjectVisual";
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
@@ -19,32 +24,53 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return { title: project ? `${project.title}, Vyomi Seth` : "Case study" };
 }
 
-export default async function CaseStudyPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CaseStudyPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ access?: string }> }) {
   const { slug } = await params;
   const project = getProject(slug);
   if (!project) notFound();
+  const protectedStudy = slug === "adem-user-list";
+  const locked = protectedStudy && !(await hasCaseStudyAccess());
+  const incorrect = locked && (await searchParams).access === "incorrect";
 
   // Unlisted projects don't participate in the "next" cycle — either as
   // the current page (no next link shown) or as a destination.
-  const visible = projects.filter((p) => !p.unlisted);
+  const visible = getSelectedProjects();
   const idx = visible.findIndex((p) => p.slug === slug);
   const next = idx === -1 ? undefined : visible[(idx + 1) % visible.length];
+  const previous = idx === -1 ? undefined : visible[(idx - 1 + visible.length) % visible.length];
 
   // Same ids the sectionHeading blocks themselves render (see
   // CaseStudy.tsx) — one slug function shared between the two so a stop
   // here always has a real heading to land on.
-  const sections =
-    project.content?.blocks
-      .filter((b) => b.kind === "sectionHeading")
-      .map((b) => ({ id: sectionId(b.eyebrow ?? b.heading), label: b.eyebrow ?? b.heading })) ?? [];
+  const sections = locked || !project.content ? [] : articleSections(project.content).map(({ id, label }) => ({ id, label }));
 
   return (
-    <div className="light flex min-h-screen flex-col md:pl-[var(--rail-w)]">
-      {project.content && <ReadingProgress />}
-      {project.content && <SectionNav sections={sections} />}
-      <main className="flex-1 px-6 pt-24 md:px-16 md:pt-28">
-        <div className="mx-auto max-w-3xl">
-          {project.content ? (
+    <div className="light site-page case-page" data-project={slug}>
+      {project.content && !locked && <ReadingProgress />}
+      <SideRail
+        eyebrow="work"
+        eyebrowHref="/work"
+        title={project.title}
+        meta={project.company}
+        items={sections}
+        siblings={{
+          previous: previous && { href: `/work/${previous.slug}`, label: previous.title },
+          next: next && { href: `/work/${next.slug}`, label: next.title },
+        }}
+      />
+      <main id="main-content" className="article-main">
+        <div className="article-shell">
+          {locked ? (
+            <>
+              <HeroScene slug={slug} heading={<>
+                <div className="article-kicker"><span>{project.company}</span><span>{project.year}</span><span>private case study</span></div>
+                <SharedElement name={`title-${project.slug}`}><h1>{project.title}</h1></SharedElement>
+                </>} visual={<ProjectVisual slug={slug} />} details={<p className="article-deck">
+                  I designed a shared destination for investigating user-device issues in Palo Alto Networks’ ADEM product. Seven entry points converged on one list, carrying the context of the investigation with them. I validated the prototype and handed the direction to product and engineering.
+                </p>} />
+              <ReviewerAccess incorrect={incorrect} />
+            </>
+          ) : project.content ? (
             <CursorZone>
               <CaseStudyHero project={project} content={project.content} />
               <CaseStudyBody content={project.content} />
@@ -68,6 +94,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
               </div>
             </>
           )}
+          {protectedStudy && !locked && <form action="/work/adem-user-list/access" method="post" className="my-8"><button name="action" value="lock" className="min-h-11 text-sm underline underline-offset-4">Lock case study</button></form>}
           {next && <NextProject project={next} />}
         </div>
       </main>

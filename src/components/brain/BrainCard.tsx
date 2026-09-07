@@ -23,6 +23,7 @@ export default function BrainCard({
   onOpen,
   presentation = "wall",
   motionEnhanced = false,
+  hideMetadata = false,
 }: {
   o: BrainObject;
   onOpen?: (o: BrainObject) => void;
@@ -31,6 +32,7 @@ export default function BrainCard({
   // the homepage shows objects, not their metadata.
   presentation?: "wall" | "focus" | "home";
   motionEnhanced?: boolean;
+  hideMetadata?: boolean;
 }) {
   const vessel = resolveVessel(o);
   const expand = resolveExpand(o);
@@ -165,7 +167,7 @@ export default function BrainCard({
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
     >
-      {presentation !== "home" && <BrainMetaTop o={o} />}
+      {presentation !== "home" && !hideMetadata && <BrainMetaTop o={o} focus={presentation === "focus"} />}
       <div
         className="vessel"
         data-vessel={vessel}
@@ -186,7 +188,7 @@ export default function BrainCard({
       >
         <Vessel o={o} presentation={presentation} />
       </div>
-      {presentation !== "home" && <BrainMetaBottom o={o} />}
+      {presentation !== "home" && !hideMetadata && <BrainMetaBottom o={o} />}
     </div>
   );
 }

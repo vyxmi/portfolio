@@ -1,226 +1,48 @@
 "use client";
-
-import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { motion, useReducedMotion } from "motion/react";
 import type { BrainObject } from "@/lib/brain/types";
-import { resolveWeight, sortDate, isPrivate } from "@/lib/brain/resolvers";
-import { refreshCardRects, notifyResizeActivity, motionField } from "@/lib/brain/motionField";
-import CursorZone from "@/components/CursorZone";
-import BrainCard from "./BrainCard";
+import { isPrivate, sortDate } from "@/lib/brain/resolvers";
+import { BRAIN_DOMAINS, DOMAIN_LABELS, domainsFor, type BrainDomain } from "@/lib/brain/domains";
+import SideRail from "@/components/nav/SideRail";
+import BrainGridCard, { objectTitle } from "./BrainGridCard";
 import BrainFocus from "./BrainFocus";
-import BrainBar, { type SortMode } from "./BrainBar";
-
-// .wall uses a fine-grained grid-auto-rows (see brain.css) so a card's real
-// height, not its row's tallest neighbor, decides how much vertical space it
-// takes — that's what closes the masonry gaps. This measures each card and
-// writes the row-span; a ResizeObserver re-measures on image load and on
-// responsive column/width changes (both resize the card box), so no
-// separate window listener is needed.
-function useMasonry(dep: unknown) {
-  const wallRef = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    const wallEl = wallRef.current;
-    if (!wallEl) return;
-
-    // High-water mark per card, keyed by id — see the comment on
-    // onResizeObserved below for why this exists: for some vessels our own
-    // grid-row-end write measurably feeds back into that same card's next
-    // measured height, so a single read can't be trusted as "the" height.
-    // Never reserving less than the tallest height ever seen for a card
-    // makes overlap structurally impossible regardless of which way that
-    // feedback happens to be swinging on a given pass — worst case it
-    // wastes some vertical space, which is a vastly better failure mode
-    // than a card overlapping its neighbor. onWindowResize clears this so
-    // a genuine viewport change still gets clean, non-inflated numbers.
-    const maxHeights = new Map<string, number>();
-
-    function recompute() {
-      const cs = getComputedStyle(wallEl!);
-      const rowH = parseFloat(cs.gridAutoRows) || 1;
-      const rowGap = parseFloat(cs.rowGap) || 0;
-      const cards = wallEl!.querySelectorAll<HTMLElement>(":scope > .brain-card");
-      // Read every card's height first, then write all the spans in a
-      // second pass — interleaving read/write per card forces a
-      // synchronous layout reflow between each one, which is what turns a
-      // window drag-resize (many rapid triggers) into visible jank.
-      const heights = Array.from(cards, (card) => card.getBoundingClientRect().height);
-      cards.forEach((card, i) => {
-        const id = card.dataset.id ?? "";
-        const effective = Math.max(heights[i], maxHeights.get(id) ?? 0);
-        maxHeights.set(id, effective);
-        const span = Math.max(1, Math.ceil((effective + rowGap) / (rowH + rowGap)));
-        card.style.gridRowEnd = `span ${span}`;
-      });
-      // Grid spans changing just reflowed every card below — the motion
-      // system's cached rects (see motionField.refreshCardRects) are now
-      // stale and need re-measuring, once, here, rather than every card
-      // re-reading its own layout on every animation frame.
-      refreshCardRects();
-    }
-
-    // recompute() must run synchronously off a window resize, in the same
-    // task as the resize — NOT deferred to requestAnimationFrame. The
-    // browser's own column-width reflow is immediate and native; if our
-    // row-span rewrite lands a frame late, the very next paint shows a
-    // card's grid area still sized for the *old* width while its content
-    // has already rewrapped to the new one, so taller content spills out
-    // of its too-short reserved area and visibly overlaps whatever's in
-    // the row below. Each call is O(1) forced reflows (batched
-    // read-then-write above), so running it on every trigger is cheap.
-    // Clearing maxHeights on every single resize event would defeat the
-    // high-water-mark protection at exactly the moments it's needed most:
-    // mid-drag, a cleared map means whatever the oscillation happens to be
-    // reading at that instant becomes the new, unprotected baseline. Two
-    // approaches were tried and both reopened the overlap under a
-    // continuous synthetic resize sweep: clearing on a fixed "quiet for
-    // 300ms" debounce (an in-progress-but-slower-than-300ms-per-step drag
-    // still hit the window), and clearing only when the wall got wider
-    // than before (each individual widening step is itself a fresh,
-    // unprotected read, and a continuous widening drag is many such steps
-    // in a row). So: recompute immediately on every resize (protection
-    // only ever grows, all through the gesture, in both directions), and
-    // reclaim conservatively-over-reserved space with a single debounced
-    // clear+recompute once resizing has been fully quiet — long enough
-    // that no further resize step can land inside the window and catch
-    // the map freshly cleared.
-    let settleTimer: ReturnType<typeof setTimeout> | null = null;
-    function onWindowResize() {
-      notifyResizeActivity();
-      recompute();
-      if (settleTimer) clearTimeout(settleTimer);
-      settleTimer = setTimeout(() => {
-        settleTimer = null;
-        maxHeights.clear();
-        recompute();
-      }, 500);
-    }
-
-    // The ResizeObserver path, by contrast, MUST be debounced — for at
-    // least one vessel (the inspiration media-card: justify-self:start
-    // grid item + an intrinsically-sized, aspect-ratio-driven <img>) our
-    // own grid-row-end write measurably changes that same card's own
-    // rendered size on the next layout pass. That re-fires this observer,
-    // which recomputes and writes again, forever: a self-sustaining
-    // feedback loop, confirmed by instrumenting it — the span and
-    // measured height for that card kept alternating between two values
-    // indefinitely, many times a second, never settling. That's the
-    // "everything is glitching" — it's not tied to resizing at all, it's
-    // running continuously regardless of window size. A trailing debounce
-    // can't tell a genuine settle from one loop iteration, but a
-    // continuously-retriggering loop never gets the necessary quiet
-    // window to fire again, so it freezes after its first write instead
-    // of oscillating forever — while a real, one-off content change
-    // (image finishing load, fonts settling) still gets picked up after a
-    // short quiet moment.
-    let roTimer: ReturnType<typeof setTimeout> | null = null;
-    function onResizeObserved() {
-      notifyResizeActivity();
-      if (roTimer) clearTimeout(roTimer);
-      roTimer = setTimeout(() => {
-        roTimer = null;
-        recompute();
-      }, 120);
-    }
-
-    recompute();
-    const ro = new ResizeObserver(onResizeObserved);
-    wallEl.querySelectorAll(":scope > .brain-card").forEach((card) => ro.observe(card));
-    // Some vessels (scrap, sticky-note, media-card…) cap their own width
-    // and never resize across a column-count breakpoint, so the card
-    // ResizeObserver above can miss it — a plain window resize listener
-    // catches the gap recompute those cases would otherwise skip.
-    window.addEventListener("resize", onWindowResize);
-    // Vessel <img>s (see MediaThumb) have no width/height attributes, so
-    // their box is near-zero until the image finishes loading over the
-    // network — well after the initial recompute() above ran. `load`
-    // doesn't bubble, so this listens in the capture phase instead.
-    wallEl.addEventListener("load", recompute, true);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", onWindowResize);
-      wallEl.removeEventListener("load", recompute, true);
-      if (roTimer) clearTimeout(roTimer);
-      if (settleTimer) clearTimeout(settleTimer);
-    };
-  }, [dep]);
-
-  return { wallRef };
-}
-
-export default function BrainWall({ objects, intro }: { objects: BrainObject[]; intro?: ReactNode }) {
-  const [filterType, setFilterType] = useState("all");
-  const [sortMode, setSortMode] = useState<SortMode>("newest");
-  const [openId, setOpenId] = useState<string | null>(null);
-
-  // Private objects are excluded here, before anything else — filtering,
-  // sorting, the visible count, and the open/focus lookup below all read
-  // from this, never the raw `objects` prop, so a private object can never
-  // surface through any of those paths. Not deleted, just never handed to
-  // the rest of the wall.
-  const publicObjects = useMemo(() => objects.filter((o) => !isPrivate(o)), [objects]);
-
-  const visible = useMemo(() => {
-    let list = publicObjects;
-    if (filterType !== "all") list = list.filter((o) => o.type === filterType);
-    const sorted = [...list];
-    sorted.sort((a, b) => {
-      if (sortMode === "oldest") return sortDate(a) - sortDate(b);
-      if (sortMode === "featured") return (resolveWeight(b) === "featured" ? 1 : 0) - (resolveWeight(a) === "featured" ? 1 : 0);
-      return sortDate(b) - sortDate(a);
-    });
-    return sorted;
-  }, [publicObjects, filterType, sortMode]);
-
-  const openObject = openId ? (publicObjects.find((o) => o.id === openId) ?? null) : null;
-  const { wallRef } = useMasonry(visible);
-
-  // One-time entrance: only cards resting inside the first viewport on the
-  // very first paint get a stagger — everything below the fold, and
-  // anything that only appears later via scrolling/filtering/re-sorting,
-  // just renders in place. Runs once (guarded by introRanRef) after
-  // useMasonry's own layout effect has already set real row spans, so the
-  // rects measured here are the settled positions, not pre-layout guesses.
-  // Written straight to the DOM (data-intro + a --intro-delay custom
-  // property), the same way motionField drives per-frame card transforms —
-  // not React state, since this never needs to trigger a re-render and
-  // doing it through state would mean setState-in-an-effect just to flip
-  // an attribute the CSS animation reads once.
-  const introRanRef = useRef(false);
-  useLayoutEffect(() => {
-    if (introRanRef.current) return;
-    introRanRef.current = true;
-    if (motionField.reducedMotion) return;
-    const wallEl = wallRef.current;
-    if (!wallEl) return;
-    const vh = window.innerHeight;
-    const cards = wallEl.querySelectorAll<HTMLElement>(":scope > .brain-card");
-    let i = 0;
-    cards.forEach((card) => {
-      if (card.getBoundingClientRect().top >= vh) return;
-      card.dataset.intro = "true";
-      card.style.setProperty("--intro-delay", `${Math.min(i * 28, 220)}ms`);
-      i++;
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return (
-    <CursorZone>
-      <BrainBar
-        total={publicObjects.length}
-        count={visible.length}
-        filterType={filterType}
-        onFilterType={setFilterType}
-        sortMode={sortMode}
-        onSortMode={setSortMode}
-      />
-      {intro}
-      <div ref={wallRef} className="wall" data-focus-active={openObject ? "true" : undefined}>
-        {visible.map((o) => (
-          <BrainCard key={o.id} o={o} onOpen={(obj) => setOpenId(obj.id)} motionEnhanced />
-        ))}
+export default function BrainWall({objects,intro}: {objects:BrainObject[];intro?:ReactNode}) {
+  const params=useSearchParams();
+  const pathname=usePathname();
+  const reduced=useReducedMotion();
+  const candidate=params.get("domain") as BrainDomain;
+  const domain=BRAIN_DOMAINS.includes(candidate)?candidate:"all";
+  const view=params.get("view")==="index"?"index":"objects";
+  const query=params.get("q")||"";
+  const openId=params.get("object");
+  const [search,setSearch]=useState(query);
+  function change(values:Record<string,string|null>,push=false) {
+    const next=new URLSearchParams(window.location.search);
+    Object.entries(values).forEach(([key,value])=>{if(value)next.set(key,value);else next.delete(key);});
+    const url=pathname+(next.size?"?"+next.toString():"");
+    window.history[push?"pushState":"replaceState"](null,"",url);
+  }
+  useEffect(()=>{const timer=setTimeout(()=>{if(search!==query){const p=new URLSearchParams(window.location.search);if(search)p.set("q",search);else p.delete("q");window.history.replaceState(null,"",pathname+(p.size?"?"+p.toString():""));}},200);return()=>clearTimeout(timer);},[search,query,pathname]);
+  const publicObjects=useMemo(()=>objects.filter(o=>!isPrivate(o)).sort((a,b)=>sortDate(b)-sortDate(a)),[objects]);
+  const visible=publicObjects.filter(o=>(domain==="all"||domainsFor(o).includes(domain))&&(!query||[o.title,o.content,o.subtype,o.relationship,...(o.tags||[]),...(o.contentEntries||[]).map(e=>e.text)].join(" ").toLowerCase().includes(query.toLowerCase())));
+  const openObject=publicObjects.find(o=>o.id===openId)||null;
+  const related=openObject ? publicObjects.filter(o=>openObject.relatedIds?.includes(o.id)||o.relatedIds?.includes(openObject.id)) : [];
+  return <>
+    <SideRail eyebrow="inside my brain" title={openObject?objectTitle(openObject):DOMAIN_LABELS[domain]} meta={`${visible.length} of ${publicObjects.length} objects · ${view}`} items={[{id:"collection",label:"browse the collection"},{id:"brain-contact",label:"a conversation?"}]}/>
+    {intro}
+    <section id="collection" className="collection">
+      <div className="collection-tools">
+        <div className="collection-tool-row"><label className="collection-search"><span aria-hidden="true">⌕</span><input type="search" aria-label="Search the collection" placeholder="find something…" value={search} onChange={e=>setSearch(e.target.value)}/></label><div className="collection-views" role="group" aria-label="Collection view"><button aria-pressed={view==="objects"} onClick={()=>change({view:null})}><span aria-hidden="true">▧</span> objects</button><button aria-pressed={view==="index"} onClick={()=>change({view:"index"})}><span aria-hidden="true">☷</span> index</button></div></div>
+        <div className="collection-domains" role="group" aria-label="Filter by domain">{BRAIN_DOMAINS.map(d=><button key={d} aria-pressed={d===domain} onClick={()=>change({domain:d==="all"?null:d})}>{DOMAIN_LABELS[d]}</button>)}</div>
+        <p className="collection-count" aria-live="polite">{visible.length} {visible.length===1?"object":"objects"}{domain!=="all"||query?<button onClick={()=>{setSearch("");change({domain:null,q:null});}}>clear filters ×</button>:null}</p>
       </div>
-      <BrainFocus o={openObject} onClose={() => setOpenId(null)} />
-    </CursorZone>
-  );
+      <motion.div key={view} initial={reduced?false:{opacity:0}} animate={{opacity:1}} transition={{duration:.18}} className={`collection-items collection-${view}`}>
+        {visible.map(o=>view==="objects"?<BrainGridCard key={o.id} o={o} onOpen={()=>change({object:o.id},true)}/>:<button className="collection-index-row" key={o.id} onClick={()=>change({object:o.id},true)}><span>{o.id}</span><strong>{objectTitle(o)}</strong><span>{o.subtype||o.type}</span><span>↗</span></button>)}
+      </motion.div>
+      {!visible.length&&<p className="collection-empty">Nothing here matches yet. <button onClick={()=>{setSearch("");change({domain:null,q:null});}}>Clear the filters ↗</button></p>}
+    </section>
+    <BrainFocus o={openObject} onClose={()=>change({object:null})} related={related} onRelated={id=>change({object:id})}/>
+  </>;
 }
