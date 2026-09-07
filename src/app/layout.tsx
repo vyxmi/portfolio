@@ -12,6 +12,7 @@ import { isPrivate } from "@/lib/brain/resolvers";
 import SideRail from "@/components/nav/SideRail";
 import MobileNav from "@/components/nav/MobileNav";
 import PageTransition from "@/components/PageTransition";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Vyomi Seth",
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SideRail />
         <MobileNav objectCount={publicObjectCount} />
         <PageTransition>{children}</PageTransition>
+        <Analytics />
       </body>
     </html>
   );
