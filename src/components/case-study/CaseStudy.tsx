@@ -101,7 +101,7 @@ function CaseVideo({
           className="relative w-full overflow-hidden"
           style={{ aspectRatio: aspect, background: "var(--paper-dim)", border: "10px solid var(--ink)", borderRadius: 32 }}
         >
-          <video src={src} controls playsInline muted className="absolute inset-0 h-full w-full object-cover" />
+          <video src={src} autoPlay loop playsInline muted className="absolute inset-0 h-full w-full object-cover" />
         </div>
       </div>
       {caption && <div className="cap mt-2 text-center">{caption}</div>}
@@ -136,7 +136,7 @@ function CaseYouTube({ id, caption }: { id: string; caption?: string }) {
 // weight of a full-width solid divider, and stopping at 80% keeps it
 // from looking like it's spanning the whole page edge to edge.
 
-function Block({ block }: { block: Block }) {
+function Block({ block, isChapterLead = false }: { block: Block; isChapterLead?: boolean }) {
   switch (block.kind) {
     case "statement":
       // The one card-styled title on a case study page — reserved for a
@@ -150,7 +150,7 @@ function Block({ block }: { block: Block }) {
       // is what actually reads as a distinct card against this page's own
       // white.
       return (
-        <ScrollReveal>
+        <ScrollReveal className="case-statement">
           <p
             className="text-[24px] font-medium leading-snug md:text-[30px]"
             style={{
@@ -173,7 +173,7 @@ function Block({ block }: { block: Block }) {
       // id (and scroll-margin, so a jump doesn't land flush against the
       // viewport edge) is what the section-jump rail scrolls/observes.
       return (
-        <ScrollReveal id={sectionId(block.eyebrow ?? block.heading)}>
+        <ScrollReveal className="case-section-heading" id={sectionId(block.eyebrow ?? block.heading)}>
           <div style={{ scrollMarginTop: 100 }}>
             {block.eyebrow && <div className="eyebrow mb-3">{block.eyebrow}</div>}
             <h2 className="text-[28px] font-semibold leading-[1.1] md:text-[36px]" style={{ letterSpacing: "-.015em" }}>
@@ -191,7 +191,7 @@ function Block({ block }: { block: Block }) {
         <ScrollReveal>
           {block.eyebrow && <div className="eyebrow mb-3">{block.eyebrow}</div>}
           {block.heading && (
-            <h2 className="mb-4 text-[22px] font-semibold leading-snug md:text-[25px]" style={{ letterSpacing: "-.008em" }}>
+            <h2 className="case-insight-heading mb-4 text-[22px] font-medium leading-snug md:text-[25px]" style={{ letterSpacing: "-.008em" }}>
               {block.heading}
             </h2>
           )}
@@ -200,7 +200,7 @@ function Block({ block }: { block: Block }) {
               <p
                 key={i}
                 className="text-[17px] leading-relaxed"
-                style={{ paddingLeft: 16, borderLeft: "2px solid var(--accent)", color: "var(--ink-soft)" }}
+                style={{ paddingLeft: 16, borderLeft: "2px solid var(--line-strong)", color: "var(--ink-soft)" }}
               >
                 {p}
               </p>
@@ -209,13 +209,22 @@ function Block({ block }: { block: Block }) {
         </ScrollReveal>
       );
 
+    case "numberedList":
+      return (
+        <ScrollReveal>
+          {block.heading && <p className="measure mb-3 text-[16px] leading-relaxed">{block.heading}</p>}
+          <ol start={block.startAt ?? 1} className="case-numbered-list measure">
+            {block.items.map((item, i) => <li key={i}>{item}</li>)}
+          </ol>
+        </ScrollReveal>
+      );
     case "quote":
       return (
         <ScrollReveal>
-          <div className="measure" style={{ borderLeft: "5px solid rgba(var(--accent-rgb),.35)", paddingLeft: 20 }}>
+          <blockquote className="case-quote measure">
             <p className="text-[19px] font-medium italic leading-snug">&ldquo;{block.text}&rdquo;</p>
             {block.attribution && <p className="cap mt-2 not-italic">{block.attribution}</p>}
-          </div>
+          </blockquote>
         </ScrollReveal>
       );
 
@@ -335,7 +344,7 @@ function Block({ block }: { block: Block }) {
       );
 
     case "numberedInsights":
-      return <NumberedInsights eyebrow={block.eyebrow} heading={block.heading} items={block.items} />;
+      return <NumberedInsights eyebrow={block.eyebrow} heading={block.heading} startAt={block.startAt} items={block.items} />;
 
     case "researchRatings":
       return <ResearchRatings label={block.label} items={block.items} />;
@@ -348,11 +357,12 @@ function Block({ block }: { block: Block }) {
     case "validation":
     default: {
       const b = block as Extract<Block, { kind: "story" | "constraint" | "validation" }>;
+      const presentationClass = b.eyebrow?.toLowerCase() === "deliverables" ? "case-deliverables" : undefined;
       return (
-        <ScrollReveal>
+        <ScrollReveal className={presentationClass}>
           {b.eyebrow && b.eyebrow.toLowerCase().trim() !== b.heading?.toLowerCase().trim() && <div className="eyebrow mb-3">{b.eyebrow}</div>}
           {b.heading && (
-            <h2 className="mb-4 text-[22px] font-semibold leading-snug md:text-[25px]" style={{ letterSpacing: "-.008em" }}>
+            <h2 className={`${isChapterLead && b.eyebrow ? "case-section-title" : "case-block-heading"} mb-4 leading-snug`} style={{ letterSpacing: "-.008em" }}>
               {b.heading}
             </h2>
           )}
@@ -362,7 +372,7 @@ function Block({ block }: { block: Block }) {
             </p>
           ))}
           {b.items && b.items.length > 0 && (
-            <ul className="measure mt-1 flex flex-col gap-2.5">
+            <ul className="case-story-items measure mt-1 flex flex-col gap-2.5">
               {b.items.map((it, i) => (
                 <li key={i} className="flex gap-3 text-[15px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
                   <span style={{ color: "var(--accent)" }}>&bull;</span>
@@ -386,7 +396,7 @@ export function CaseStudyBody({ content }: { content: CaseStudyContent }) {
           <section className="article-chapter" id={id} key={id} aria-label={label}>
             <div className="chapter-content">
             {blocks.map((block, blockIndex) => (
-              <Block key={blockIndex} block={block} />
+              <Block key={blockIndex} block={block} isChapterLead={blockIndex === 0} />
             ))}
             </div>
           </section>

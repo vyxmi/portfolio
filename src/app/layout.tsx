@@ -10,15 +10,15 @@ import "./design.css";
 import "./home.css";
 import "./cursor.css";
 import "./immersive.css";
+import "./fridge.css";
 import { grotesk, mono } from "@/lib/fonts";
-import SiteNavigation from "@/components/nav/SiteNavigation";
-import PageTransition from "@/components/PageTransition";
-import InteractionCursor from "@/components/InteractionCursor";
+import SiteChrome from "@/components/fridge/SiteChrome";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Vyomi Seth",
   description: "I solve real problems with creative solutions.",
+  icons: { icon: "/icon.svg", shortcut: "/icon.svg" },
 };
 
 // Computed here, server-side, and handed down as a plain number — MobileNav
@@ -30,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${grotesk.variable} ${mono.variable} h-full antialiased`}>
       <body className="min-h-full" id="top">
-        <SiteNavigation email={site.email}><PageTransition>{children}</PageTransition></SiteNavigation><InteractionCursor/>
+        <SiteChrome email={site.email}>{children}</SiteChrome>
       </body>
     </html>
   );

@@ -1,52 +1,24 @@
-"use client";
+import Image from "next/image";
 
-import { useState } from "react";
-
-// Animated before/after between the original and redesigned card
-// opening process. Real screenshots are not in yet, so this compares
-// the real framing text from the case study rather than faking a flow
-// diagram.
 export default function FlowCompare() {
-  const [mode, setMode] = useState<"original" | "new">("original");
-
   return (
-    <div className="case-box not-prose">
-      <div className="flex flex-wrap">
-        {(["original", "new"] as const).map((m) => (
-          <button
-            key={m}
-            onClick={() => setMode(m)}
-            className="cap min-w-[140px] flex-1 border-b px-4 py-3 text-center transition-colors duration-150"
-            style={{
-              color: mode === m ? "var(--accent)" : "var(--ink-mute)",
-              background: mode === m ? "rgba(var(--accent-rgb),.06)" : "transparent",
-              borderColor: "var(--line)",
-            }}
-            aria-pressed={mode === m}
-          >
-            {m} card opening process
-          </button>
-        ))}
-      </div>
-      <div className="relative aspect-[16/9] overflow-hidden" style={{ background: "var(--paper-dim)" }}>
+    <div className="not-prose">
+      <div className="mx-auto w-full" style={{ maxWidth: 340 }}>
         <div
-          className="absolute inset-0 flex items-center justify-center p-8 text-center transition-transform duration-500"
-          style={{ transform: mode === "original" ? "translateX(0%)" : "translateX(-100%)" }}
+          className="relative w-full overflow-hidden"
+          style={{ background: "var(--paper-dim)", border: "10px solid var(--ink)", borderRadius: 32 }}
         >
-          <p className="max-w-sm text-[14px]" style={{ color: "var(--ink-soft)" }}>
-            An accidental swipe could sell a card the user wanted to keep. Once sold, the decision was irreversible.
-          </p>
-        </div>
-        <div
-          className="absolute inset-0 flex items-center justify-center p-8 text-center transition-transform duration-500"
-          style={{ transform: mode === "new" ? "translateX(0%)" : "translateX(100%)" }}
-        >
-          <p className="max-w-sm text-[14px]" style={{ color: "var(--ink-soft)" }}>
-            Instead of teaching users not to make mistakes, the workflow was redesigned to recover from mistakes.
-          </p>
+          <Image
+            src="/case-studies/chance-live/review-decisions-after.gif"
+            alt="The redesigned Chance.live flow, reviewing card decisions before completing the transaction"
+            width={388}
+            height={840}
+            unoptimized
+            className="block h-auto w-full"
+          />
         </div>
       </div>
-      <div className="cap p-3">[Vyomi: real flow frames pending, this animates the framing copy for now]</div>
+      <div className="cap mt-2 text-center">after: review your decisions before making them final</div>
     </div>
   );
 }

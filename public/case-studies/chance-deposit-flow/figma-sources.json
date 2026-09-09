@@ -1,0 +1,57 @@
+{
+  "file": "https://www.figma.com/design/dPNcSRWJZ86lk7wDcNxX0z/portfolio-aug-2026?node-id=111-62985",
+  "assets": [
+    {
+      "path": "/case-studies/chance-deposit-flow/balance-default.png",
+      "nodeId": "111:14775"
+    },
+    {
+      "path": "/case-studies/chance-deposit-flow/payment-loading.png",
+      "nodeId": "111:14931"
+    },
+    {
+      "path": "/case-studies/chance-deposit-flow/funds-ready.png",
+      "nodeId": "111:14983"
+    },
+    {
+      "path": "/case-studies/chance-deposit-flow/pack-entry.png",
+      "nodeId": "111:16234"
+    },
+    {
+      "path": "/case-studies/chance-deposit-flow/card-payment.png",
+      "nodeId": "111:16074"
+    },
+    {
+      "path": "/case-studies/chance-deposit-flow/payment-details.png",
+      "nodeId": "111:14879"
+    },
+    {
+      "path": "/case-studies/chance-deposit-flow/redeem-reminder.png",
+      "nodeId": "111:16076"
+    },
+    {
+      "path": "/case-studies/chance-deposit-flow/modal-explorations.png",
+      "nodeId": "111:15376"
+    },
+    {
+      "path": "/case-studies/chance-deposit-flow/transaction-details.png",
+      "nodeId": "111:15254"
+    },
+    {
+      "path": "/case-studies/chance-deposit-flow/mobile-payment.png",
+      "nodeId": "111:15122"
+    },
+    {
+      "path": "/case-studies/chance-deposit-flow/balance-updated.png",
+      "nodeId": "111:14672"
+    },
+    {
+      "path": "/case-studies/chance-deposit-flow/direct-modal-entry.png",
+      "nodeId": "111:16236"
+    },
+    {
+      "path": "/case-studies/chance-deposit-flow/packs.png",
+      "nodeId": "111:14617"
+    }
+  ]
+}

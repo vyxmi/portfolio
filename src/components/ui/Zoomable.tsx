@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import Icon from "./Icon";
 
 export default function Zoomable({src,alt,children,transparentMedia}: {src:string;alt:string;children:ReactNode;transparentMedia?:boolean}) {
   const [open,setOpen]=useState(false);
@@ -23,7 +22,7 @@ export default function Zoomable({src,alt,children,transparentMedia}: {src:strin
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={src} alt={alt}/>
       </div>
-      <button type="button" className="image-dialog-close" aria-label="Close image" onClick={()=>dialog.current?.close()}><Icon name="close"/></button>
+      <button type="button" className="image-dialog-close" aria-label="Close image" onClick={()=>dialog.current?.close()}><span aria-hidden>×</span></button>
     </dialog>,document.body)}
   </>;
 }

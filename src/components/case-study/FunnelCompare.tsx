@@ -35,8 +35,8 @@ export default function FunnelCompare({ groups, caption }: { groups: Group[]; ca
   }, []);
 
   return (
-    <div ref={ref} className="not-prose">
-      <div className="case-box flex flex-col gap-6 p-6">
+    <div ref={ref} className="not-prose case-inline-evidence">
+      <div className="case-funnel-shell flex flex-col gap-6">
         {groups.map((g, gi) => {
           const max = Math.max(...g.stages.map((s) => s.pct));
           return (
@@ -54,7 +54,7 @@ export default function FunnelCompare({ groups, caption }: { groups: Group[]; ca
               <div className="flex flex-col gap-2">
                 {g.stages.map((s, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className="relative h-6 flex-1 overflow-hidden" style={{ background: "var(--paper-dim)" }}>
+                    <div className="case-funnel-track relative h-6 flex-1 overflow-hidden">
                       <div
                         className="absolute inset-y-0 left-0"
                         style={{

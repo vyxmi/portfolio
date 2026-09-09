@@ -19,7 +19,7 @@ export default function ConsolidationDiagram({
   const n = from.length;
   return (
     <ScrollReveal className="not-prose">
-      <div className="case-box" style={{ padding: "28px 24px" }}>
+      <div className="case-box case-consolidation" style={{ padding: "28px 24px" }}>
         {fromLabel && <div className="cap mb-4">{fromLabel}</div>}
         <div className="relative flex" style={{ height: n * 34 }}>
           <svg
@@ -53,8 +53,7 @@ export default function ConsolidationDiagram({
           </div>
           <div className="relative z-10 flex flex-1 items-center justify-end">
             <span
-              className="text-[13px] font-semibold"
-              style={{ color: "var(--accent)", border: "1px solid var(--accent)", padding: "8px 14px" }}
+              className="case-consolidation-result text-[13px] font-semibold"
             >
               {to}
             </span>

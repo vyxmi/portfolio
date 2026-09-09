@@ -41,9 +41,9 @@ export default function FunnelStat({
   const max = Math.max(...stages.map((s) => s.pct));
 
   return (
-    <div ref={ref} className="not-prose">
+    <div ref={ref} className="not-prose case-inline-evidence">
       {label && <div className="cap mb-3">{label}</div>}
-      <div className="flex flex-col gap-3" style={{ border: "1px solid var(--line)", padding: "24px 24px" }}>
+      <div className="case-funnel-shell flex flex-col gap-3">
         {stages.map((s, i) => {
           const prev = i > 0 ? stages[i - 1].pct : null;
           const drop = prev !== null ? prev - s.pct : null;
@@ -55,7 +55,7 @@ export default function FunnelStat({
                 </div>
               )}
               <div className="flex items-center gap-3">
-                <div className="relative h-8 flex-1 overflow-hidden" style={{ background: "var(--paper-dim)" }}>
+                <div className="case-funnel-track relative h-8 flex-1 overflow-hidden">
                   <div
                     className="absolute inset-y-0 left-0"
                     style={{

@@ -50,28 +50,37 @@ const chanceLive: CaseStudyContent = {
       eyebrow: "context",
       heading: "Context",
       body: [
-        "Chance.live is a startup reimagining how people buy, open, collect, and trade Pokemon cards online. I joined as its first in house designer shortly after the company secured $3M+ in funding and launched its beta.",
+        "Chance.live is a startup reimagining how people buy, open, collect, and trade Pokemon cards online. While in school, I joined as its first in house designer, shortly after the company secured $3M+ in funding and launched its open beta.",
       ],
+    },
+    {
+      kind: "quote",
+      text: "Design a tutorial so users understand that card sorting is permanent.",
+      attribution: "my first task",
     },
     {
       kind: "story",
       eyebrow: "the problem",
       heading: "One wrong swipe, and it's gone",
       body: [
-        "A single accidental swipe could sell a card the user wanted to keep, and selling is irreversible.",
-        "This issue also generated support tickets, which created additional operational costs for an already lean team of eight people.",
+        "A single accidental swipe could sell a card the user wanted to keep, and selling is irreversible. Cards could be worth upwards of $5,000. This issue also generated support tickets, which created additional operational costs for an already lean team of eight people.",
       ],
+    },
+    {
+      kind: "numberedList",
+      heading: "Users would",
       items: [
         "Open a pack",
         "Accidentally swipe a card",
         "Realize the mistake too late, selling is irreversible",
-        "Lose trust in the platform",
-        "Stop using Chance entirely",
+        "Lose trust in the platform [my hypothesis]",
+        "Stop using Chance entirely [my hypothesis]",
       ],
     },
     {
       kind: "video",
-      src: "/case-studies/chance-live/accidental-swipe-before.mp4",
+      src: "/case-studies/chance-live/accidental-swipe-before-cropped.mp4",
+      aspect: "8/15",
       caption: "before: an accidental swipe on mobile, with no way back",
     },
     { kind: "statement", heading: "How might we make card swiping resilient to human error while still feeling sleek, premium, and magical?" },
@@ -157,7 +166,6 @@ const chanceLive: CaseStudyContent = {
       width: 1800,
       height: 592,
     },
-    { kind: "cardStateInspector" },
     {
       kind: "story",
       eyebrow: "systems design",
@@ -205,7 +213,7 @@ const chanceLive: CaseStudyContent = {
     {
       kind: "story",
       body: [
-        "Good design systems aren't just UI kits. They're shared decisions. They reduce ambiguity, speed up development, create consistency across the product, and make future features easier to build. For a startup, that leverage compounds quickly.",
+        "Good design systems reduce ambiguity, speed up development, create consistency across the product, and make future features easier to build. For a startup, that leverage compounds quickly.",
       ],
     },
     {
@@ -276,9 +284,9 @@ const chanceLive: CaseStudyContent = {
         "Confirmation sounds could reinforce confidence in decisions",
       ],
     },
+    { kind: "sectionHeading", eyebrow: "takeaways", heading: "Takeaways" },
     {
       kind: "insight",
-      eyebrow: "takeaways",
       heading: "Measure twice. Cut once",
       body: [
         "The original request was a tutorial. The real problem was trust. Rather than immediately executing on the proposed solution, I spent time understanding the business, the users, the product vision, and the data. That extra upfront effort allowed me to move quickly with confidence once the problem was clear.",
@@ -319,6 +327,7 @@ const chanceDepositFlow: CaseStudyContent = {
       ],
     },
     { kind: "story", eyebrow: "research", body: ["I started by running the whole thing myself with test funds and taking notes."] },
+    {"kind": "image", "src": "/case-studies/chance-deposit-flow/transaction-details.png", "alt": "Figma exploration: making redemption and transaction details visible in one place", "caption": "Figma exploration: making redemption and transaction details visible in one place", "width": 652, "height": 640},
     { kind: "sectionHeading", eyebrow: "ux audit", heading: "7 clicks was kind of generous" },
     {
       kind: "clickThrough",
@@ -348,7 +357,7 @@ const chanceDepositFlow: CaseStudyContent = {
         "The fix at the time was a toast reminding them to come back and redeem their funds.",
       ],
     },
-    { kind: "imagePlaceholder", label: "redeem-reminder toast", note: "A screenshot of that redeem-reminder toast goes here." },
+    {"kind": "image", "src": "/case-studies/chance-deposit-flow/redeem-reminder.png", "alt": "The reminder state for deposits still waiting to be redeemed", "caption": "The reminder state for deposits still waiting to be redeemed", "width": 1707, "height": 960},
     { kind: "story", body: ["That was one of those moments where the product was telling us what was wrong."] },
     {
       kind: "expand",
@@ -369,6 +378,7 @@ const chanceDepositFlow: CaseStudyContent = {
       ],
     },
     { kind: "flowSteps", steps: ["Card", "CoinFlow", "payment completes", "USDC becomes redeemable", "redeem", "Chance balance updates"] },
+    {"kind": "imagePair", "label": "payment received → funds ready", "images": [{"src": "/case-studies/chance-deposit-flow/payment-loading.png", "alt": "Payment received: keep people informed while funds become available", "caption": "Payment received: keep people informed while funds become available", "width": 650, "height": 547}, {"src": "/case-studies/chance-deposit-flow/funds-ready.png", "alt": "Funds ready: one clear action adds them to the balance", "caption": "Funds ready: one clear action adds them to the balance", "width": 650, "height": 547}]},
     {
       kind: "story",
       body: [
@@ -406,6 +416,7 @@ const chanceDepositFlow: CaseStudyContent = {
     },
     { kind: "story", body: ["The transaction details are still there in a small accordion if someone wants them."] },
     { kind: "sectionHeading", eyebrow: "constraint", heading: "Keep the backend. Fix everything around it" },
+    {"kind": "image", "src": "/case-studies/chance-deposit-flow/payment-details.png", "alt": "The existing CoinFlow widget inside the redesigned balance modal", "caption": "The existing CoinFlow widget inside the redesigned balance modal", "width": 650, "height": 810},
     {
       kind: "story",
       body: [
@@ -435,6 +446,7 @@ const chanceDepositFlow: CaseStudyContent = {
       body: ["The balance modal does a lot.", "And the experience changes depending on how you got there."],
       items: ["Balance", "Add funds", "Buy USDC with card", "Deposit USDC directly", "Withdraw"],
     },
+    {"kind": "image", "src": "/case-studies/chance-deposit-flow/balance-default.png", "alt": "One balance modal, with Add Funds and Buy With Card selected by default", "caption": "One balance modal, with Add Funds and Buy With Card selected by default", "width": 650, "height": 488},
     {
       kind: "clickThrough",
       flows: [
@@ -461,10 +473,12 @@ const chanceDepositFlow: CaseStudyContent = {
           steps: [
             {
               label: "Click your balance",
+              image: {"src": "/case-studies/chance-deposit-flow/balance-default.png", "alt": "Click your balance", "width": 650, "height": 488},
               note: ["No hover.", "No Manage Funds screen.", "Add Funds is already open.", "Buy with Card is already selected."],
             },
             {
               label: "Pick an amount",
+              image: {"src": "/case-studies/chance-deposit-flow/card-payment.png", "alt": "Pick an amount", "width": 650, "height": 810},
               note: [
                 "The quick-add buttons map to pack prices.",
                 "Buying two? Click twice.",
@@ -475,6 +489,7 @@ const chanceDepositFlow: CaseStudyContent = {
             },
             {
               label: "Purchase",
+              image: {"src": "/case-studies/chance-deposit-flow/funds-ready.png", "alt": "Purchase", "width": 650, "height": 547},
               note: [
                 "CoinFlow handles payment.",
                 "Then: payment received, getting your funds ready...",
@@ -495,7 +510,7 @@ const chanceDepositFlow: CaseStudyContent = {
       heading: "One click I wanted to keep",
       body: ["There was another debate around what should happen when someone tried to buy a pack without enough money."],
     },
-    { kind: "imagePlaceholder", label: "the pack card", note: "A screenshot of the pack card goes here." },
+    {"kind": "image", "src": "/case-studies/chance-deposit-flow/pack-entry.png", "alt": "The lightweight Top Off prompt stays with the pack", "caption": "The lightweight Top Off prompt stays with the pack", "width": 1452, "height": 971},
     {
       kind: "story",
       body: [
@@ -503,7 +518,7 @@ const chanceDepositFlow: CaseStudyContent = {
         "I thought that felt rude. Looking at a pack doesn't mean you're ready for a giant payment modal in your face. So we tested it with members of the team.",
       ],
     },
-    { kind: "imagePlaceholder", label: "deposit modal slams open", note: "The deposit-modal-slams-open recording goes here." },
+    {"kind": "image", "src": "/case-studies/chance-deposit-flow/direct-modal-entry.png", "alt": "Alternative explored: opening the full balance modal over the pack", "caption": "Alternative explored: opening the full balance modal over the pack", "width": 1452, "height": 971},
     {
       kind: "story",
       body: [
@@ -511,7 +526,6 @@ const chanceDepositFlow: CaseStudyContent = {
         "We kept the lightweight Top Off screen.",
       ],
     },
-    { kind: "imagePlaceholder", label: "the Top Off screen", note: "A screenshot of the Top Off screen goes here." },
     { kind: "story", body: ["It tells you how much you're short and lets you change the amount before the payment flow starts. That extra click earned its place. The flow shipped at 3 clicks, counted from opening the modal to having balance added, assuming a saved card and excluding clicks inside the card-payment provider."] },
     {
       kind: "story",
@@ -527,6 +541,7 @@ const chanceDepositFlow: CaseStudyContent = {
       ],
     },
     { kind: "story", body: ["So I vibe coded the frontend directly on our existing product using Claude."] },
+    {"kind": "image", "src": "/case-studies/chance-deposit-flow/modal-explorations.png", "alt": "Figma interaction states used to work through amount selection, payment, and redemption", "caption": "Figma interaction states used to work through amount selection, payment, and redemption", "width": 4096, "height": 833},
     { kind: "flowSteps", steps: ["Code", "Local product", "Transaction"] },
     {
       kind: "story",
@@ -544,6 +559,7 @@ const chanceDepositFlow: CaseStudyContent = {
     },
     { kind: "story", body: ["Once the frontend felt right, I worked with our developer to connect it to the existing backend."] },
     { kind: "flowSteps", label: "2 days, brief to shipped", steps: ["Brief", "Designed", "Built", "Connected", "Shipped"] },
+    {"kind": "image", "src": "/case-studies/chance-deposit-flow/mobile-payment.png", "alt": "The mobile payment exploration, including the full CoinFlow widget", "caption": "The mobile payment exploration, including the full CoinFlow widget", "width": 395, "height": 1222},
     {
       kind: "expand",
       label: "questions I needed answered",
@@ -564,6 +580,7 @@ const chanceDepositFlow: CaseStudyContent = {
       eyebrow: "impact",
       heading: "Then we watched the funnel",
     },
+    {"kind": "image", "src": "/case-studies/chance-deposit-flow/balance-updated.png", "alt": "The intended end state: balance updated, modal closed, back to the packs", "caption": "The intended end state: balance updated, modal closed, back to the packs", "width": 1440, "height": 960},
     {
       kind: "funnelCompare",
       groups: [
@@ -599,9 +616,10 @@ const chanceDepositFlow: CaseStudyContent = {
         "So far, more people are trying to deposit, more of them are finishing, and more orders are going through.",
       ],
     },
+    { kind: "sectionHeading", eyebrow: "takeaways", heading: "Takeaways" },
+    {"kind": "image", "src": "/case-studies/chance-deposit-flow/funds-ready.png", "alt": "A clearer next action makes the transaction easier to understand", "caption": "A clearer next action makes the transaction easier to understand", "width": 650, "height": 547},
     {
       kind: "insight",
-      eyebrow: "takeaways",
       heading: "Follow the money to make money",
       body: ["I learned to get close to the system before trying to simplify the interface. Once I understood how the money actually moved, it became pretty obvious what users never needed to know."],
     },
@@ -616,6 +634,7 @@ const chanceDepositFlow: CaseStudyContent = {
       body: ["Building it myself changed the pace. I could test the real behavior, design around CoinFlow instead of guessing how it would behave, and get the whole thing out in two days."],
     },
     { kind: "sectionHeading", eyebrow: "closing", heading: "Users came for packs. Let's not talk them out of it" },
+    {"kind": "image", "src": "/case-studies/chance-deposit-flow/packs.png", "alt": "Back to what people came for: opening packs", "caption": "Back to what people came for: opening packs", "width": 541, "height": 372},
   ],
 };
 
@@ -679,10 +698,13 @@ const ademUserList: CaseStudyContent = {
         "I didn't want to assume that “complex enterprise software is just like that,” so I started by trying to establish a baseline. There wasn't much existing UX research to work from, so I used Pendo to build dashboards and funnels around ADEM usage, understand which paths people were actually taking, and find where they were dropping off.",
         "A few things stood out:",
       ],
+    },
+    {
+      kind: "numberedInsights",
       items: [
-        "Helpdesk admins often had 3–6 tabs open while troubleshooting.",
-        "Monthly ADEM users had declined 16% over two years.",
-        "Our own internal IT admins weren't using the product.",
+        { heading: "Troubleshooting sprawled across tabs", body: "Helpdesk admins often had 3–6 tabs open while troubleshooting." },
+        { heading: "Usage was declining", body: "Monthly ADEM users had declined 16% over two years." },
+        { heading: "Even internal admins opted out", body: "Our own internal IT admins weren't using the product." },
       ],
     },
     { kind: "story", body: ["That last one seemed worth investigating."] },
@@ -818,11 +840,14 @@ const ademUserList: CaseStudyContent = {
         "The important part wasn't just making every widget link to the same page.",
         "The context had to come with you.",
       ],
+    },
+    {
+      kind: "numberedInsights",
       items: [
-        "If an admin clicked degraded users inside NOC, the User Device List opened with that degradation state already applied.",
-        "If they clicked a segment of the network topology, those filters carried over.",
-        "If they clicked poor users in one source location, the list retained the source location + experience score.",
-        "If they arrived from a gateway distribution view, the gateway location stayed with them.",
+        { heading: "Carry the degradation state", body: "If an admin clicked degraded users inside NOC, the User Device List opened with that degradation state already applied." },
+        { heading: "Carry topology filters", body: "If they clicked a segment of the network topology, those filters carried over." },
+        { heading: "Carry source context", body: "If they clicked poor users in one source location, the list retained the source location + experience score." },
+        { heading: "Carry gateway context", body: "If they arrived from a gateway distribution view, the gateway location stayed with them." },
       ],
     },
     {
@@ -878,6 +903,7 @@ const ademUserList: CaseStudyContent = {
         "I tested the prototype against the same historical user lookup I had timed at the beginning. I then presented the final direction to the PM and engineering team for implementation planning.",
       ],
     },
+    { kind: "ratio", before: "8 clicks", beforeLabel: "23+ seconds before", after: "2 clicks", afterLabel: "5 seconds in the validated prototype" },
     {
       kind: "insight",
       eyebrow: "takeaways",
@@ -1244,52 +1270,59 @@ const carInsurance: CaseStudyContent = {
     {
       kind: "story",
       body: [
-        "Foundations defined things like typography, color, spacing, grids, and responsive behavior. Atoms defined the smallest reusable UI. Those atoms combined into components and larger modules. Modules combined into templates. And templates gave us a shared structure for the hundreds of pages built on top.",
-        "One example was the type system. It had to hold up from a 48px desktop H1 all the way down to 12px supporting text on mobile without every page inventing its own hierarchy.",
+        "Foundations defined things like typography, color, spacing, grids, and responsive behavior.",
       ],
     },
     {
-      kind: "image",
-      src: "/case-studies/carinsurance-com/type-scale.webp",
-      transparentMedia: true,
-      alt: "Desktop and mobile type scale, from Heading 1 down to Subtitle Regular, with exact sizes and line heights",
-      caption: "the type scale artifact: 48px desktop H1 down to 12px mobile subtitle text",
-      width: 1400,
-      height: 739,
+      kind: "imagePair",
+      images: [
+        {
+          src: "/case-studies/carinsurance-com/color-palette-rationale.png",
+          transparentMedia: true,
+          alt: "Old color palette with multiple muddy tones of the same blue and no clear accent, next to a proposed palette that is more cohesive and concise",
+          caption: "before → after: consolidating scattered color tones into one intentional palette",
+          width: 907,
+          height: 396,
+        },
+        {
+          src: "/case-studies/carinsurance-com/color-palette.webp",
+          transparentMedia: true,
+          alt: "The design system's color palette: Primary, Neutral, and Accent groups with hex, rgb, and hsl values",
+          caption: "the primary, neutral, and accent color system",
+          width: 1190,
+          height: 1441,
+        },
+      ],
     },
-    { kind: "story", body: ["By the end, the library contained 670+ reusable components, variants, states, and design assets, along with 10 common page templates, documentation, responsive rules, and implementation guidance."] },
-    {
-      kind: "image",
-      src: "/case-studies/carinsurance-com/color-palette-rationale.png",
-      alt: "Old color palette with multiple muddy tones of the same blue and no clear accent, next to a proposed palette that is more cohesive and concise",
-      caption: "before → after: consolidating scattered color tones into one intentional palette",
-      width: 907,
-      height: 396,
-    },
-    {
-      kind: "image",
-      src: "/case-studies/carinsurance-com/color-palette.webp",
-      transparentMedia: true,
-      alt: "The design system's color palette: Primary, Neutral, and Accent groups with hex, rgb, and hsl values",
-      caption: "the primary, neutral, and accent color system",
-      width: 1190,
-      height: 1441,
-    },
+    { kind: "story", body: ["Atoms defined the smallest reusable UI."] },
     {
       kind: "image",
       src: "/case-studies/carinsurance-com/component-variants.webp",
       transparentMedia: true,
       alt: "A sheet of component variants: buttons, toggles, dropdowns, tables, and star ratings at multiple sizes and states",
-      caption: "component variants: every size and state, defined once",
+      caption: "some atomic components and their variations",
       width: 1800,
       height: 753,
+    },
+    {
+      kind: "story",
+      body: ["Those atoms combined into components and larger modules. Modules combined into templates. And templates gave us a shared structure for the hundreds of pages built on top."],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/carinsurance-com/type-scale.webp",
+      transparentMedia: true,
+      alt: "Desktop and mobile templates of high-impact CarInsurance.com pages used to test design-system changes",
+      caption: "templates of high-impact pages on the site, to test out design-system changes",
+      width: 1400,
+      height: 739,
     },
     {
       kind: "image",
       src: "/case-studies/carinsurance-com/atomic-system.webp",
       transparentMedia: true,
       alt: "A dense sheet of CarInsurance.com UI components and page explorations",
-      caption: "zoomed out: a slice of the 670+ component library this system grew into",
+      caption: "a slice of the 670+ component library this system grew into",
       width: 2048,
       height: 1035,
     },
@@ -1305,14 +1338,6 @@ const carInsurance: CaseStudyContent = {
     { kind: "flowSteps", steps: ["Current ZIP code", "New ZIP code", "Current annual premium", "Find Out"] },
     { kind: "story", body: ["That was basically it."] },
     {
-      kind: "image",
-      src: "/case-studies/carinsurance-com/calculator-old-input.png",
-      alt: "The original Moving Calculator: a short form asking for current ZIP code, new ZIP code, and current annual premium, then a Find Out button",
-      caption: "old calculator: the old Moving Calculator, three inputs, one button",
-      width: 250,
-      height: 618,
-    },
-    {
       kind: "story",
       body: [
         "The problem wasn't just that it looked dated. The underlying experience didn't account for important variables that affect insurance rates, and it gave users very little visibility into what the result actually meant. Making the inputs prettier wouldn't fix that. So I rebuilt the calculator around the question the user was actually asking:",
@@ -1320,35 +1345,33 @@ const carInsurance: CaseStudyContent = {
     },
     { kind: "quote", text: "Will my insurance go up if I move?" },
     {
-      kind: "image",
-      src: "/case-studies/carinsurance-com/calculator-example.webp",
-      transparentMedia: true,
-      alt: "A redesigned \"will my insurance go up if I move\" calculator, with rate comparisons by ZIP code",
-      caption: "new calculator, annotated: real numbers, clear comparisons",
-      width: 760,
-      height: 1172,
-    },
-    {
-      kind: "story",
-      heading: "Give the calculation better inputs",
-      body: ["The redesign added relevant context like age and coverage level and let users compare by ZIP code, city, or state. Instead of treating every move like the same scenario, the calculator could account for more of the things that actually affect the result."],
-    },
-    {
-      kind: "story",
-      heading: "Answer the question first",
-      body: ["The result leads with the thing the user actually came for:"],
+      kind: "numberedInsights",
+      items: [
+        {
+          heading: "Give the calculation better inputs",
+          body: "The redesign added relevant context like age and coverage level and let users compare by ZIP code, city, or state. Instead of treating every move like the same scenario, the calculator could account for more of the things that actually affect the result.",
+        },
+        {
+          heading: "Answer the question first",
+          body: "The result leads with the thing the user actually came for:",
+        },
+      ],
     },
     { kind: "quote", text: "Your rates could go up by X% for an increase of $X/year." },
     { kind: "story", body: ["No digging through a table to figure out what happened."] },
     {
-      kind: "story",
-      heading: "Show the alternatives",
-      body: ["Right underneath the headline result, users can compare what happens under state minimum, liability-only, and full-coverage scenarios. The calculator helps you understand your options."],
-    },
-    {
-      kind: "story",
-      heading: "Let people go deeper",
-      body: ["For someone who wants more than the headline answer, the calculator then breaks rates down company-by-company across both locations, including the direction and dollar difference.", "The hierarchy became:"],
+      kind: "numberedInsights",
+      startAt: 3,
+      items: [
+        {
+          heading: "Show the alternatives",
+          body: "Right underneath the headline result, users can compare what happens under state minimum, liability-only, and full-coverage scenarios. The calculator helps you understand your options.",
+        },
+        {
+          heading: "Let people go deeper",
+          body: "For someone who wants more than the headline answer, the calculator then breaks rates down company-by-company across both locations, including the direction and dollar difference. The hierarchy became:",
+        },
+      ],
     },
     { kind: "flowSteps", steps: ["Context", "Inputs", "Answer", "Alternatives", "Evidence", "Quote"] },
     { kind: "story", body: ["The quick answer stays quick. The detail is there when you want it."] },
@@ -1381,44 +1404,58 @@ const carInsurance: CaseStudyContent = {
     {
       kind: "numberedInsights",
       items: [
-        "Users routinely scrolled past dense walls of text, so I reworked lower-performing sections like FAQs and expert content into formats that were easier to scan and interact with.",
-        "Long comparison tables weren't always the clearest way to communicate information, so I explored more summarized product-card formats when users responded better to them.",
-        "Trust also kept coming up. Insurance is a high-stakes category, and users cared about where information came from, who wrote it, and how calculations were made. I designed stronger author, qualification, and methodology patterns into the system instead of treating credibility as an afterthought.",
+        {
+          heading: "Make dense content easier to scan",
+          body: "Users routinely scrolled past dense walls of text, so I reworked lower-performing sections like FAQs and expert content into formats that were easier to scan and interact with.",
+        },
+      ],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/carinsurance-com/expert-quotes-redesign.webp",
+      transparentMedia: true,
+      alt: "Before and after of the expert-quotes module, from a plain accordion to a selectable expert-tip card",
+      caption: "before → after: expert quotes, redesigned",
+      width: 1751,
+      height: 958,
+    },
+    {
+      kind: "numberedInsights",
+      startAt: 2,
+      items: [
+        {
+          heading: "Replace comparison tables with clearer summaries",
+          body: "Long comparison tables weren't always the clearest way to communicate information, so I explored more summarized product-card formats when users responded better to them.",
+        },
+      ],
+    },
+    {
+      kind: "image",
+      src: "/case-studies/carinsurance-com/review-page-redesign.webp",
+      transparentMedia: true,
+      alt: "Before and after of a company review page, from plain text to a scored, structured review layout",
+      caption: "before → after: company reviews, redesigned",
+      width: 1796,
+      height: 1083,
+    },
+    {
+      kind: "numberedInsights",
+      startAt: 3,
+      items: [
+        {
+          heading: "Design credibility into the system",
+          body: "Trust also kept coming up. Insurance is a high-stakes category, and users cared about where information came from, who wrote it, and how calculations were made. I designed stronger author, qualification, and methodology patterns into the system instead of treating credibility as an afterthought.",
+        },
       ],
     },
     {
       kind: "image",
       src: "/case-studies/carinsurance-com/trust-module.png",
+      transparentMedia: true,
       alt: "A 'Why Trust CarInsurance.com' module with author, editor, and fact-checker bylines alongside stats: 130 providers reviewed, 1.2 million quotes analyzed, 800 research hours, 12,500 customers surveyed, and 29 years of industry expertise",
       caption: "building trust: verified bylines and the research behind every rate",
       width: 2680,
       height: 588,
-    },
-    {
-      kind: "imagePair",
-      images: [
-        {
-          src: "/case-studies/carinsurance-com/expert-quotes-redesign.webp",
-          transparentMedia: true,
-          alt: "Before and after of the expert-quotes module, from a plain accordion to a selectable expert-tip card",
-          caption: "before → after: expert quotes, redesigned",
-          width: 1751,
-          height: 958,
-        },
-        {
-          src: "/case-studies/carinsurance-com/review-page-redesign.webp",
-          transparentMedia: true,
-          alt: "Before and after of a company review page, from plain text to a scored, structured review layout",
-          caption: "before → after: company reviews, redesigned",
-          width: 1796,
-          height: 1083,
-        },
-      ],
-    },
-    {
-      kind: "sectionHeading",
-      eyebrow: "lesson",
-      heading: "Good design isn't protecting your first idea. If testing tells you the thing you made is worse, make another thing",
     },
     { kind: "sectionHeading", eyebrow: "balancing needs", heading: "Users were not the only constraint" },
     {
@@ -1428,9 +1465,42 @@ const carInsurance: CaseStudyContent = {
     {
       kind: "numberedInsights",
       items: [
-        "One example was the Learn More module. Its original redesign was too visually prominent and pulled attention away from the surrounding content. But simply removing it wasn't an option because it served an SEO and business purpose. So I reduced its visual dominance while preserving the function it needed to serve.",
-        "Authorship had a different constraint. Articles could involve multiple writers and contributors, but the existing UI didn't give that work much visibility. I redesigned the author module so multiple contributors could receive credit without letting metadata take over the page.",
-        "I also created templates for more visual, shareable infographics that editors could reuse inside articles.",
+        {
+          heading: "Balance usability with business needs",
+          body: "One example was the Learn More module. Its original redesign was too visually prominent and pulled attention away from the surrounding content. But simply removing it wasn't an option because it served an SEO and business purpose. So I reduced its visual dominance while preserving the function it needed to serve.",
+        },
+      ],
+    },
+    {
+      kind: "imagePair",
+      label: "before → after",
+      images: [
+        {
+          src: "/case-studies/carinsurance-com/learn-more-before.png",
+          transparentMedia: true,
+          alt: "The old Learn More widget: a prominent list of long text links under 'Learn more about car insurance rates'",
+          caption: "the old widget: prominent, pulling users off the page",
+          width: 751,
+          height: 189,
+        },
+        {
+          src: "/case-studies/carinsurance-com/learn-more-after.png",
+          transparentMedia: true,
+          alt: "The redesigned Learn More widget: the same links as quieter, rounded cards",
+          caption: "simplified into quieter, rounded cards",
+          width: 751,
+          height: 250,
+        },
+      ],
+    },
+    {
+      kind: "numberedInsights",
+      startAt: 2,
+      items: [
+        {
+          heading: "Give every contributor visible credit",
+          body: "Authorship had a different constraint. Articles could involve multiple writers and contributors, but the existing UI didn't give that work much visibility. I redesigned the author module so multiple contributors could receive credit without letting metadata take over the page.",
+        },
       ],
     },
     {
@@ -1443,28 +1513,19 @@ const carInsurance: CaseStudyContent = {
       height: 845,
     },
     {
-      kind: "imagePair",
-      label: "before → after",
-      images: [
+      kind: "numberedInsights",
+      startAt: 3,
+      items: [
         {
-          src: "/case-studies/carinsurance-com/learn-more-before.png",
-          alt: "The old Learn More widget: a prominent list of long text links under 'Learn more about car insurance rates'",
-          caption: "the old widget: prominent, pulling users off the page",
-          width: 751,
-          height: 189,
-        },
-        {
-          src: "/case-studies/carinsurance-com/learn-more-after.png",
-          alt: "The redesigned Learn More widget: the same links as quieter, rounded cards",
-          caption: "simplified into quieter, rounded cards",
-          width: 751,
-          height: 250,
+          heading: "Make editorial content reusable and shareable",
+          body: "I also created templates for more visual, shareable infographics that editors could reuse inside articles.",
         },
       ],
     },
     {
       kind: "image",
       src: "/case-studies/carinsurance-com/infographics-templates.png",
+      transparentMedia: true,
       alt: "A sheet of shareable infographic templates: Top 5 Cheapest Cars to Insure shown as a bar list, bar chart, and area chart, and a satisfaction donut chart for USAA customers",
       caption: "the deliverable: shareable infographic templates, built to drive traffic back to the site",
       width: 1500,
@@ -1516,8 +1577,16 @@ const carInsurance: CaseStudyContent = {
     {
       kind: "story",
       eyebrow: "impact",
+      heading: "What changed after the redesign went live",
       body: ["But the numbers I care about more are what happened after the redesign went live.", "In the month after launch compared with the month before:"],
-      items: ["13% more organic traffic", "18% more insurance quote requests"],
+    },
+    {
+      kind: "siteMetrics",
+      items: [
+        { value: "13%", label: "more organic traffic" },
+        { value: "18%", label: "more insurance quote requests" },
+        { value: "~10 min", label: "to assemble a common new page, down from 2–3 hours" },
+      ],
     },
     {
       kind: "story",

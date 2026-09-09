@@ -13,7 +13,7 @@ export default function PrototypeCompare({ tabs }: { tabs: Tab[] }) {
   const t = tabs[idx];
 
   return (
-    <div className="case-box not-prose">
+    <div className="case-box not-prose case-inline-evidence case-text-compare">
       <div className="flex flex-wrap">
         {tabs.map((tab, i) => (
           <button

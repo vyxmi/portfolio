@@ -13,6 +13,7 @@ import ReviewerAccess from "@/components/case-study/ReviewerAccess";
 import { articleSections } from "@/lib/presentation";
 import HeroScene from "@/components/case-study/HeroScene";
 import ProjectVisual from "@/components/work/ProjectVisual";
+import FridgeCaseStudy from "@/components/fridge/CaseStudyPage";
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
@@ -38,6 +39,8 @@ export default async function CaseStudyPage({ params, searchParams }: { params: 
   const idx = visible.findIndex((p) => p.slug === slug);
   const next = idx === -1 ? undefined : visible[(idx + 1) % visible.length];
   const previous = idx === -1 ? undefined : visible[(idx - 1 + visible.length) % visible.length];
+
+  if (idx !== -1) return <FridgeCaseStudy project={project} locked={locked} incorrect={incorrect} related={[next!, previous!]} />;
 
   // Same ids the sectionHeading blocks themselves render (see
   // CaseStudy.tsx) — one slug function shared between the two so a stop

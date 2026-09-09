@@ -11,7 +11,7 @@ export default function TextCompare({ tabs }: { tabs: { label: string; body: str
   const t = tabs[idx];
 
   return (
-    <div className="case-box not-prose">
+    <div className="case-box not-prose case-inline-evidence case-text-compare">
       <div className="flex flex-wrap">
         {tabs.map((tab, i) => (
           <button

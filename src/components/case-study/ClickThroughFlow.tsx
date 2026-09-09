@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
+import Zoomable from "@/components/ui/Zoomable";
 
-type Step = { label: string; note?: string[] };
+type Step = { label: string; note?: string[]; image?: { src: string; alt: string; width: number; height: number } };
 type Flow = { label: string; hasImages?: boolean; steps: Step[] };
 
 // Lets the reader actually advance through a real named sequence instead
@@ -11,9 +13,8 @@ type Flow = { label: string; hasImages?: boolean; steps: Step[] };
 // just "next" one at a time — and each step can carry its own note(s),
 // shown only while that step is current, so real in-the-moment
 // annotations ("why is this hidden on hover?") read like margin notes
-// instead of one paragraph dump above the diagram. A flow marked
-// hasImages reserves a placeholder above the stepper for the real
-// screenshot/gif of whichever step is current.
+// instead of one paragraph dump above the diagram. Each step can carry
+// a real screenshot that changes with the selection.
 export default function ClickThroughFlow({ flows }: { flows: Flow[] }) {
   const [flowIdx, setFlowIdx] = useState(0);
   const [step, setStep] = useState(0);
@@ -28,7 +29,7 @@ export default function ClickThroughFlow({ flows }: { flows: Flow[] }) {
   }
 
   return (
-    <div className="case-box not-prose">
+    <div className="case-box not-prose case-inline-evidence case-click-flow">
       {flows.length > 1 && (
         <div className="flex flex-wrap">
           {flows.map((f, i) => (
@@ -51,6 +52,14 @@ export default function ClickThroughFlow({ flows }: { flows: Flow[] }) {
 
       <div className="p-5 sm:p-6">
         {flows.length === 1 && flow.label && <div className="cap mb-3">{flow.label}</div>}
+
+        {current.image && (
+          <div className="mb-5 mx-auto w-full" style={{ maxWidth: 500 }}>
+            <Zoomable src={current.image.src} alt={current.image.alt}>
+              <Image {...current.image} alt={current.image.alt} sizes="(max-width: 620px) 80vw, 500px" className="block h-auto w-full" />
+            </Zoomable>
+          </div>
+        )}
 
         <div className="flow-current-step" aria-live="polite"><span>{String(step + 1).padStart(2, "0")}</span><strong>{current.label}</strong></div>
 

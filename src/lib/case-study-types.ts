@@ -2,6 +2,7 @@
 // these in whatever order and density its real content calls for,
 // nothing forces the same sequence twice.
 export type Block =
+  | { kind: "numberedList"; heading?: string; startAt?: number; items: string[] }
   | { kind: "story"; eyebrow?: string; heading?: string; body?: string[]; items?: string[] }
   // The one card-styled title treatment on a case study page — reserved
   // for a real question the work was answering (almost always a "how
@@ -16,7 +17,7 @@ export type Block =
   // writing; a bullet fragment list stays "story"/items. An item can be
   // plain body text, or its own {heading, body} when the source gives
   // each point its own short bolded headline before the explanation.
-  | { kind: "numberedInsights"; eyebrow?: string; heading?: string; items: (string | { heading: string; body: string })[] }
+  | { kind: "numberedInsights"; eyebrow?: string; heading?: string; startAt?: number; items: (string | { heading: string; body: string })[] }
   | {
       kind: "researchRatings";
       label?: string;
@@ -91,7 +92,7 @@ export type Block =
   // for flows whose steps are real UI states, not just named waypoints.
   | {
       kind: "clickThrough";
-      flows: { label: string; hasImages?: boolean; steps: { label: string; note?: string[] }[] }[];
+      flows: { label: string; hasImages?: boolean; steps: { label: string; note?: string[]; image?: { src: string; alt: string; width: number; height: number } }[] }[];
     }
   // Two labeled funnels (e.g. before/after a redesign) shown stacked,
   // each stage a real percentage of that group's own top stage. A

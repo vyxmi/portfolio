@@ -21,19 +21,19 @@ export default function RatioStat({
   caption?: string;
 }) {
   return (
-    <ScrollReveal className="not-prose">
-      <div className="case-box flex items-center gap-3 p-5 sm:gap-6 sm:p-8">
-        <div className="min-w-0 flex-1 rounded-[var(--r-md)] py-4 text-center" style={{ background: "var(--paper-dim)" }}>
+    <ScrollReveal className="not-prose case-inline-evidence">
+      <div className="case-ratio flex items-center gap-3 p-5 sm:gap-6 sm:p-8">
+        <div className="case-ratio-value min-w-0 flex-1 py-4 text-center">
           <div className="font-mono text-[34px] font-bold leading-none sm:text-[44px]" style={{ color: "var(--ink-mute)", letterSpacing: "-.02em" }}>
             {before}
           </div>
           <div className="cap mt-2 px-2">{beforeLabel}</div>
         </div>
         <svg width="30" height="16" viewBox="0 0 28 14" fill="none" className="flex-none" aria-hidden>
-          <path d="M1 7H26M26 7L20 1.5M26 7L20 12.5" stroke="var(--accent)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M1 7H26M26 7L20 1.5M26 7L20 12.5" stroke="var(--line-strong)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <div className="min-w-0 flex-1 rounded-[var(--r-md)] py-4 text-center" style={{ background: "rgba(var(--accent-rgb),.08)" }}>
-          <div className="font-mono text-[34px] font-bold leading-none sm:text-[44px]" style={{ color: "var(--accent)", letterSpacing: "-.02em" }}>
+        <div className="case-ratio-value min-w-0 flex-1 py-4 text-center">
+          <div className="font-mono text-[34px] font-bold leading-none sm:text-[44px]" style={{ color: "var(--ink)", letterSpacing: "-.02em" }}>
             {after}
           </div>
           <div className="cap mt-2 px-2">{afterLabel}</div>

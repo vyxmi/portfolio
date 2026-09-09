@@ -8,14 +8,14 @@ export default function ResearchRatings({
   items: { label: string; question: string; rating: string }[];
 }) {
   return (
-    <ScrollReveal className="not-prose">
+    <ScrollReveal className="not-prose case-inline-evidence">
       {label && <div className="eyebrow mb-2 text-center">{label}</div>}
-      <div className="case-box grid overflow-hidden md:grid-cols-3" style={{ background: "var(--paper-dim)" }}>
+      <div className="case-ratings case-linear-grid grid overflow-hidden md:grid-cols-3">
         {items.map((item, index) => (
           <div
             key={item.label}
-            className="flex flex-col justify-between p-6 md:min-h-[220px]"
-            style={{ borderLeft: index > 0 ? "1px solid var(--line)" : undefined }}
+            className="case-linear-item flex flex-col justify-between p-6 md:min-h-[220px]"
+            data-index={index}
           >
             <div>
               <div className="eyebrow mb-3">{item.label}</div>

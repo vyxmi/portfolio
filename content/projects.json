@@ -31,11 +31,6 @@
       "heroLine": "I redesigned one of the biggest drop-off points in our purchase funnel, built the frontend directly on our existing product, and worked with engineering to ship it in 2 days.",
       "blocks": [
         {
-          "kind": "imagePlaceholder",
-          "label": "hero: old flow ↔ new flow",
-          "note": "The old-flow ↔ new-flow animation for the very top of this page, send it and I'll place it above everything else."
-        },
-        {
           "kind": "sectionHeading",
           "eyebrow": "context",
           "heading": "7 clicks and 7 seconds. H O R R E N D O U S"
@@ -61,6 +56,14 @@
           "body": [
             "I started by running the whole thing myself with test funds and taking notes."
           ]
+        },
+        {
+          "kind": "image",
+          "src": "/case-studies/chance-deposit-flow/transaction-details.png",
+          "alt": "Figma exploration: making redemption and transaction details visible in one place",
+          "caption": "Figma exploration: making redemption and transaction details visible in one place",
+          "width": 652,
+          "height": 640
         },
         {
           "kind": "sectionHeading",
@@ -139,9 +142,12 @@
           ]
         },
         {
-          "kind": "imagePlaceholder",
-          "label": "redeem-reminder toast",
-          "note": "A screenshot of that redeem-reminder toast goes here."
+          "kind": "image",
+          "src": "/case-studies/chance-deposit-flow/redeem-reminder.png",
+          "alt": "The reminder state for deposits still waiting to be redeemed",
+          "caption": "The reminder state for deposits still waiting to be redeemed",
+          "width": 1707,
+          "height": 960
         },
         {
           "kind": "story",
@@ -176,6 +182,26 @@
             "USDC becomes redeemable",
             "redeem",
             "Chance balance updates"
+          ]
+        },
+        {
+          "kind": "imagePair",
+          "label": "payment received → funds ready",
+          "images": [
+            {
+              "src": "/case-studies/chance-deposit-flow/payment-loading.png",
+              "alt": "Payment received: keep people informed while funds become available",
+              "caption": "Payment received: keep people informed while funds become available",
+              "width": 650,
+              "height": 547
+            },
+            {
+              "src": "/case-studies/chance-deposit-flow/funds-ready.png",
+              "alt": "Funds ready: one clear action adds them to the balance",
+              "caption": "Funds ready: one clear action adds them to the balance",
+              "width": 650,
+              "height": 547
+            }
           ]
         },
         {
@@ -226,6 +252,14 @@
           "kind": "sectionHeading",
           "eyebrow": "constraint",
           "heading": "Keep the backend. Fix everything around it"
+        },
+        {
+          "kind": "image",
+          "src": "/case-studies/chance-deposit-flow/payment-details.png",
+          "alt": "The existing CoinFlow widget inside the redesigned balance modal",
+          "caption": "The existing CoinFlow widget inside the redesigned balance modal",
+          "width": 650,
+          "height": 810
         },
         {
           "kind": "story",
@@ -281,6 +315,14 @@
             "Deposit USDC directly",
             "Withdraw"
           ]
+        },
+        {
+          "kind": "image",
+          "src": "/case-studies/chance-deposit-flow/balance-default.png",
+          "alt": "One balance modal, with Add Funds and Buy With Card selected by default",
+          "caption": "One balance modal, with Add Funds and Buy With Card selected by default",
+          "width": 650,
+          "height": 488
         },
         {
           "kind": "clickThrough",
@@ -349,6 +391,12 @@
               "steps": [
                 {
                   "label": "Click your balance",
+                  "image": {
+                    "src": "/case-studies/chance-deposit-flow/balance-default.png",
+                    "alt": "Click your balance",
+                    "width": 650,
+                    "height": 488
+                  },
                   "note": [
                     "No hover.",
                     "No Manage Funds screen.",
@@ -358,6 +406,12 @@
                 },
                 {
                   "label": "Pick an amount",
+                  "image": {
+                    "src": "/case-studies/chance-deposit-flow/card-payment.png",
+                    "alt": "Pick an amount",
+                    "width": 650,
+                    "height": 810
+                  },
                   "note": [
                     "The quick-add buttons map to pack prices.",
                     "Buying two? Click twice.",
@@ -368,6 +422,12 @@
                 },
                 {
                   "label": "Purchase",
+                  "image": {
+                    "src": "/case-studies/chance-deposit-flow/funds-ready.png",
+                    "alt": "Purchase",
+                    "width": 650,
+                    "height": 547
+                  },
                   "note": [
                     "CoinFlow handles payment.",
                     "Then: payment received, getting your funds ready...",
@@ -397,9 +457,12 @@
           ]
         },
         {
-          "kind": "imagePlaceholder",
-          "label": "the pack card",
-          "note": "A screenshot of the pack card goes here."
+          "kind": "image",
+          "src": "/case-studies/chance-deposit-flow/pack-entry.png",
+          "alt": "The lightweight Top Off prompt stays with the pack",
+          "caption": "The lightweight Top Off prompt stays with the pack",
+          "width": 1452,
+          "height": 971
         },
         {
           "kind": "story",
@@ -409,9 +472,12 @@
           ]
         },
         {
-          "kind": "imagePlaceholder",
-          "label": "deposit modal slams open",
-          "note": "The deposit-modal-slams-open recording goes here."
+          "kind": "image",
+          "src": "/case-studies/chance-deposit-flow/direct-modal-entry.png",
+          "alt": "Alternative explored: opening the full balance modal over the pack",
+          "caption": "Alternative explored: opening the full balance modal over the pack",
+          "width": 1452,
+          "height": 971
         },
         {
           "kind": "story",
@@ -419,11 +485,6 @@
             "They hated having the payment modal open in their face.",
             "We kept the lightweight Top Off screen."
           ]
-        },
-        {
-          "kind": "imagePlaceholder",
-          "label": "the Top Off screen",
-          "note": "A screenshot of the Top Off screen goes here."
         },
         {
           "kind": "story",
@@ -452,6 +513,14 @@
           "body": [
             "So I vibe coded the frontend directly on our existing product using Claude."
           ]
+        },
+        {
+          "kind": "image",
+          "src": "/case-studies/chance-deposit-flow/modal-explorations.png",
+          "alt": "Figma interaction states used to work through amount selection, payment, and redemption",
+          "caption": "Figma interaction states used to work through amount selection, payment, and redemption",
+          "width": 4096,
+          "height": 833
         },
         {
           "kind": "flowSteps",
@@ -493,6 +562,14 @@
           ]
         },
         {
+          "kind": "image",
+          "src": "/case-studies/chance-deposit-flow/mobile-payment.png",
+          "alt": "The mobile payment exploration, including the full CoinFlow widget",
+          "caption": "The mobile payment exploration, including the full CoinFlow widget",
+          "width": 395,
+          "height": 1222
+        },
+        {
           "kind": "expand",
           "label": "questions I needed answered",
           "items": [
@@ -511,6 +588,14 @@
           "kind": "story",
           "eyebrow": "impact",
           "heading": "Then we watched the funnel"
+        },
+        {
+          "kind": "image",
+          "src": "/case-studies/chance-deposit-flow/balance-updated.png",
+          "alt": "The intended end state: balance updated, modal closed, back to the packs",
+          "caption": "The intended end state: balance updated, modal closed, back to the packs",
+          "width": 1440,
+          "height": 960
         },
         {
           "kind": "funnelCompare",
@@ -566,8 +651,20 @@
           ]
         },
         {
-          "kind": "insight",
+          "kind": "sectionHeading",
           "eyebrow": "takeaways",
+          "heading": "Takeaways"
+        },
+        {
+          "kind": "image",
+          "src": "/case-studies/chance-deposit-flow/funds-ready.png",
+          "alt": "A clearer next action makes the transaction easier to understand",
+          "caption": "A clearer next action makes the transaction easier to understand",
+          "width": 650,
+          "height": 547
+        },
+        {
+          "kind": "insight",
           "heading": "Follow the money to make money",
           "body": [
             "I learned to get close to the system before trying to simplify the interface. Once I understood how the money actually moved, it became pretty obvious what users never needed to know."

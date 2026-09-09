@@ -9,7 +9,7 @@ export default function Expand({ label, body, items }: { label: string; body?: s
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="case-box not-prose">
+    <div className="case-box not-prose case-inline-evidence case-expand">
       <button
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors duration-150"
