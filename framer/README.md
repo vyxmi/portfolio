@@ -8,6 +8,7 @@ Next.js app in this repo; each file is pasted into Framer as-is.
 | `JellyfishHero.tsx` | Full-screen underwater background with glowing moon jellyfish |
 | `OceanSound.tsx` | Sound on/off pill that plays generated ocean ambience |
 | `GlassSign.tsx` | A little frosted-glass "please do not tap the glass" sign |
+| `SpeciesSign.tsx` | An aquarium species placard with your name, title and location |
 
 ## Add them to Framer
 
@@ -77,3 +78,16 @@ from **Tap Replies** ("hey!", "shh, they're sleeping", ...).
 
 Controls: text, tap replies, jellyfish icon, font, font size, text color and
 tint.
+
+## SpeciesSign.tsx
+
+A copy of the glass sign styled like the placard next to an aquarium tank that
+describes the species: a small location tag, your name as the common name,
+your title in italics like a scientific name, a fine rule, and "please do not
+tap the glass" along the bottom. Four small screws hold it to the glass and
+the corners have a 2px radius. Tapping it does the same ripple, wobble and
+talk-back as GlassSign.
+
+Controls: location, name, title, notice, tap replies, jellyfish icon, name
+font, font, name size (everything else scales with it), radius, text color
+and tint. Width can be auto (fits the text) or fixed.
