@@ -99,6 +99,10 @@ export default function SpeciesSign(props: Props) {
     const sub = Math.max(11, Math.round(nameSize * 0.54))
     const glow = "0 0 14px " + tinted(tint, 40)
     const r = Math.max(0, radius)
+    // Only the family is taken from the font controls, so the sign keeps its
+    // own weights, sizes and the italic title.
+    const family = font && font.fontFamily ? { fontFamily: font.fontFamily } : {}
+    const nameFamily = nameFont && nameFont.fontFamily ? { fontFamily: nameFont.fontFamily } : family
 
     return (
         <div style={{ ...style, display: "inline-flex" }}>
@@ -220,7 +224,7 @@ export default function SpeciesSign(props: Props) {
                         alignItems: "flex-start",
                         justifyContent: "space-between",
                         gap: 16,
-                        ...font,
+                        ...family,
                     }}
                 >
                     <span
@@ -257,7 +261,7 @@ export default function SpeciesSign(props: Props) {
                         letterSpacing: "-0.01em",
                         fontWeight: 600,
                         textShadow: glow,
-                        ...nameFont,
+                        ...nameFamily,
                     }}
                 >
                     {name}
@@ -271,7 +275,7 @@ export default function SpeciesSign(props: Props) {
                         lineHeight: 1.3,
                         fontStyle: "italic",
                         opacity: 0.68,
-                        ...font,
+                        ...family,
                     }}
                 >
                     {title}
@@ -300,7 +304,7 @@ export default function SpeciesSign(props: Props) {
                         letterSpacing: "0.1em",
                         textTransform: "uppercase",
                         whiteSpace: "nowrap",
-                        ...font,
+                        ...family,
                     }}
                 >
                     <span
