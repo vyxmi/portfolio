@@ -4,7 +4,7 @@
 // Paste this whole file into Framer: Assets → Code → "+" → New Code File,
 // name it SpeciesSign, then drag it onto the page.
 //
-// A small location tag, your name as the common name, your title in italics
+// A small location line, your name as the common name, your title in italics
 // like a scientific name, and "please do not tap the glass" along the bottom.
 // The pane is held to the glass by four little screws, and a glint of light
 // slides across it now and then. Tap it anyway and the glass ripples, the
@@ -232,14 +232,10 @@ export default function SpeciesSign(props: Props) {
                             display: "inline-flex",
                             alignItems: "center",
                             gap: 5,
-                            padding: "3px 7px 3px 6px",
-                            borderRadius: Math.min(r, 2),
-                            border: "1px solid " + tinted(tint, 45),
-                            background: tinted(tint, 12),
                             fontSize: small,
+                            fontFamily: "inherit",
                             lineHeight: 1.1,
-                            letterSpacing: "0.12em",
-                            textTransform: "uppercase",
+                            letterSpacing: "0em",
                             whiteSpace: "nowrap",
                             fontWeight: 500,
                         }}
@@ -301,7 +297,7 @@ export default function SpeciesSign(props: Props) {
                         position: "relative",
                         fontSize: small,
                         lineHeight: 1.2,
-                        letterSpacing: "0.1em",
+                        letterSpacing: "0em",
                         textTransform: "uppercase",
                         whiteSpace: "nowrap",
                         ...family,
