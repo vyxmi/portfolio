@@ -112,7 +112,7 @@ export default function GlassSign(props: Props) {
                     gap: 10,
                     margin: 0,
                     padding: "15px 22px 13px 18px",
-                    borderRadius: 18,
+                    borderRadius: 2,
                     border: "1px solid rgba(255, 255, 255, 0.2)",
                     background:
                         "linear-gradient(140deg, rgba(255,255,255,0.17), rgba(255,255,255,0.05) 45%, " +
@@ -154,7 +154,7 @@ export default function GlassSign(props: Props) {
                         right: 1,
                         top: 1,
                         height: "48%",
-                        borderRadius: "17px 17px 40% 40% / 17px 17px 10px 10px",
+                        borderRadius: "1px 1px 0 0",
                         background: "linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0))",
                         pointerEvents: "none",
                     }}

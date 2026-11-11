@@ -31,6 +31,7 @@ interface Props {
     accent: string
     fill: string
     border: string
+    radius: number
     style?: React.CSSProperties
 }
 
@@ -224,6 +225,7 @@ export default function OceanSound(props: Props) {
         accent = "#6FA0FF",
         fill = "rgba(255, 255, 255, 0.04)",
         border = "rgba(111, 160, 255, 0.3)",
+        radius = 2,
         style,
     } = props
 
@@ -293,7 +295,7 @@ export default function OceanSound(props: Props) {
                     gap: 8,
                     margin: 0,
                     padding: showLabel ? "9px 14px 9px 12px" : 10,
-                    borderRadius: 999,
+                    borderRadius: radius,
                     border: "1px solid " + border,
                     background: fill,
                     backdropFilter: "blur(8px)",
@@ -436,4 +438,5 @@ addPropertyControls(OceanSound, {
     accent: { type: ControlType.Color, title: "Accent", defaultValue: "#6FA0FF" },
     fill: { type: ControlType.Color, title: "Fill", defaultValue: "rgba(255, 255, 255, 0.04)" },
     border: { type: ControlType.Color, title: "Border", defaultValue: "rgba(111, 160, 255, 0.3)" },
+    radius: { type: ControlType.Number, title: "Radius", min: 0, max: 999, step: 1, unit: "px", defaultValue: 2 },
 })
