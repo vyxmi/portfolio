@@ -82,7 +82,7 @@ function toRGB(color: string, fallback: RGB): RGB {
 }
 
 const rgba = (c: RGB, a: number) =>
-    `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a < 0 ? 0 : a > 1 ? 1 : a})`
+    "rgba(" + (c[0] | 0) + "," + (c[1] | 0) + "," + (c[2] | 0) + "," + (a < 0 ? 0 : a > 1 ? 1 : a) + ")"
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a)
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
@@ -456,7 +456,7 @@ function createOcean(volume: number, url?: string): Ocean | null {
 export default function JellyfishHero(props: Props) {
     const {
         name = "Vyomi Seth",
-        title = "Product Designer & Engineer",
+        title = "Product Design Engineer, Growth",
         location = "Bay Area, CA",
         showText = true,
         textAlign = "center",
@@ -595,7 +595,7 @@ export default function JellyfishHero(props: Props) {
                 Math.max(W, H) * 0.75
             )
             vig.addColorStop(0, "rgba(0,0,0,0)")
-            vig.addColorStop(1, `rgba(0,0,0,${0.45 + 0.5 * o.darkness})`)
+            vig.addColorStop(1, "rgba(0,0,0," + (0.45 + 0.5 * o.darkness) + ")")
             g.fillStyle = vig
             g.fillRect(0, 0, W, H)
         }
@@ -1013,12 +1013,14 @@ export default function JellyfishHero(props: Props) {
                 background,
             }}
         >
-            <style>{`
-                @keyframes jh-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none } }
-                @keyframes jh-breathe { 0%,100% { opacity: .35 } 50% { opacity: 1 } }
-                .jh-sound:hover { background: rgba(255,255,255,0.1) !important }
-                .jh-sound:focus-visible { outline: 2px solid ${rgba(body, 0.9)}; outline-offset: 3px }
-            `}</style>
+            <style>
+                {"@keyframes jh-rise { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: none } }" +
+                    "@keyframes jh-breathe { 0%,100% { opacity: .35 } 50% { opacity: 1 } }" +
+                    ".jh-sound:hover { background: rgba(255,255,255,0.1) !important }" +
+                    ".jh-sound:focus-visible { outline: 2px solid " +
+                    rgba(body, 0.9) +
+                    "; outline-offset: 3px }"}
+            </style>
             <canvas
                 ref={canvasRef}
                 aria-hidden="true"
@@ -1050,11 +1052,18 @@ export default function JellyfishHero(props: Props) {
                     <h1
                         style={{
                             margin: 0,
-                            fontSize: `clamp(${Math.round(nameSize * 0.5)}px, ${(nameSize / 14.4).toFixed(2)}vw, ${nameSize}px)`,
+                            fontSize:
+                                "clamp(" +
+                                Math.round(nameSize * 0.5) +
+                                "px, " +
+                                (nameSize / 14.4).toFixed(2) +
+                                "vw, " +
+                                nameSize +
+                                "px)",
                             lineHeight: 1,
                             letterSpacing: "-0.02em",
                             fontWeight: (font && font.fontWeight) || 500,
-                            textShadow: `0 0 28px ${rgba(body, 0.45)}, 0 0 2px ${rgba(body, 0.3)}`,
+                            textShadow: "0 0 28px " + rgba(body, 0.45) + ", 0 0 2px " + rgba(body, 0.3),
                             animation: "jh-rise 1.4s cubic-bezier(.2,.7,.2,1) both",
                         }}
                     >
@@ -1064,10 +1073,15 @@ export default function JellyfishHero(props: Props) {
                         <p
                             style={{
                                 margin: "0.9em 0 0",
-                                fontSize: `clamp(15px, ${(nameSize / 60).toFixed(2)}vw, ${Math.round(nameSize * 0.26)}px)`,
+                                fontSize:
+                                    "clamp(15px, " +
+                                    (nameSize / 60).toFixed(2) +
+                                    "vw, " +
+                                    Math.round(nameSize * 0.26) +
+                                    "px)",
                                 opacity: 0.85,
                                 letterSpacing: "0.01em",
-                                textShadow: `0 0 18px ${rgba(body, 0.4)}`,
+                                textShadow: "0 0 18px " + rgba(body, 0.4),
                                 animation: "jh-rise 1.4s .25s cubic-bezier(.2,.7,.2,1) both",
                             }}
                         >
@@ -1107,7 +1121,7 @@ export default function JellyfishHero(props: Props) {
                         gap: 8,
                         padding: "9px 14px 9px 12px",
                         borderRadius: 999,
-                        border: `1px solid ${rgba(body, 0.3)}`,
+                        border: "1px solid " + rgba(body, 0.3),
                         background: "rgba(255,255,255,0.04)",
                         backdropFilter: "blur(8px)",
                         WebkitBackdropFilter: "blur(8px)",
@@ -1131,7 +1145,7 @@ export default function JellyfishHero(props: Props) {
                                 height: 5,
                                 borderRadius: 5,
                                 background: rgba(body, 1),
-                                boxShadow: `0 0 8px ${rgba(body, 1)}`,
+                                boxShadow: "0 0 8px " + rgba(body, 1),
                                 animation: "jh-breathe 2.4s ease-in-out infinite",
                             }}
                         />
@@ -1187,7 +1201,7 @@ addPropertyControls(JellyfishHero, {
     title: {
         type: ControlType.String,
         title: "Job Title",
-        defaultValue: "Product Designer & Engineer",
+        defaultValue: "Product Design Engineer, Growth",
     },
     location: { type: ControlType.String, title: "Location", defaultValue: "Bay Area, CA" },
     showText: { type: ControlType.Boolean, title: "Show Text", defaultValue: true },
