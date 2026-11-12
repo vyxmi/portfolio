@@ -225,9 +225,9 @@ export default function OceanSound(props: Props) {
         font,
         color = "#EAF2FF",
         accent = "#6FA0FF",
-        fill = "rgba(255, 255, 255, 0.04)",
-        border = "rgba(111, 160, 255, 0.3)",
-        radius = 999,
+        fill = "rgba(255, 255, 255, 0)",
+        border = "rgba(255, 255, 255, 0.17)",
+        radius = 2,
         style,
     } = props
 
@@ -279,7 +279,7 @@ export default function OceanSound(props: Props) {
             <style>
                 {"@keyframes os-wave { 0%,100% { transform: scaleY(.3) } 50% { transform: scaleY(1) } }" +
                     "@keyframes os-breathe { 0%,100% { opacity: .35 } 50% { opacity: 1 } }" +
-                    ".os-btn:hover { background: rgba(255,255,255,0.1) !important }" +
+                    ".os-btn:hover { border-color: rgba(255,255,255,0.24) !important }" +
                     ".os-btn:focus-visible { outline: 2px solid " +
                     accent +
                     "; outline-offset: 3px }" +
@@ -300,9 +300,17 @@ export default function OceanSound(props: Props) {
                     padding: showLabel ? "9px 14px 9px 12px" : 11,
                     borderRadius: radius,
                     border: "1px solid " + border,
-                    background: fill,
-                    backdropFilter: "blur(8px)",
-                    WebkitBackdropFilter: "blur(8px)",
+                    // Frosted glass, matching the species sign.
+                    background:
+                        "linear-gradient(" + fill + ", " + fill + "), linear-gradient(150deg, rgba(255,255,255,0.065), rgba(255,255,255,0.0175) 42%, color-mix(in srgb, " +
+                        accent +
+                        " 5.5%, transparent))",
+                    backdropFilter: "blur(14px) saturate(140%)",
+                    WebkitBackdropFilter: "blur(14px) saturate(140%)",
+                    boxShadow:
+                        "inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(255,255,255,0.04), 0 14px 40px rgba(0,0,0,0.4), 0 0 36px color-mix(in srgb, " +
+                        accent +
+                        " 12%, transparent)",
                     color,
                     fontFamily: "inherit",
                     fontSize: 12,
@@ -311,7 +319,7 @@ export default function OceanSound(props: Props) {
                     textTransform: "lowercase",
                     whiteSpace: "nowrap",
                     cursor: "pointer",
-                    transition: "background .2s",
+                    transition: "border-color .2s",
                     ...font,
                 }}
             >
@@ -440,7 +448,7 @@ addPropertyControls(OceanSound, {
     },
     color: { type: ControlType.Color, title: "Text", defaultValue: "#EAF2FF" },
     accent: { type: ControlType.Color, title: "Accent", defaultValue: "#6FA0FF" },
-    fill: { type: ControlType.Color, title: "Fill", defaultValue: "rgba(255, 255, 255, 0.04)" },
-    border: { type: ControlType.Color, title: "Border", defaultValue: "rgba(111, 160, 255, 0.3)" },
-    radius: { type: ControlType.Number, title: "Radius", min: 0, max: 999, step: 1, unit: "px", defaultValue: 999 },
+    fill: { type: ControlType.Color, title: "Tint Layer", defaultValue: "rgba(255, 255, 255, 0)" },
+    border: { type: ControlType.Color, title: "Border", defaultValue: "rgba(255, 255, 255, 0.17)" },
+    radius: { type: ControlType.Number, title: "Radius", min: 0, max: 999, step: 1, unit: "px", defaultValue: 2 },
 })

@@ -38,6 +38,7 @@ interface Props {
     size: number
     speed: number
     cursorPull: number
+    clickPush: number
     glow: number
     particles: number
     rays: number
@@ -619,6 +620,7 @@ interface Opts {
     size: number
     speed: number
     cursorPull: number
+    clickPush: number
     glow: number
     particles: number
     rays: number
@@ -643,6 +645,7 @@ export default function JellyfishHero(props: Props) {
         size = 1,
         speed = 1,
         cursorPull = 0.7,
+        clickPush = 1,
         glow = 1,
         particles = 1,
         rays = 0.4,
@@ -666,6 +669,7 @@ export default function JellyfishHero(props: Props) {
         size,
         speed,
         cursorPull,
+        clickPush,
         glow,
         particles,
         rays,
@@ -681,6 +685,7 @@ export default function JellyfishHero(props: Props) {
     o.size = size
     o.speed = speed
     o.cursorPull = cursorPull
+    o.clickPush = clickPush
     o.glow = glow
     o.particles = particles
     o.rays = rays
@@ -758,6 +763,8 @@ export default function JellyfishHero(props: Props) {
         let parX = 0
         let parY = 0
         const pointer = { x: 0, y: 0, at: -100, inside: false }
+        // After a click the jellies are pushed away and stop following the cursor for a moment.
+        let calmUntil = -100
 
         const build = () => {
             const base = Math.min(W, H) * (lite ? 0.085 : 0.06) * o.size
@@ -975,7 +982,7 @@ export default function JellyfishHero(props: Props) {
             let pull = 0
             let cd = Infinity
             const cursorLive = pointer.inside && t - pointer.at < (coarse ? 6 : 4)
-            if (cursorLive && o.cursorPull > 0) {
+            if (cursorLive && o.cursorPull > 0 && t > calmUntil) {
                 const cx = pointer.x - j.x
                 const cy = pointer.y - j.y
                 cd = Math.hypot(cx, cy) || 1
@@ -1570,6 +1577,24 @@ export default function JellyfishHero(props: Props) {
             }
         }
         const onLeave = () => (pointer.inside = false)
+        // A click or tap anywhere on the page sends a push through the water.
+        const onDown = (ev: PointerEvent) => {
+            onMove(ev)
+            if (!pointer.inside || o.clickPush <= 0) return
+            const reach = Math.max(W, H) * 0.45
+            const kick = Math.min(W, H) * 0.9 * o.clickPush
+            for (const j of jellies) {
+                const sx = j.x - pointer.x
+                const sy = j.y - pointer.y
+                const d = Math.hypot(sx, sy) || 1
+                if (d > reach) continue
+                const f = 1 - d / reach
+                const k = kick * f * f * (0.4 + 0.6 * j.z)
+                j.vx += (sx / d) * k
+                j.vy += (sy / d) * k
+            }
+            calmUntil = t + 1.6
+        }
 
         resize()
         const ro = new ResizeObserver(resize)
@@ -1582,7 +1607,7 @@ export default function JellyfishHero(props: Props) {
         )
         io.observe(root)
         window.addEventListener("pointermove", onMove, { passive: true })
-        window.addEventListener("pointerdown", onMove, { passive: true })
+        window.addEventListener("pointerdown", onDown, { passive: true })
         document.addEventListener("pointerleave", onLeave)
         raf = requestAnimationFrame(frame)
 
@@ -1591,7 +1616,7 @@ export default function JellyfishHero(props: Props) {
             ro.disconnect()
             io.disconnect()
             window.removeEventListener("pointermove", onMove)
-            window.removeEventListener("pointerdown", onMove)
+            window.removeEventListener("pointerdown", onDown)
             document.removeEventListener("pointerleave", onLeave)
         }
     }, [count, mobileCount, size, particles, rays, darkness, depthBlur, autoQuality, colorKey])
@@ -1682,6 +1707,15 @@ addPropertyControls(JellyfishHero, {
     },
     size: { type: ControlType.Number, title: "Size", min: 0.4, max: 2.5, step: 0.05, defaultValue: 1 },
     speed: { type: ControlType.Number, title: "Speed", min: 0.2, max: 3, step: 0.05, defaultValue: 1 },
+    clickPush: {
+        type: ControlType.Number,
+        title: "Click Push",
+        min: 0,
+        max: 3,
+        step: 0.1,
+        defaultValue: 1,
+        description: "How hard a click pushes the jellyfish away. 0 turns it off.",
+    },
     cursorPull: {
         type: ControlType.Number,
         title: "Cursor Pull",

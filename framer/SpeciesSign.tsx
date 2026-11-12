@@ -8,7 +8,7 @@
 // like a scientific name, and "please do not tap the glass" along the bottom.
 // A glint of light
 // slides across it now and then. Tap it anyway and the glass ripples, the
-// sign wobbles, the jellyfish scrunches its eyes and the bottom line answers
+// sign wobbles, the jellyfish (awake while you hover) scrunches its eyes and the bottom line answers
 // back.
 
 import * as React from "react"
@@ -73,6 +73,7 @@ export default function SpeciesSign(props: Props) {
     const list = replies && replies.length ? replies : DEFAULT_REPLIES
     const [reply, setReply] = useState(-1)
     const [wobble, setWobble] = useState(0)
+    const [awake, setAwake] = useState(false)
     const [ripples, setRipples] = useState<Ripple[]>([])
     const taps = useRef(0)
     const nextId = useRef(0)
@@ -128,6 +129,10 @@ export default function SpeciesSign(props: Props) {
                 type="button"
                 className="ss-sign"
                 onClick={onTap}
+                onPointerEnter={() => setAwake(true)}
+                onPointerLeave={() => setAwake(false)}
+                onFocus={() => setAwake(true)}
+                onBlur={() => setAwake(false)}
                 aria-label={name + ", " + title + ", " + location + ". " + notice}
                 style={{
                     position: "relative",
@@ -187,7 +192,7 @@ export default function SpeciesSign(props: Props) {
                         width: "20%",
                         height: "180%",
                         background:
-                            "linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.12), rgba(255,255,255,0))",
+                            "linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.06), rgba(255,255,255,0))",
                         pointerEvents: "none",
                         animation: "ss-glare 8s ease-in-out 2s infinite",
                         transform: "translateX(-160%) skewX(-18deg)",
@@ -240,7 +245,7 @@ export default function SpeciesSign(props: Props) {
                         <Pin size={small + 1} />
                         {location}
                     </span>
-                    {showIcon && <Jelly tint={tint} startled={startled} size={Math.round(nameSize * 1.35)} />}
+                    {showIcon && <Jelly tint={tint} startled={startled} awake={awake} size={Math.round(nameSize * 1.35)} />}
                 </span>
 
                 {/* Common name, then the title in italics like a scientific name. */}
@@ -291,6 +296,8 @@ export default function SpeciesSign(props: Props) {
                     aria-hidden="true"
                     style={{
                         display: "grid",
+                        justifyItems: "center",
+                        textAlign: "center",
                         position: "relative",
                         fontSize: small,
                         lineHeight: 1.2,
@@ -360,7 +367,7 @@ function Pin({ size }: { size: number }) {
 }
 
 // A sleepy little moon jelly. It scrunches its eyes when the glass is tapped.
-function Jelly({ tint, startled, size }: { tint: string; startled: boolean; size: number }) {
+function Jelly({ tint, startled, awake, size }: { tint: string; startled: boolean; awake: boolean; size: number }) {
     return (
         <svg
             width={size}
@@ -383,6 +390,13 @@ function Jelly({ tint, startled, size }: { tint: string; startled: boolean; size
                 <>
                     <path d="M8.4 8.9l1.6.9-1.6.9" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
                     <path d="M15.6 8.9l-1.6.9 1.6.9" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
+                </>
+            ) : awake ? (
+                <>
+                    <ellipse cx="9.2" cy="9.6" rx=".95" ry="1.15" fill="currentColor" />
+                    <ellipse cx="14.8" cy="9.6" rx=".95" ry="1.15" fill="currentColor" />
+                    <circle cx="9.5" cy="9.2" r=".3" fill="rgba(0,0,0,0.5)" />
+                    <circle cx="15.1" cy="9.2" r=".3" fill="rgba(0,0,0,0.5)" />
                 </>
             ) : (
                 <>
