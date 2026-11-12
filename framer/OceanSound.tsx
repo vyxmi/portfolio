@@ -24,6 +24,7 @@ interface Props {
     volume: number
     soundFile: string
     showLabel: boolean
+    showIndicator: boolean
     labelOn: string
     labelOff: string
     font: React.CSSProperties
@@ -217,7 +218,8 @@ export default function OceanSound(props: Props) {
     const {
         volume = 0.5,
         soundFile = "",
-        showLabel = true,
+        showLabel = false,
+        showIndicator = false,
         labelOn = "sound on",
         labelOff = "sound off",
         font,
@@ -225,7 +227,7 @@ export default function OceanSound(props: Props) {
         accent = "#6FA0FF",
         fill = "rgba(255, 255, 255, 0.04)",
         border = "rgba(111, 160, 255, 0.3)",
-        radius = 2,
+        radius = 999,
         style,
     } = props
 
@@ -294,7 +296,8 @@ export default function OceanSound(props: Props) {
                     alignItems: "center",
                     gap: 8,
                     margin: 0,
-                    padding: showLabel ? "9px 14px 9px 12px" : 10,
+                    justifyContent: "center",
+                    padding: showLabel ? "9px 14px 9px 12px" : 11,
                     borderRadius: radius,
                     border: "1px solid " + border,
                     background: fill,
@@ -314,7 +317,7 @@ export default function OceanSound(props: Props) {
             >
                 <SpeakerIcon on={on} />
                 {showLabel && <span>{on ? labelOn : labelOff}</span>}
-                {on ? (
+                {!showIndicator ? null : on ? (
                     <span
                         aria-hidden="true"
                         style={{ display: "inline-flex", alignItems: "center", gap: 2, height: 12 }}
@@ -414,7 +417,8 @@ addPropertyControls(OceanSound, {
         allowedFileTypes: ["mp3", "wav", "ogg", "m4a"],
         description: "Optional. Leave empty to use the generated ocean sound.",
     },
-    showLabel: { type: ControlType.Boolean, title: "Label", defaultValue: true },
+    showLabel: { type: ControlType.Boolean, title: "Label", defaultValue: false },
+    showIndicator: { type: ControlType.Boolean, title: "Indicator", defaultValue: false },
     labelOn: {
         type: ControlType.String,
         title: "On Text",
@@ -438,5 +442,5 @@ addPropertyControls(OceanSound, {
     accent: { type: ControlType.Color, title: "Accent", defaultValue: "#6FA0FF" },
     fill: { type: ControlType.Color, title: "Fill", defaultValue: "rgba(255, 255, 255, 0.04)" },
     border: { type: ControlType.Color, title: "Border", defaultValue: "rgba(111, 160, 255, 0.3)" },
-    radius: { type: ControlType.Number, title: "Radius", min: 0, max: 999, step: 1, unit: "px", defaultValue: 2 },
+    radius: { type: ControlType.Number, title: "Radius", min: 0, max: 999, step: 1, unit: "px", defaultValue: 999 },
 })

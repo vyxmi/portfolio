@@ -6,7 +6,7 @@
 //
 // A small location line, your name as the common name, your title in italics
 // like a scientific name, and "please do not tap the glass" along the bottom.
-// The pane is held to the glass by four little screws, and a glint of light
+// A glint of light
 // slides across it now and then. Tap it anyway and the glass ripples, the
 // sign wobbles, the jellyfish scrunches its eyes and the bottom line answers
 // back.
@@ -29,6 +29,7 @@ interface Props {
     showIcon: boolean
     nameFont: React.CSSProperties
     font: React.CSSProperties
+    labelFont: React.CSSProperties
     nameSize: number
     radius: number
     color: string
@@ -61,6 +62,7 @@ export default function SpeciesSign(props: Props) {
         showIcon = true,
         nameFont,
         font,
+        labelFont,
         nameSize = 26,
         radius = 2,
         color = "#EAF2FF",
@@ -103,6 +105,7 @@ export default function SpeciesSign(props: Props) {
     // own weights, sizes and the italic title.
     const family = font && font.fontFamily ? { fontFamily: font.fontFamily } : {}
     const nameFamily = nameFont && nameFont.fontFamily ? { fontFamily: nameFont.fontFamily } : family
+    const labelFamily = labelFont && labelFont.fontFamily ? { fontFamily: labelFont.fontFamily } : family
 
     return (
         <div style={{ ...style, display: "inline-flex" }}>
@@ -137,8 +140,8 @@ export default function SpeciesSign(props: Props) {
                     borderRadius: r,
                     border: "1px solid rgba(255, 255, 255, 0.17)",
                     background:
-                        "linear-gradient(150deg, rgba(255,255,255,0.13), rgba(255,255,255,0.035) 42%, " +
-                        tinted(tint, 11) +
+                        "linear-gradient(150deg, rgba(255,255,255,0.065), rgba(255,255,255,0.0175) 42%, " +
+                        tinted(tint, 5.5) +
                         ")",
                     backdropFilter: "blur(14px) saturate(140%)",
                     WebkitBackdropFilter: "blur(14px) saturate(140%)",
@@ -158,12 +161,6 @@ export default function SpeciesSign(props: Props) {
                     WebkitTapHighlightColor: "transparent",
                 }}
             >
-                {/* Four little screws holding the placard to the glass. */}
-                <Screw x="left" y="top" />
-                <Screw x="right" y="top" />
-                <Screw x="left" y="bottom" />
-                <Screw x="right" y="bottom" />
-
                 {/* The top of the pane catches a little more light. */}
                 <span
                     aria-hidden="true"
@@ -174,7 +171,7 @@ export default function SpeciesSign(props: Props) {
                         top: 1,
                         height: "42%",
                         borderRadius: Math.max(0, r - 1) + "px " + Math.max(0, r - 1) + "px 0 0",
-                        background: "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0))",
+                        background: "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0))",
                         pointerEvents: "none",
                     }}
                 />
@@ -224,7 +221,7 @@ export default function SpeciesSign(props: Props) {
                         alignItems: "flex-start",
                         justifyContent: "space-between",
                         gap: 16,
-                        ...family,
+                        ...labelFamily,
                     }}
                 >
                     <span
@@ -300,7 +297,7 @@ export default function SpeciesSign(props: Props) {
                         letterSpacing: "0em",
                         textTransform: "uppercase",
                         whiteSpace: "nowrap",
-                        ...family,
+                        ...labelFamily,
                     }}
                 >
                     <span
@@ -314,7 +311,6 @@ export default function SpeciesSign(props: Props) {
                             transition: "opacity .25s, transform .25s",
                         }}
                     >
-                        <NoTap size={small + 3} />
                         {notice}
                     </span>
                     {list.map((line, i) => (
@@ -349,25 +345,6 @@ export default function SpeciesSign(props: Props) {
     )
 }
 
-function Screw({ x, y }: { x: "left" | "right"; y: "top" | "bottom" }) {
-    return (
-        <span
-            aria-hidden="true"
-            style={{
-                position: "absolute",
-                [y]: 6,
-                [x]: 6,
-                width: 5,
-                height: 5,
-                borderRadius: "50%",
-                background:
-                    "radial-gradient(circle at 35% 35%, rgba(255,255,255,0.5), rgba(255,255,255,0.12) 60%, rgba(255,255,255,0.04))",
-                boxShadow: "0 0 0 1px rgba(255,255,255,0.1)",
-            }}
-        />
-    )
-}
-
 function Pin({ size }: { size: number }) {
     return (
         <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ flex: "none" }}>
@@ -378,23 +355,6 @@ function Pin({ size }: { size: number }) {
                 strokeLinejoin="round"
             />
             <circle cx="8" cy="6.8" r="1.6" fill="currentColor" />
-        </svg>
-    )
-}
-
-// A small "no tapping" mark: a fingertip in a crossed-out circle.
-function NoTap({ size }: { size: number }) {
-    return (
-        <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ flex: "none" }}>
-            <circle cx="8" cy="8" r="6.6" stroke="currentColor" strokeWidth="1.2" />
-            <path
-                d="M7 11.2V5.4a.9.9 0 0 1 1.8 0v3l1.6.4c.5.1.8.6.7 1.1l-.4 1.3"
-                stroke="currentColor"
-                strokeWidth="1.1"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-            <path d="M3.4 3.4l9.2 9.2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
         </svg>
     )
 }
@@ -430,8 +390,6 @@ function Jelly({ tint, startled, size }: { tint: string; startled: boolean; size
                     <path d="M13.9 9.9q.9.8 1.8 0" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
                 </>
             )}
-            <ellipse cx="7.6" cy="11.3" rx="1" ry=".55" fill="rgba(255,160,200,0.4)" />
-            <ellipse cx="16.4" cy="11.3" rx="1" ry=".55" fill="rgba(255,160,200,0.4)" />
             <path
                 d="M8.5 13.6c0 1.4-1 1.9-1 3.3s1 1.9 1 3.1M12 13.6c0 1.5-.9 2.1-.9 3.6s.9 2.1.9 3.6M15.5 13.6c0 1.4 1 1.9 1 3.3s-1 1.9-1 3.1"
                 stroke="currentColor"
@@ -462,6 +420,13 @@ addPropertyControls(SpeciesSign, {
     showIcon: { type: ControlType.Boolean, title: "Jellyfish", defaultValue: true },
     nameFont: { type: ControlType.Font, title: "Name Font", controls: "basic", defaultFontType: "sans-serif" },
     font: { type: ControlType.Font, title: "Font", controls: "basic", defaultFontType: "sans-serif" },
+    labelFont: {
+        type: ControlType.Font,
+        title: "Label Font",
+        controls: "basic",
+        defaultFontType: "sans-serif",
+        description: "Location and notice lines.",
+    },
     nameSize: {
         type: ControlType.Number,
         title: "Name Size",

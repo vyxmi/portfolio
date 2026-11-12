@@ -1309,7 +1309,7 @@ export default function JellyfishHero(props: Props) {
             const gcy = lerp(-h * 0.36, (-h + e) * 0.48, v)
             const ga = a * (0.35 + 0.65 * v)
             if (gk > 0) {
-                g.globalAlpha = Math.min(1, ga * 0.16 * gk)
+                g.globalAlpha = Math.min(1, ga * 0.08 * gk)
                 g.drawImage(coreSprite, -r * 0.55, gcy - r * 0.55 * sq, r * 1.1, r * 1.1 * sq)
                 g.globalAlpha = 1
             }
@@ -1336,13 +1336,13 @@ export default function JellyfishHero(props: Props) {
                 }
             }
             // Soft bands rather than hard lines.
-            g.strokeStyle = rgba(j.gonadTint, ga * 0.05)
+            g.strokeStyle = rgba(j.gonadTint, ga * 0.025)
             g.lineWidth = r * 0.11
             g.stroke()
-            g.strokeStyle = rgba(j.gonadTint, ga * 0.1)
+            g.strokeStyle = rgba(j.gonadTint, ga * 0.05)
             g.lineWidth = r * 0.055
             g.stroke()
-            g.strokeStyle = rgba(j.gonadTint, ga * 0.17)
+            g.strokeStyle = rgba(j.gonadTint, ga * 0.085)
             g.lineWidth = Math.max(0.6, r * 0.026)
             g.stroke()
             g.restore()
